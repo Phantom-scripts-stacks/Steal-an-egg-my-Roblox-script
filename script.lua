@@ -1,11 +1,10 @@
 -- ==========================================
--- [ MAMAAAA HUB - CUSTOM ISAGI & DISCORD UI ]
+-- [ MAMAAAA HUB - 2.5s INTRO & 10X ANIMATIONS ]
 -- ==========================================
 
--- YOUR ISAGI IMAGE ASSET ID
 local CUSTOM_IMAGE_ID = "rbxassetid://114769678924669"
 
--- [ EXECUTION INTRO IMAGE POPUP ANIMATION ]
+-- [ 2.5 SECONDS EXACT INTRO ANIMATION ]
 task.spawn(function()
     pcall(function()
         local CoreGui = game:GetService("CoreGui")
@@ -20,36 +19,51 @@ task.spawn(function()
         IntroGui.Parent = CoreGui
         IntroGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         
-        -- Pop-up Image Frame in the center of the screen
+        local Backdrop = Instance.new("Frame")
+        Backdrop.Parent = IntroGui
+        Backdrop.Size = UDim2.new(1, 0, 1, 0)
+        Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Backdrop.BackgroundTransparency = 1
+        
         local IntroImage = Instance.new("ImageLabel")
         IntroImage.Parent = IntroGui
         IntroImage.AnchorPoint = Vector2.new(0.5, 0.5)
         IntroImage.Position = UDim2.new(0.5, 0, 0.5, 0)
-        IntroImage.Size = UDim2.new(0, 0, 0, 0) -- Starts small for zoom-in effect
+        IntroImage.Size = UDim2.new(0, 0, 0, 0)
         IntroImage.BackgroundTransparency = 1
         IntroImage.Image = CUSTOM_IMAGE_ID
+        IntroImage.ImageTransparency = 1
         
-        -- Make the intro image rounded
         local UICorner = Instance.new("UICorner")
-        UICorner.CornerRadius = UDim.new(0.1, 0)
+        UICorner.CornerRadius = UDim.new(0.15, 0)
         UICorner.Parent = IntroImage
         
         local UIStroke = Instance.new("UIStroke")
         UIStroke.Parent = IntroImage
-        UIStroke.Color = Color3.fromRGB(255, 0, 0)
-        UIStroke.Thickness = 3
+        UIStroke.Color = Color3.fromRGB(255, 50, 50)
+        UIStroke.Thickness = 4
         
-        -- Zoom In Animation
-        local zoomIn = TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        TweenService:Create(IntroImage, zoomIn, {Size = UDim2.new(0, 250, 0, 250)}):Play()
+        -- Fade in backdrop and zoom in image
+        TweenService:Create(Backdrop, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.5}):Play()
         
-        -- Hold, then Zoom Out and Destroy
-        task.delay(2, function()
-            local zoomOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-            local tweenOut = TweenService:Create(IntroImage, zoomOut, {Size = UDim2.new(0, 0, 0, 0), ImageTransparency = 1})
-            tweenOut:Play()
+        local introTween = TweenService:Create(IntroImage, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 280, 0, 280),
+            ImageTransparency = 0
+        })
+        introTween:Play()
+        
+        -- Exact 2.5 seconds total display time before fade out
+        task.delay(2.5, function()
+            local outTween = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
+                Size = UDim2.new(0, 0, 0, 0),
+                ImageTransparency = 1
+            })
+            local fadeBackdrop = TweenService:Create(Backdrop, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 1})
             
-            tweenOut.Completed:Connect(function()
+            outTween:Play()
+            fadeBackdrop:Play()
+            
+            outTween.Completed:Connect(function()
                 IntroGui:Destroy()
             end)
         end)
@@ -88,7 +102,7 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ==========================================
--- [ CREATING THE FLOATING CIRCLE BUTTON WITH ISAGI ]
+-- [ 10X GLOWING FLOATING CIRCLE BUTTON ]
 -- ==========================================
 pcall(function()
     local CoreGui = game:GetService("CoreGui")
@@ -102,38 +116,67 @@ pcall(function()
     ScreenGui.Parent = CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    local CircleButton = Instance.new("ImageButton")
-    CircleButton.Name = "ToggleCircle"
-    CircleButton.Parent = ScreenGui
-    CircleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    CircleButton.BorderSizePixel = 0
-    CircleButton.Position = UDim2.new(0.05, 0, 0.4, 0)
-    CircleButton.Size = UDim2.new(0, 50, 0, 50)
-    CircleButton.Image = CUSTOM_IMAGE_ID -- Uses your Isagi image as the circle icon!
+    local CircleFrame = Instance.new("Frame")
+    CircleFrame.Name = "ToggleCircle"
+    CircleFrame.Parent = ScreenGui
+    CircleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    CircleFrame.BorderSizePixel = 0
+    CircleFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
+    CircleFrame.Size = UDim2.new(0, 55, 0, 55)
     
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(1, 0) -- Perfect Circle
-    UICorner.Parent = CircleButton
+    local FrameCorner = Instance.new("UICorner")
+    FrameCorner.CornerRadius = UDim.new(1, 0)
+    FrameCorner.Parent = CircleFrame
     
     local UIStroke = Instance.new("UIStroke")
-    UIStroke.Parent = CircleButton
+    UIStroke.Parent = CircleFrame
     UIStroke.Color = Color3.fromRGB(255, 0, 0)
-    UIStroke.Thickness = 2
+    UIStroke.Thickness = 3
+    
+    task.spawn(function()
+        while CircleFrame and CircleFrame.Parent do
+            local TweenService = game:GetService("TweenService")
+            TweenService:Create(UIStroke, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(255, 100, 100)}):Play()
+            task.wait(0.8)
+            TweenService:Create(UIStroke, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(200, 0, 0)}):Play()
+            task.wait(0.8)
+        end
+    end)
+    
+    local IsagiImage = Instance.new("ImageLabel")
+    IsagiImage.Parent = CircleFrame
+    IsagiImage.BackgroundTransparency = 1
+    IsagiImage.Size = UDim2.new(1, 0, 1, 0)
+    IsagiImage.Image = CUSTOM_IMAGE_ID
+    
+    local ImageCorner = Instance.new("UICorner")
+    ImageCorner.CornerRadius = UDim.new(1, 0)
+    ImageCorner.Parent = IsagiImage
+    
+    local ClickButton = Instance.new("TextButton")
+    ClickButton.Parent = CircleFrame
+    ClickButton.BackgroundTransparency = 1
+    ClickButton.Size = UDim2.new(1, 1, 1, 1)
+    ClickButton.Text = ""
     
     local isOpen = true
     
-    CircleButton.MouseButton1Click:Connect(function()
+    ClickButton.MouseButton1Click:Connect(function()
         isOpen = not isOpen
         Window:Toggle(isOpen)
+        local TweenService = game:GetService("TweenService")
+        TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 48, 0, 48)}):Play()
+        task.wait(0.1)
+        TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 55, 0, 55)}):Play()
     end)
     
     local dragging, dragStart, startPos
     
-    CircleButton.InputBegan:Connect(function(input)
+    ClickButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
-            startPos = CircleButton.Position
+            startPos = CircleFrame.Position
             
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
@@ -146,7 +189,7 @@ pcall(function()
     game:GetService("UserInputService").InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
             local delta = input.Position - dragStart
-            CircleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            CircleFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 end)
@@ -253,7 +296,7 @@ DiscordTab:Button({
     Title = "Copy Discord Invite Link",
     Callback = function()
         pcall(function()
-            setclipboard("https://discord.gg/yourinvite") -- Ilisi lang ni sa imong saktong Discord link kung naa na
+            setclipboard("https://discord.gg/yourinvite")
             WindUI:Notify({
                 Title = "Discord",
                 Content = "Discord invite link copied to clipboard!",
@@ -278,6 +321,6 @@ OwnerTab:Paragraph({
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Loaded successfully with Isagi & Discord!",
+    Content = "Loaded with 2.5s Intro duration!",
     Duration = 3
 })
