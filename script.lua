@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - STABLE EXECUTION VERSION ]
+-- [ LATINA HUB - NEW UI (LINORIA LIB) VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -11,6 +11,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
+local Lighting = game:GetService("Lighting")
+local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [ 1. INTRO BANNER ]
@@ -74,18 +76,11 @@ task.spawn(function()
     end)
 end)
 
--- [ 2. STABLE UI LIBRARY LOADER ]
-local WindUI do
-    local success, result = pcall(function()
-        return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-    end)
-    if success and result then
-        WindUI = result
-    else
-        -- Fallback kung naay block sa raw link
-        WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
-    end
-end
+-- [ 2. LOAD LINORIA UI LIBRARY ]
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 -- [ 3. AUDIO PLAYBACK ]
 task.spawn(function()
@@ -101,20 +96,195 @@ task.spawn(function()
     end)
 end)
 
--- [ 4. MAIN WINDOW ]
-local Window = WindUI:CreateWindow({
-    Title = "LATINA HUB",
-    Icon = "circle",
-    Author = "UNKNOWN",
-    Folder = "LATINAHub",
-    Size = UDim2.fromOffset(500, 360),
-    Theme = "Dark",
-    Acrylic = false
+-- [ 4. CREATE WINDOW ]
+local Window = Library:CreateWindow({
+    Title = 'LATINA HUB | Unknown',
+    Center = true,
+    AutoShow = true,
+    TabPadding = 8,
+    MenuFadeTime = 0.2
 })
 
-Window:ToggleTransparency(false)
+-- [ 5. TABS SETUP ]
+local Tabs = {
+    Main = Window:AddTab('Steal an Egg'),
+    Visuals = Window:AddTab('Visuals'),
+    Utilities = Window:AddTab('Utilities'),
+    Discord = Window:AddTab('Discord'),
+    Owner = Window:AddTab('Owner')
+}
 
--- [ 5. FLOATING TOGGLE BUTTON ]
+-- ========================================================
+-- [ MAIN TAB: STEAL AN EGG (SLOTS) ]
+-- ========================================================
+local KeylessGroup = Tabs.Main:AddLeftGroupbox('🔓 Keyless Scripts (10 Slots)')
+for i = 1, 10 do
+    KeylessGroup:AddButton('Keyless Script Slot ' .. i, function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your keyless script " .. i .. " here)"))()
+        end)
+    end)
+end
+
+local KeySystemGroup = Tabs.Main:AddRightGroupbox('🔑 Key System Scripts (10 Slots)')
+for i = 1, 10 do
+    KeySystemGroup:AddButton('Key System Script Slot ' .. i, function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your key system script " .. i .. " here)"))()
+        end)
+    end)
+end
+
+-- ========================================================
+-- [ VISUALS TAB ]
+-- ========================================================
+local VisualsGroup = Tabs.Visuals:AddLeftGroupbox('World Visuals')
+
+VisualsGroup:AddButton('💡 Toggle Fullbright', function()
+    pcall(function()
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 100000
+        Lighting.GlobalShadows = false
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        Library:Notify('Fullbright Enabled!')
+    end)
+end)
+
+VisualsGroup:AddButton('🔍 Zoom FOV (120)', function()
+    pcall(function()
+        workspace.CurrentCamera.FieldOfView = 120
+        Library:Notify('FOV set to 120.')
+    end)
+end)
+
+VisualsGroup:AddButton('🔄 Reset FOV (70)', function()
+    pcall(function()
+        workspace.CurrentCamera.FieldOfView = 70
+        Library:Notify('FOV reset to default.')
+    end)
+end)
+
+-- ========================================================
+-- [ UTILITIES TAB ]
+-- ========================================================
+local UtilsGroup = Tabs.Utilities:AddLeftGroupbox('Game Utilities')
+
+local fpsConnection = nil
+UtilsGroup:AddButton('📊 Toggle FPS/MS Counter', function()
+    pcall(function()
+        if CoreGui:FindFirstChild("LATINA_FPS_MS") then
+            if fpsConnection then fpsConnection:Disconnect() end
+            CoreGui.LATINA_FPS_MS:Destroy()
+            Library:Notify('FPS & MS Counter hidden.')
+        else
+            local StatsGui = Instance.new("ScreenGui")
+            StatsGui.Name = "LATINA_FPS_MS"
+            StatsGui.Parent = CoreGui
+            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            
+            local StatsFrame = Instance.new("Frame")
+            StatsFrame.Parent = StatsGui
+            StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            StatsFrame.BorderSizePixel = 0
+            StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
+            StatsFrame.Size = UDim2.new(0, 160, 0, 40)
+            StatsFrame.Active = true
+            
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0.2, 0)
+            Corner.Parent = StatsFrame
+            
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Parent = StatsFrame
+            Stroke.Color = Color3.fromRGB(255, 50, 50)
+            Stroke.Thickness = 2
+            
+            local StatsText = Instance.new("TextLabel")
+            StatsText.Name = "StatsLabel"
+            StatsText.Parent = StatsFrame
+            StatsText.BackgroundTransparency = 1
+            StatsText.Size = UDim2.new(1, 0, 1, 0)
+            StatsText.Font = Enum.Font.GothamBold
+            StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            StatsText.TextSize = 13
+            StatsText.Text = "FPS: 0 | MS: 0ms"
+            
+            local lastUpdate = tick()
+            local frameCount = 0
+            
+            fpsConnection = RunService.RenderStepped:Connect(function()
+                frameCount = frameCount + 1
+                local now = tick()
+                if now - lastUpdate >= 1 then
+                    local currentFPS = math.floor(frameCount / (now - lastUpdate))
+                    frameCount = 0
+                    lastUpdate = now
+                    
+                    local ping = 0
+                    pcall(function()
+                        ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+                    end)
+                    
+                    StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
+                end
+            end)
+            
+            Library:Notify('Live FPS & MS counter active.')
+        end
+    end)
+end)
+
+UtilsGroup:AddButton('🔄 Rejoin Server', function()
+    pcall(function()
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end)
+end)
+
+UtilsGroup:AddButton('🌐 Low Server Finder', function()
+    pcall(function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
+    end)
+end)
+
+UtilsGroup:AddButton('🛡️ Safe Anti AFK', function()
+    pcall(function()
+        local GC = getconnections or get_connections
+        if GC then
+            for _, connection in pairs(GC(LocalPlayer.Idled)) do
+                if connection.Disable then
+                    connection:Disable()
+                elseif connection.Disconnect then
+                    connection:Disconnect()
+                end
+            end
+        else
+            LocalPlayer.Idled:Connect(function() end)
+        end
+        Library:Notify('Safe Anti-AFK Enabled!')
+    end)
+end)
+
+-- ========================================================
+-- [ DISCORD TAB ]
+-- ========================================================
+local DiscordGroup = Tabs.Discord:AddLeftGroupbox('Community')
+DiscordGroup:AddButton('Copy Discord Invite Link', function()
+    pcall(function()
+        setclipboard("https://discord.gg/yourinvite")
+        Library:Notify('Discord invite link copied!')
+    end)
+end)
+
+-- ========================================================
+-- [ OWNER TAB ]
+-- ========================================================
+local OwnerGroup = Tabs.Owner:AddLeftGroupbox('Credits')
+OwnerGroup:AddLabel('Hub Name: LATINA HUB')
+OwnerGroup:AddLabel('Owner / Creator: UNKNOWN')
+OwnerGroup:AddLabel('UI Library: Linoria Lib')
+
+-- [ 6. FLOATING TOGGLE BUTTON (CIRCLE IMAGE) ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_ToggleGui") then
@@ -172,235 +342,20 @@ task.spawn(function()
         end)
 
         ToggleBtn.MouseButton1Click:Connect(function()
-            Window:Toggle()
+            if Library.ToggleKeybind then
+                -- Toggle Linoria main window via keybind or UI toggle state
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
+            else
+                -- Direct visibility toggle fallback
+                for _, gui in pairs(CoreGui:GetChildren()) do
+                    if gui.Name == "ScreenGui" and gui:FindFirstChild("Main") then
+                        gui.Enabled = not gui.Enabled
+                    end
+                end
+            end
         end)
     end)
 end)
 
--- ========================================================
--- [ MAIN TAB: STEAL AN EGG ]
--- ========================================================
-local MainTab = Window:Tab({
-    Title = "Steal an Egg",
-    Icon = "circle"
-})
-
-local KeylessSection = MainTab:Section({
-    Title = "🔓 Keyless Scripts (10 Slots)",
-    Opened = false
-})
-
-for i = 1, 10 do
-    KeylessSection:Button({
-        Title = "Keyless Script Slot " .. i,
-        Callback = function()
-            pcall(function()
-                loadstring(game:HttpGet("(put your keyless script " .. i .. " here)"))()
-            end)
-        end
-    })
-end
-
-local KeySystemSection = MainTab:Section({
-    Title = "🔑 Key System Scripts (10 Slots)",
-    Opened = false
-})
-
-for i = 1, 10 do
-    KeySystemSection:Button({
-        Title = "Key System Script Slot " .. i,
-        Callback = function()
-            pcall(function()
-                loadstring(game:HttpGet("(put your key system script " .. i .. " here)"))()
-            end)
-        end
-    })
-end
-
--- ========================================================
--- [ UTILITIES TAB ]
--- ========================================================
-local UtilsTab = Window:Tab({
-    Title = "Utilities",
-    Icon = "wrench"
-})
-
-local fpsConnection = nil
-UtilsTab:Button({
-    Title = "📊 Toggle FPS/MS Counter",
-    Callback = function()
-        pcall(function()
-            if CoreGui:FindFirstChild("LATINA_FPS_MS") then
-                if fpsConnection then fpsConnection:Disconnect() end
-                CoreGui.LATINA_FPS_MS:Destroy()
-                WindUI:Notify({
-                    Title = "HUD Display",
-                    Content = "FPS & MS Counter hidden.",
-                    Duration = 2
-                })
-            else
-                local StatsGui = Instance.new("ScreenGui")
-                StatsGui.Name = "LATINA_FPS_MS"
-                StatsGui.Parent = CoreGui
-                StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-                
-                local StatsFrame = Instance.new("Frame")
-                StatsFrame.Parent = StatsGui
-                StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-                StatsFrame.BorderSizePixel = 0
-                StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
-                StatsFrame.Size = UDim2.new(0, 160, 0, 40)
-                StatsFrame.Active = true
-                
-                local Corner = Instance.new("UICorner")
-                Corner.CornerRadius = UDim.new(0.2, 0)
-                Corner.Parent = StatsFrame
-                
-                local Stroke = Instance.new("UIStroke")
-                Stroke.Parent = StatsFrame
-                Stroke.Color = Color3.fromRGB(255, 50, 50)
-                Stroke.Thickness = 2
-                
-                local StatsText = Instance.new("TextLabel")
-                StatsText.Name = "StatsLabel"
-                StatsText.Parent = StatsFrame
-                StatsText.BackgroundTransparency = 1
-                StatsText.Size = UDim2.new(1, 0, 1, 0)
-                StatsText.Font = Enum.Font.GothamBold
-                StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-                StatsText.TextSize = 13
-                StatsText.Text = "FPS: 0 | MS: 0ms"
-                
-                local dragging, dragInput, dragStart, startPos
-                StatsFrame.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                        dragging = true
-                        dragStart = input.Position
-                        startPos = StatsFrame.Position
-                        
-                        input.Changed:Connect(function()
-                            if input.UserInputState == Enum.UserInputState.End then
-                                dragging = false
-                            end
-                        end)
-                    end
-                end)
-                
-                StatsFrame.InputChanged:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                        dragInput = input
-                    end
-                end)
-                
-                UserInputService.InputChanged:Connect(function(input)
-                    if input == dragInput and dragging then
-                        local delta = input.Position - dragStart
-                        StatsFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-                    end
-                end)
-                
-                local lastUpdate = tick()
-                local frameCount = 0
-                
-                fpsConnection = RunService.RenderStepped:Connect(function()
-                    frameCount = frameCount + 1
-                    local now = tick()
-                    if now - lastUpdate >= 1 then
-                        local currentFPS = math.floor(frameCount / (now - lastUpdate))
-                        frameCount = 0
-                        lastUpdate = now
-                        
-                        local ping = 0
-                        pcall(function()
-                            ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-                        end)
-                        
-                        StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
-                    end
-                end)
-                
-                WindUI:Notify({
-                    Title = "HUD Display",
-                    Content = "Live FPS & MS counter active.",
-                    Duration = 2
-                })
-            end
-        end)
-    end
-})
-
-UtilsTab:Button({
-    Title = "Server Finder",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
-        end)
-    end
-})
-
-UtilsTab:Button({
-    Title = "🛡️ Safe Anti AFK",
-    Callback = function()
-        pcall(function()
-            local GC = getconnections or get_connections
-            if GC then
-                for _, connection in pairs(GC(LocalPlayer.Idled)) do
-                    if connection.Disable then
-                        connection:Disable()
-                    elseif connection.Disconnect then
-                        connection:Disconnect()
-                    end
-                end
-            else
-                LocalPlayer.Idled:Connect(function() end)
-            end
-            
-            WindUI:Notify({
-                Title = "Anti AFK",
-                Content = "Safe Anti-AFK Enabled!",
-                Duration = 3
-            })
-        end)
-    end
-})
-
--- ========================================================
--- [ DISCORD TAB ]
--- ========================================================
-local DiscordTab = Window:Tab({
-    Title = "Discord",
-    Icon = "message-square"
-})
-
-DiscordTab:Button({
-    Title = "Copy Discord Invite Link",
-    Callback = function()
-        pcall(function()
-            setclipboard("https://discord.gg/yourinvite")
-            WindUI:Notify({
-                Title = "Discord",
-                Content = "Discord invite link copied!",
-                Duration = 3
-            })
-        end)
-    end
-})
-
--- ========================================================
--- [ OWNER TAB ]
--- ========================================================
-local OwnerTab = Window:Tab({
-    Title = "Owner",
-    Icon = "user"
-})
-
-OwnerTab:Paragraph({
-    Title = "Hub Information",
-    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN"
-})
-
-WindUI:Notify({
-    Title = "LATINA HUB",
-    Content = "Loaded successfully!",
-    Duration = 3
-})
+Library:Notify('LATINA HUB Loaded Successfully (Linoria UI)!')
