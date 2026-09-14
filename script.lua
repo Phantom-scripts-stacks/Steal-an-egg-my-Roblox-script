@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - NEW UI (LINORIA LIB) VERSION ]
+-- [ LATINA HUB - FLUENT UI VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -76,11 +76,8 @@ task.spawn(function()
     end)
 end)
 
--- [ 2. LOAD LINORIA UI LIBRARY ]
-local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+-- [ 2. LOAD FLUENT UI LIBRARY ]
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 -- [ 3. AUDIO PLAYBACK ]
 task.spawn(function()
@@ -97,192 +94,237 @@ task.spawn(function()
 end)
 
 -- [ 4. CREATE WINDOW ]
-local Window = Library:CreateWindow({
-    Title = 'LATINA HUB | Unknown',
-    Center = true,
-    AutoShow = true,
-    TabPadding = 8,
-    MenuFadeTime = 0.2
+local Window = Fluent:CreateWindow({
+    Title = "LATINA HUB",
+    SubTitle = "by UNKNOWN",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = false,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 -- [ 5. TABS SETUP ]
 local Tabs = {
-    Main = Window:AddTab('Steal an Egg'),
-    Visuals = Window:AddTab('Visuals'),
-    Utilities = Window:AddTab('Utilities'),
-    Discord = Window:AddTab('Discord'),
-    Owner = Window:AddTab('Owner')
+    Main = Window:AddTab({ Title = "Steal an Egg", Icon = "target" }),
+    Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye" }),
+    Utilities = Window:AddTab({ Title = "Utilities", Icon = "tool" }),
+    Discord = Window:AddTab({ Title = "Discord", Icon = "message-square" }),
+    Owner = Window:AddTab({ Title = "Owner", Icon = "user" })
 }
 
 -- ========================================================
 -- [ MAIN TAB: STEAL AN EGG (SLOTS) ]
 -- ========================================================
-local KeylessGroup = Tabs.Main:AddLeftGroupbox('🔓 Keyless Scripts (10 Slots)')
+Tabs.Main:AddParagraph({
+    Title = "🔓 Keyless Scripts (10 Slots)",
+    Content = "Click any slot button below to execute your script."
+})
+
 for i = 1, 10 do
-    KeylessGroup:AddButton('Keyless Script Slot ' .. i, function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script " .. i .. " here)"))()
-        end)
-    end)
+    Tabs.Main:AddButton({
+        Title = "Keyless Script Slot " .. i,
+        Description = "Execute slot " .. i,
+        Callback = function()
+            pcall(function()
+                loadstring(game:HttpGet("(put your keyless script " .. i .. " here)"))()
+            end)
+        end
+    })
 end
 
-local KeySystemGroup = Tabs.Main:AddRightGroupbox('🔑 Key System Scripts (10 Slots)')
+Tabs.Main:AddParagraph({
+    Title = "🔑 Key System Scripts (10 Slots)",
+    Content = "Click any slot button below to execute your key system script."
+})
+
 for i = 1, 10 do
-    KeySystemGroup:AddButton('Key System Script Slot ' .. i, function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your key system script " .. i .. " here)"))()
-        end)
-    end)
+    Tabs.Main:AddButton({
+        Title = "Key System Script Slot " .. i,
+        Description = "Execute slot " .. i,
+        Callback = function()
+            pcall(function()
+                loadstring(game:HttpGet("(put your key system script " .. i .. " here)"))()
+            end)
+        end
+    })
 end
 
 -- ========================================================
 -- [ VISUALS TAB ]
 -- ========================================================
-local VisualsGroup = Tabs.Visuals:AddLeftGroupbox('World Visuals')
+Tabs.Visuals:AddButton({
+    Title = "💡 Toggle Fullbright",
+    Description = "Removes all darkness in the world.",
+    Callback = function()
+        pcall(function()
+            Lighting.Brightness = 2
+            Lighting.ClockTime = 14
+            Lighting.FogEnd = 100000
+            Lighting.GlobalShadows = false
+            Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+            Fluent:Notify({ Title = "Visuals", Content = "Fullbright Enabled!", Duration = 2 })
+        end)
+    end
+})
 
-VisualsGroup:AddButton('💡 Toggle Fullbright', function()
-    pcall(function()
-        Lighting.Brightness = 2
-        Lighting.ClockTime = 14
-        Lighting.FogEnd = 100000
-        Lighting.GlobalShadows = false
-        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-        Library:Notify('Fullbright Enabled!')
-    end)
-end)
+Tabs.Visuals:AddButton({
+    Title = "🔍 Zoom FOV (120)",
+    Description = "Sets camera field of view to 120.",
+    Callback = function()
+        pcall(function()
+            workspace.CurrentCamera.FieldOfView = 120
+            Fluent:Notify({ Title = "Visuals", Content = "FOV set to 120.", Duration = 2 })
+        end)
+    end
+})
 
-VisualsGroup:AddButton('🔍 Zoom FOV (120)', function()
-    pcall(function()
-        workspace.CurrentCamera.FieldOfView = 120
-        Library:Notify('FOV set to 120.')
-    end)
-end)
-
-VisualsGroup:AddButton('🔄 Reset FOV (70)', function()
-    pcall(function()
-        workspace.CurrentCamera.FieldOfView = 70
-        Library:Notify('FOV reset to default.')
-    end)
-end)
+Tabs.Visuals:AddButton({
+    Title = "🔄 Reset FOV (70)",
+    Description = "Restores camera field of view to default.",
+    Callback = function()
+        pcall(function()
+            workspace.CurrentCamera.FieldOfView = 70
+            Fluent:Notify({ Title = "Visuals", Content = "FOV reset to default.", Duration = 2 })
+        end)
+    end
+})
 
 -- ========================================================
 -- [ UTILITIES TAB ]
 -- ========================================================
-local UtilsGroup = Tabs.Utilities:AddLeftGroupbox('Game Utilities')
-
 local fpsConnection = nil
-UtilsGroup:AddButton('📊 Toggle FPS/MS Counter', function()
-    pcall(function()
-        if CoreGui:FindFirstChild("LATINA_FPS_MS") then
-            if fpsConnection then fpsConnection:Disconnect() end
-            CoreGui.LATINA_FPS_MS:Destroy()
-            Library:Notify('FPS & MS Counter hidden.')
-        else
-            local StatsGui = Instance.new("ScreenGui")
-            StatsGui.Name = "LATINA_FPS_MS"
-            StatsGui.Parent = CoreGui
-            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            
-            local StatsFrame = Instance.new("Frame")
-            StatsFrame.Parent = StatsGui
-            StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            StatsFrame.BorderSizePixel = 0
-            StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
-            StatsFrame.Size = UDim2.new(0, 160, 0, 40)
-            StatsFrame.Active = true
-            
-            local Corner = Instance.new("UICorner")
-            Corner.CornerRadius = UDim.new(0.2, 0)
-            Corner.Parent = StatsFrame
-            
-            local Stroke = Instance.new("UIStroke")
-            Stroke.Parent = StatsFrame
-            Stroke.Color = Color3.fromRGB(255, 50, 50)
-            Stroke.Thickness = 2
-            
-            local StatsText = Instance.new("TextLabel")
-            StatsText.Name = "StatsLabel"
-            StatsText.Parent = StatsFrame
-            StatsText.BackgroundTransparency = 1
-            StatsText.Size = UDim2.new(1, 0, 1, 0)
-            StatsText.Font = Enum.Font.GothamBold
-            StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            StatsText.TextSize = 13
-            StatsText.Text = "FPS: 0 | MS: 0ms"
-            
-            local lastUpdate = tick()
-            local frameCount = 0
-            
-            fpsConnection = RunService.RenderStepped:Connect(function()
-                frameCount = frameCount + 1
-                local now = tick()
-                if now - lastUpdate >= 1 then
-                    local currentFPS = math.floor(frameCount / (now - lastUpdate))
-                    frameCount = 0
-                    lastUpdate = now
-                    
-                    local ping = 0
-                    pcall(function()
-                        ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-                    end)
-                    
-                    StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
-                end
-            end)
-            
-            Library:Notify('Live FPS & MS counter active.')
-        end
-    end)
-end)
-
-UtilsGroup:AddButton('🔄 Rejoin Server', function()
-    pcall(function()
-        TeleportService:Teleport(game.PlaceId, LocalPlayer)
-    end)
-end)
-
-UtilsGroup:AddButton('🌐 Low Server Finder', function()
-    pcall(function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
-    end)
-end)
-
-UtilsGroup:AddButton('🛡️ Safe Anti AFK', function()
-    pcall(function()
-        local GC = getconnections or get_connections
-        if GC then
-            for _, connection in pairs(GC(LocalPlayer.Idled)) do
-                if connection.Disable then
-                    connection:Disable()
-                elseif connection.Disconnect then
-                    connection:Disconnect()
-                end
+Tabs.Utilities:AddButton({
+    Title = "📊 Toggle FPS/MS Counter",
+    Description = "Shows live performance stats.",
+    Callback = function()
+        pcall(function()
+            if CoreGui:FindFirstChild("LATINA_FPS_MS") then
+                if fpsConnection then fpsConnection:Disconnect() end
+                CoreGui.LATINA_FPS_MS:Destroy()
+                Fluent:Notify({ Title = "HUD Display", Content = "FPS & MS Counter hidden.", Duration = 2 })
+            else
+                local StatsGui = Instance.new("ScreenGui")
+                StatsGui.Name = "LATINA_FPS_MS"
+                StatsGui.Parent = CoreGui
+                StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                
+                local StatsFrame = Instance.new("Frame")
+                StatsFrame.Parent = StatsGui
+                StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                StatsFrame.BorderSizePixel = 0
+                StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
+                StatsFrame.Size = UDim2.new(0, 160, 0, 40)
+                StatsFrame.Active = true
+                
+                local Corner = Instance.new("UICorner")
+                Corner.CornerRadius = UDim.new(0.2, 0)
+                Corner.Parent = StatsFrame
+                
+                local Stroke = Instance.new("UIStroke")
+                Stroke.Parent = StatsFrame
+                Stroke.Color = Color3.fromRGB(255, 50, 50)
+                Stroke.Thickness = 2
+                
+                local StatsText = Instance.new("TextLabel")
+                StatsText.Name = "StatsLabel"
+                StatsText.Parent = StatsFrame
+                StatsText.BackgroundTransparency = 1
+                StatsText.Size = UDim2.new(1, 0, 1, 0)
+                StatsText.Font = Enum.Font.GothamBold
+                StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                StatsText.TextSize = 13
+                StatsText.Text = "FPS: 0 | MS: 0ms"
+                
+                local lastUpdate = tick()
+                local frameCount = 0
+                
+                fpsConnection = RunService.RenderStepped:Connect(function()
+                    frameCount = frameCount + 1
+                    local now = tick()
+                    if now - lastUpdate >= 1 then
+                        local currentFPS = math.floor(frameCount / (now - lastUpdate))
+                        frameCount = 0
+                        lastUpdate = now
+                        
+                        local ping = 0
+                        pcall(function()
+                            ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+                        end)
+                        
+                        StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
+                    end
+                end)
+                
+                Fluent:Notify({ Title = "HUD Display", Content = "Live FPS & MS counter active.", Duration = 2 })
             end
-        else
-            LocalPlayer.Idled:Connect(function() end)
-        end
-        Library:Notify('Safe Anti-AFK Enabled!')
-    end)
-end)
+        end)
+    end
+})
+
+Tabs.Utilities:AddButton({
+    Title = "🔄 Rejoin Server",
+    Description = "Teleports you back to the same server.",
+    Callback = function()
+        pcall(function()
+            TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        end)
+    end
+})
+
+Tabs.Utilities:AddButton({
+    Title = "🌐 Low Server Finder",
+    Description = "Finds low player servers.",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
+        end)
+    end
+})
+
+Tabs.Utilities:AddButton({
+    Title = "🛡️ Safe Anti AFK",
+    Description = "Prevents getting kicked for inactivity.",
+    Callback = function()
+        pcall(function()
+            local GC = getconnections or get_connections
+            if GC then
+                for _, connection in pairs(GC(LocalPlayer.Idled)) do
+                    if connection.Disable then
+                        connection:Disable()
+                    elseif connection.Disconnect then
+                        connection:Disconnect()
+                    end
+                end
+            else
+                LocalPlayer.Idled:Connect(function() end)
+            end
+            Fluent:Notify({ Title = "Anti AFK", Content = "Safe Anti-AFK Enabled!", Duration = 3 })
+        end)
+    end
+})
 
 -- ========================================================
 -- [ DISCORD TAB ]
 -- ========================================================
-local DiscordGroup = Tabs.Discord:AddLeftGroupbox('Community')
-DiscordGroup:AddButton('Copy Discord Invite Link', function()
-    pcall(function()
-        setclipboard("https://discord.gg/yourinvite")
-        Library:Notify('Discord invite link copied!')
-    end)
-end)
+Tabs.Discord:AddButton({
+    Title = "Copy Discord Invite Link",
+    Description = "Copies community invite link to clipboard.",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://discord.gg/yourinvite")
+            Fluent:Notify({ Title = "Discord", Content = "Discord invite link copied!", Duration = 3 })
+        end)
+    end
+})
 
 -- ========================================================
 -- [ OWNER TAB ]
 -- ========================================================
-local OwnerGroup = Tabs.Owner:AddLeftGroupbox('Credits')
-OwnerGroup:AddLabel('Hub Name: LATINA HUB')
-OwnerGroup:AddLabel('Owner / Creator: UNKNOWN')
-OwnerGroup:AddLabel('UI Library: Linoria Lib')
+Tabs.Owner:AddParagraph({
+    Title = "Hub Information",
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nUI Framework: Fluent UI"
+})
 
 -- [ 6. FLOATING TOGGLE BUTTON (CIRCLE IMAGE) ]
 task.spawn(function()
@@ -342,20 +384,13 @@ task.spawn(function()
         end)
 
         ToggleBtn.MouseButton1Click:Connect(function()
-            if Library.ToggleKeybind then
-                -- Toggle Linoria main window via keybind or UI toggle state
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
-            else
-                -- Direct visibility toggle fallback
-                for _, gui in pairs(CoreGui:GetChildren()) do
-                    if gui.Name == "ScreenGui" and gui:FindFirstChild("Main") then
-                        gui.Enabled = not gui.Enabled
-                    end
-                end
-            end
+            Window:Minimize()
         end)
     end)
 end)
 
-Library:Notify('LATINA HUB Loaded Successfully (Linoria UI)!')
+Fluent:Notify({
+    Title = "LATINA HUB",
+    Content = "Loaded successfully with Fluent UI!",
+    Duration = 3
+})
