@@ -1,17 +1,24 @@
 -- ==========================================
--- [ MAMAAAA HUB - FLOATING CIRCLE UI ]
+-- [ MAMAAAA HUB - SECURE FLOATING CIRCLE UI ]
 -- ==========================================
 
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ EXECUTION SOUND EFFECT ]
-pcall(function()
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://4590657391"
-    sound.Volume = 1
-    sound.Parent = game:GetService("CoreGui")
-    sound:Play()
+-- [ EXECUTION SOUND EFFECT (FIXED) ]
+task.spawn(function()
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4590657391" -- Standard Roblox UI sound
+        sound.Volume = 2 -- Increased volume so it's clearly heard
+        sound.Parent = game:GetService("CoreGui")
+        sound:Play()
+        
+        -- Automatically clean up the sound after it plays to prevent memory leaks
+        sound.Ended:Connect(function()
+            sound:Destroy()
+        end)
+    end)
 end)
 
 -- Create the Main Window
@@ -32,7 +39,6 @@ Window:ToggleTransparency(false)
 -- ==========================================
 pcall(function()
     local CoreGui = game:GetService("CoreGui")
-    local TweenService = game:GetService("TweenService")
     
     -- Remove old circle if it exists
     if CoreGui:FindFirstChild("MAMAAAA_FloatingCircle") then
@@ -50,9 +56,9 @@ pcall(function()
     CircleButton.Parent = ScreenGui
     CircleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     CircleButton.BorderSizePixel = 0
-    CircleButton.Position = UDim2.new(0.05, 0, 0.4, 0) -- Position on the side
+    CircleButton.Position = UDim2.new(0.05, 0, 0.4, 0)
     CircleButton.Size = UDim2.new(0, 50, 0, 50)
-    CircleButton.Image = "rbxassetid://6034287515" -- Clean icon
+    CircleButton.Image = "rbxassetid://6034287515"
     CircleButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
     
     -- Make it a circle
@@ -63,7 +69,7 @@ pcall(function()
     -- Border outline style
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Parent = CircleButton
-    UIStroke.Color = Color3.fromRGB(255, 0, 0) -- Red outline
+    UIStroke.Color = Color3.fromRGB(255, 0, 0)
     UIStroke.Thickness = 2
     
     -- Toggle state
@@ -76,7 +82,7 @@ pcall(function()
     end)
     
     -- Make the circle draggable (Mobile friendly)
-    local dragging, dragInput, dragStart, startPos
+    local dragging, dragStart, startPos
     
     CircleButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -109,43 +115,34 @@ local MainTab = Window:Tab({
 })
 
 MainTab:Button({
-    Title = "Steal an Egg Script 1",
+    Title = "Safe Script Slot 1",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/eiltrunduhub/loader/main/stealeggs"))()
+            loadstring(game:HttpGet("(put your clean script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Steal an Egg Script 2",
+    Title = "Safe Script Slot 2",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonscripts/lennonstubs2/refs/heads/main/stealeggs"))()
+            loadstring(game:HttpGet("(put your clean script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Steal an Egg Script 3",
+    Title = "Safe Script Slot 3",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/55bf341d087ba3acd5190a5d6d4d9824.lua"))()
+            loadstring(game:HttpGet("(put your clean script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Steal an Egg Script 4",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Steal an Egg Script 5",
+    Title = "Safe Script Slot 4",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("(put your script here)"))()
@@ -154,43 +151,7 @@ MainTab:Button({
 })
 
 MainTab:Button({
-    Title = "Steal an Egg Script 6",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Steal an Egg Script 7",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Steal an Egg Script 8",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Steal an Egg Script 9",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Steal an Egg Script 10",
+    Title = "Safe Script Slot 5",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("(put your script here)"))()
@@ -240,11 +201,11 @@ local OwnerTab = Window:Tab({
 
 OwnerTab:Paragraph({
     Title = "Hub Information",
-    Content = "Hub Name: MAMAAAA Hub\nOwner / Creator: UNKNOWN\nStatus: Active & Working"
+    Content = "Hub Name: MAMAAAA Hub\nOwner / Creator: UNKNOWN\nStatus: Secure & Clean"
 })
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Loaded successfully with Custom Floating Circle!",
+    Content = "Loaded successfully with Audio!",
     Duration = 3
 })
