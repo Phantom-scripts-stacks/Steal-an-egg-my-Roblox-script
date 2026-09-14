@@ -1,20 +1,73 @@
 -- ==========================================
--- [ MAMAAAA HUB - SECURE FLOATING CIRCLE UI ]
+-- [ MAMAAAA HUB - CUSTOM ISAGI & DISCORD UI ]
 -- ==========================================
+
+-- YOUR ISAGI IMAGE ASSET ID
+local CUSTOM_IMAGE_ID = "rbxassetid://114769678924669"
+
+-- [ EXECUTION INTRO IMAGE POPUP ANIMATION ]
+task.spawn(function()
+    pcall(function()
+        local CoreGui = game:GetService("CoreGui")
+        local TweenService = game:GetService("TweenService")
+        
+        if CoreGui:FindFirstChild("MAMAAAA_IntroBanner") then
+            CoreGui.MAMAAAA_IntroBanner:Destroy()
+        end
+        
+        local IntroGui = Instance.new("ScreenGui")
+        IntroGui.Name = "MAMAAAA_IntroBanner"
+        IntroGui.Parent = CoreGui
+        IntroGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        
+        -- Pop-up Image Frame in the center of the screen
+        local IntroImage = Instance.new("ImageLabel")
+        IntroImage.Parent = IntroGui
+        IntroImage.AnchorPoint = Vector2.new(0.5, 0.5)
+        IntroImage.Position = UDim2.new(0.5, 0, 0.5, 0)
+        IntroImage.Size = UDim2.new(0, 0, 0, 0) -- Starts small for zoom-in effect
+        IntroImage.BackgroundTransparency = 1
+        IntroImage.Image = CUSTOM_IMAGE_ID
+        
+        -- Make the intro image rounded
+        local UICorner = Instance.new("UICorner")
+        UICorner.CornerRadius = UDim.new(0.1, 0)
+        UICorner.Parent = IntroImage
+        
+        local UIStroke = Instance.new("UIStroke")
+        UIStroke.Parent = IntroImage
+        UIStroke.Color = Color3.fromRGB(255, 0, 0)
+        UIStroke.Thickness = 3
+        
+        -- Zoom In Animation
+        local zoomIn = TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        TweenService:Create(IntroImage, zoomIn, {Size = UDim2.new(0, 250, 0, 250)}):Play()
+        
+        -- Hold, then Zoom Out and Destroy
+        task.delay(2, function()
+            local zoomOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            local tweenOut = TweenService:Create(IntroImage, zoomOut, {Size = UDim2.new(0, 0, 0, 0), ImageTransparency = 1})
+            tweenOut:Play()
+            
+            tweenOut.Completed:Connect(function()
+                IntroGui:Destroy()
+            end)
+        end)
+    end)
+end)
 
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ EXECUTION SOUND EFFECT (FIXED) ]
+-- [ EXECUTION SOUND EFFECT ]
 task.spawn(function()
     pcall(function()
         local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://4590657391" -- Standard Roblox UI sound
-        sound.Volume = 2 -- Increased volume so it's clearly heard
+        sound.SoundId = "rbxassetid://4590657391"
+        sound.Volume = 2
         sound.Parent = game:GetService("CoreGui")
         sound:Play()
         
-        -- Automatically clean up the sound after it plays to prevent memory leaks
         sound.Ended:Connect(function()
             sound:Destroy()
         end)
@@ -35,12 +88,11 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ==========================================
--- [ CREATING THE FLOATING CIRCLE BUTTON ]
+-- [ CREATING THE FLOATING CIRCLE BUTTON WITH ISAGI ]
 -- ==========================================
 pcall(function()
     local CoreGui = game:GetService("CoreGui")
     
-    -- Remove old circle if it exists
     if CoreGui:FindFirstChild("MAMAAAA_FloatingCircle") then
         CoreGui.MAMAAAA_FloatingCircle:Destroy()
     end
@@ -50,7 +102,6 @@ pcall(function()
     ScreenGui.Parent = CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    -- The Floating Circle Button itself
     local CircleButton = Instance.new("ImageButton")
     CircleButton.Name = "ToggleCircle"
     CircleButton.Parent = ScreenGui
@@ -58,30 +109,24 @@ pcall(function()
     CircleButton.BorderSizePixel = 0
     CircleButton.Position = UDim2.new(0.05, 0, 0.4, 0)
     CircleButton.Size = UDim2.new(0, 50, 0, 50)
-    CircleButton.Image = "rbxassetid://6034287515"
-    CircleButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    CircleButton.Image = CUSTOM_IMAGE_ID -- Uses your Isagi image as the circle icon!
     
-    -- Make it a circle
     local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(1, 0)
+    UICorner.CornerRadius = UDim.new(1, 0) -- Perfect Circle
     UICorner.Parent = CircleButton
     
-    -- Border outline style
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Parent = CircleButton
     UIStroke.Color = Color3.fromRGB(255, 0, 0)
     UIStroke.Thickness = 2
     
-    -- Toggle state
     local isOpen = true
     
-    -- Click to open/close the hub window
     CircleButton.MouseButton1Click:Connect(function()
         isOpen = not isOpen
         Window:Toggle(isOpen)
     end)
     
-    -- Make the circle draggable (Mobile friendly)
     local dragging, dragStart, startPos
     
     CircleButton.InputBegan:Connect(function(input)
@@ -192,6 +237,33 @@ UtilsTab:Button({
 })
 
 -- ==========================================
+-- [ DISCORD TAB ]
+-- ==========================================
+local DiscordTab = Window:Tab({
+    Title = "Discord",
+    Icon = "message-square"
+})
+
+DiscordTab:Paragraph({
+    Title = "Community Discord",
+    Content = "Join our Discord server for updates, scripts, and support!"
+})
+
+DiscordTab:Button({
+    Title = "Copy Discord Invite Link",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://discord.gg/yourinvite") -- Ilisi lang ni sa imong saktong Discord link kung naa na
+            WindUI:Notify({
+                Title = "Discord",
+                Content = "Discord invite link copied to clipboard!",
+                Duration = 3
+            })
+        end)
+    end
+})
+
+-- ==========================================
 -- [ OWNER TAB: CREDITS ]
 -- ==========================================
 local OwnerTab = Window:Tab({
@@ -206,6 +278,6 @@ OwnerTab:Paragraph({
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Loaded successfully with Audio!",
+    Content = "Loaded successfully with Isagi & Discord!",
     Duration = 3
 })
