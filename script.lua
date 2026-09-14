@@ -1,10 +1,10 @@
 -- ==========================================
--- [ MAMAAAA HUB - 2.5s INTRO & 10X ANIMATIONS ]
+-- [ MAMAAAA HUB - 3.0s INTRO & KEY SYSTEM ]
 -- ==========================================
 
-local CUSTOM_IMAGE_ID = "rbxassetid://114769678924669"
+local CUSTOM_IMAGE_ID = "rbxassetid://132064687707304"
 
--- [ 2.5 SECONDS EXACT INTRO ANIMATION ]
+-- [ 3.0 SECONDS EXACT INTRO ANIMATION ]
 task.spawn(function()
     pcall(function()
         local CoreGui = game:GetService("CoreGui")
@@ -43,7 +43,6 @@ task.spawn(function()
         UIStroke.Color = Color3.fromRGB(255, 50, 50)
         UIStroke.Thickness = 4
         
-        -- Fade in backdrop and zoom in image
         TweenService:Create(Backdrop, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.5}):Play()
         
         local introTween = TweenService:Create(IntroImage, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -52,8 +51,8 @@ task.spawn(function()
         })
         introTween:Play()
         
-        -- Exact 2.5 seconds total display time before fade out
-        task.delay(2.5, function()
+        -- Exact 3.0 seconds total display time before fade out
+        task.delay(3.0, function()
             local outTween = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 0, 0, 0),
                 ImageTransparency = 1
@@ -195,54 +194,61 @@ pcall(function()
 end)
 
 -- ==========================================
--- [ MAIN TAB: STEAL AN EGG SCRIPTS ]
+-- [ MAIN TAB: STEAL AN EGG (KEY & KEYLESS) ]
 -- ==========================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
     Icon = "home"
 })
 
+MainTab:Paragraph({
+    Title = "Script Options",
+    Content = "Choose between Key System scripts or Keyless scripts below."
+})
+
+-- KEY SYSTEM SECTION
 MainTab:Button({
-    Title = "Safe Script Slot 1",
+    Title = "[Key System] Script Slot 1",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(put your clean script here)"))()
+            loadstring(game:HttpGet("(put your key system script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Safe Script Slot 2",
+    Title = "[Key System] Script Slot 2",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(put your clean script here)"))()
+            loadstring(game:HttpGet("(put your key system script here)"))()
+        end)
+    end
+})
+
+-- KEYLESS SECTION
+MainTab:Button({
+    Title = "[Keyless] Script Slot 1",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Safe Script Slot 3",
+    Title = "[Keyless] Script Slot 2",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(put your clean script here)"))()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
         end)
     end
 })
 
 MainTab:Button({
-    Title = "Safe Script Slot 4",
+    Title = "[Keyless] Script Slot 3",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Safe Script Slot 5",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your script here)"))()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
         end)
     end
 })
@@ -309,6 +315,13 @@ DiscordTab:Button({
 -- ==========================================
 -- [ OWNER TAB: CREDITS ]
 -- ==========================================
+ObjectTab = Window:Tab({
+    Title = "Owner",
+    Icon = "user"
+})
+
+ObjectTab = OwnerTab -- fallback safety
+-- Using direct variable setup for Owner Tab
 local OwnerTab = Window:Tab({
     Title = "Owner",
     Icon = "user"
@@ -321,6 +334,6 @@ OwnerTab:Paragraph({
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Loaded with 2.5s Intro duration!",
+    Content = "Loaded successfully with Key & Keyless options!",
     Duration = 3
 })
