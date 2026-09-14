@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - DRAGGABLE HUD & VOLUME 30 ]
+-- [ LATINA HUB - CIRCLE ICON & FIXED AUDIO ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -10,6 +10,7 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [ 3.5 SECONDS INTRO ]
@@ -76,24 +77,24 @@ end)
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ YOUR CUSTOM SOUND EFFECT (VOLUME: 30) ]
+-- [ AUDIO PLAYBACK FIX ]
 task.spawn(function()
     pcall(function()
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://70687053615562"
-        sound.Volume = 30
-        sound.Parent = CoreGui
-        sound:Play()
+        sound.Volume = 5
+        sound.Parent = workspace
+        SoundService:PlayLocalSound(sound)
         sound.Ended:Connect(function()
             sound:Destroy()
         end)
     end)
 end)
 
--- Create the Main Window
+-- Create the Main Window (CIRCLE ICON)
 local Window = WindUI:CreateWindow({
     Title = "LATINA HUB",
-    Icon = "shield",
+    Icon = "circle",
     Author = "UNKNOWN",
     Folder = "LATINAHub",
     Size = UDim2.fromOffset(500, 360),
@@ -104,11 +105,11 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG ]
+-- [ MAIN TAB: STEAL AN EGG (CIRCLE ICON) ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
-    Icon = "home"
+    Icon = "circle"
 })
 
 -- KEYLESS SECTION (10 Slots)
