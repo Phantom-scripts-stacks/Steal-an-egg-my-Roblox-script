@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - ADVANCED COMPACT FLUENT UI ]
+-- [ LATINA HUB - FIXED & UPDATED FLUENT UI ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -150,17 +150,17 @@ for i = 1, 10 do
 end
 
 -- ========================================================
--- [ VISUALS TAB (FOV, ESP WORLD, ESP PLOT) ]
+-- [ VISUALS TAB ]
 -- ========================================================
 
 -- FOV Slider
-local FovSlider = Tabs.Visuals:AddSlider("FOV有個", {
+local FovSlider = Tabs.Visuals:AddSlider("FOV的书", {
     Title = "🔍 Custom Field of View (FOV)",
-    Description = "Pilia ang gusto nimong sukol sa FOV",
+    Description = "Adjust camera field of view",
     Default = 70,
     Min = 70,
     Max = 120,
-    Rounding = 1,
+    Rounding = 0,
     Callback = function(Value)
         pcall(function()
             Camera.FieldOfView = Value
@@ -168,10 +168,23 @@ local FovSlider = Tabs.Visuals:AddSlider("FOV有個", {
     end
 })
 
+-- Reset FOV Button
+Tabs.Visuals:AddButton({
+    Title = "🔄 Reset FOV (70)",
+    Description = "Restore default camera field of view.",
+    Callback = function()
+        pcall(function()
+            Camera.FieldOfView = 70
+            FovSlider:SetValue(70)
+            Fluent:Notify({ Title = "Visuals", Content = "FOV reset to default (70).", Duration = 2 })
+        end)
+    end
+})
+
 -- Fullbright Button
 Tabs.Visuals:AddButton({
     Title = "💡 Toggle Fullbright",
-    Description = "Patangtang sa kangitngit sa palibot.",
+    Description = "Removes all darkness in the world.",
     Callback = function()
         pcall(function()
             Lighting.Brightness = 2
@@ -184,85 +197,54 @@ Tabs.Visuals:AddButton({
     end
 })
 
--- ESP to World (Player ESP Toggle)
-local playerEspEnabled = false
-local espConnections = {}
-
-Tabs.Visuals:AddToggle("PlayerESP", {
-    Title = "👁️ ESP to World (Player ESP)",
-    Description = "I-on aron makita ang mga pangalan sa players.",
-    Default = false,
-    Callback = function(State)
-        playerEspEnabled = State
+-- ESP to World Eggs (Map Eggs ESP)
+Tabs.Visuals:AddButton({
+    Title = "🥚 ESP to World Eggs",
+    Description = "Highlight eggs spawned around the world map.",
+    Callback = function()
         pcall(function()
-            if playerEspEnabled then
-                for _, plr in pairs(Players:GetPlayers()) do
-                    if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
-                        if not plr.Character.Head:FindFirstChild("LatinaESP") then
-                            local bg = Instance.new("BillboardGui")
-                            bg.Name = "LatinaESP"
-                            bg.Size = UDim2.new(0, 100, 0, 40)
-                            bg.StudsOffset = Vector3.new(0, 2.5, 0)
-                            bg.AlwaysOnTop = true
-                            bg.Parent = plr.Character.Head
-                            
-                            local txt = Instance.new("TextLabel")
-                            txt.Size = UDim2.new(1, 0, 1, 0)
-                            txt.BackgroundTransparency = 1
-                            txt.TextColor3 = Color3.fromRGB(255, 50, 50)
-                            txt.TextStrokeTransparency = 0
-                            txt.Font = Enum.Font.GothamBold
-                            txt.TextSize = 12
-                            txt.Text = plr.Name
-                            txt.Parent = bg
-                        end
+            local count = 0
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") and (string.lower(obj.Name):find("egg")) then
+                    if not obj:FindFirstChild("EggHighlight") then
+                        local hl = Instance.new("Highlight")
+                        hl.Name = "EggHighlight"
+                        hl.FillColor = Color3.fromRGB(255, 165, 0)
+                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        hl.Parent = obj
+                        count = count + 1
+                    else
+                        obj.EggHighlight:Destroy()
                     end
                 end
-                Fluent:Notify({ Title = "ESP", Content = "Player ESP Enabled!", Duration = 2 })
-            else
-                for _, plr in pairs(Players:GetPlayers()) do
-                    if plr.Character and plr.Character:FindFirstChild("Head") then
-                        local esp = plr.Character.Head:FindFirstChild("LatinaESP")
-                        if esp then esp:Destroy() end
-                    end
-                end
-                Fluent:Notify({ Title = "ESP", Content = "Player ESP Disabled!", Duration = 2 })
             end
+            Fluent:Notify({ Title = "Egg ESP", Content = "Toggled World Eggs ESP (" .. count .. " found)", Duration = 3 })
         end)
     end
 })
 
--- ESP to My Plot
+-- ESP to Placed Eggs (Eggs on Plot)
 Tabs.Visuals:AddButton({
-    Title = "🏠 ESP to My Plot",
-    Description = "Markahan ug i-track ang imong Plot/Base.",
+    Title = "🏠 ESP to Placed Eggs (On Plot)",
+    Description = "Highlight eggs placed inside plots/bases.",
     Callback = function()
         pcall(function()
-            local plotFound = false
+            local count = 0
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("Model") and (string.lower(obj.Name):find("plot") or string.lower(obj.Name):find("base")) then
-                    -- Check if it belongs to local player (depends on game attributes/values)
-                    local ownerVal = obj:FindFirstChild("Owner") or obj:FindFirstChild("Player") or obj:FindFirstChild("PlotOwner")
-                    if ownerVal and (ownerVal.Value == LocalPlayer or ownerVal.Value == LocalPlayer.Name) then
-                        plotFound = true
-                        if not obj:FindFirstChild("PlotHighlight") then
-                            local hl = Instance.new("Highlight")
-                            hl.Name = "PlotHighlight"
-                            hl.FillColor = Color3.fromRGB(0, 255, 0)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            hl.Parent = obj
-                            
-                            Fluent:Notify({ Title = "Plot ESP", Content = "Gihighlight ang imong Plot!", Duration = 3 })
-                        else
-                            obj.PlotHighlight:Destroy()
-                            Fluent:Notify({ Title = "Plot ESP", Content = "Giatras ang Plot ESP.", Duration = 2 })
-                        end
+                if obj:IsA("Model") and (string.lower(obj.Name):find("egg") or string.lower(obj.Name):find("placed")) then
+                    if not obj:FindFirstChild("PlotEggHighlight") then
+                        local hl = Instance.new("Highlight")
+                        hl.Name = "PlotEggHighlight"
+                        hl.FillColor = Color3.fromRGB(0, 255, 255)
+                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        hl.Parent = obj
+                        count = count + 1
+                    else
+                        obj.PlotEggHighlight:Destroy()
                     end
                 end
             end
-            if not plotFound then
-                Fluent:Notify({ Title = "Plot ESP", Content = "Walay nakit-an nga Plot nga naay owner tag.", Duration = 3 })
-            end
+            Fluent:Notify({ Title = "Plot Eggs ESP", Content = "Toggled Plot Eggs ESP (" .. count .. " found)", Duration = 3 })
         end)
     end
 })
@@ -395,7 +377,7 @@ Tabs.Discord:AddButton({
 -- ========================================================
 Tabs.Owner:AddParagraph({
     Title = "Hub Information",
-    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nFeatures: Custom FOV, ESP World, ESP Plot"
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nFeatures: FOV Slider, Reset FOV, World Eggs ESP, Plot Eggs ESP"
 })
 
 -- [ 6. FLOATING TOGGLE BUTTON (CIRCLE IMAGE) ]
@@ -463,6 +445,6 @@ end)
 
 Fluent:Notify({
     Title = "LATINA HUB",
-    Content = "Loaded with Advanced Features!",
+    Content = "Updated successfully with Egg ESP & Reset FOV!",
     Duration = 3
 })
