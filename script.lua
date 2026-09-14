@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - CIRCLE ICON CONFIRMED & DRAGGABLE HUD ]
+-- [ LATINA HUB - LIGHTWEIGHT & CIRCLE ICON ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -10,7 +10,6 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [ 3.5 SECONDS INTRO ]
@@ -77,21 +76,7 @@ end)
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ AUDIO PLAYBACK FIX ]
-task.spawn(function()
-    pcall(function()
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://70687053615562"
-        sound.Volume = 5
-        sound.Parent = workspace
-        SoundService:PlayLocalSound(sound)
-        sound.Ended:Connect(function()
-            sound:Destroy()
-        end)
-    end)
-end)
-
--- Create the Main Window (WITH CIRCLE ICON)
+-- Create Main Window (CIRCLE ICON)
 local Window = WindUI:CreateWindow({
     Title = "LATINA HUB",
     Icon = "circle",
@@ -105,14 +90,14 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG (WITH CIRCLE ICON) ]
+-- [ MAIN TAB: STEAL AN EGG (CIRCLE ICON) ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
     Icon = "circle"
 })
 
--- KEYLESS SECTION (10 Slots)
+-- KEYLESS SECTION
 local KeylessSection = MainTab:Section({
     Title = "🔓 Keyless Scripts (10 Slots)",
     Opened = false
@@ -129,7 +114,7 @@ for i = 1, 10 do
     })
 end
 
--- KEY SYSTEM SECTION (10 Slots)
+-- KEY SYSTEM SECTION
 local KeySystemSection = MainTab:Section({
     Title = "🔑 Key System Scripts (10 Slots)",
     Opened = false
@@ -200,7 +185,6 @@ UtilsTab:Button({
                 StatsText.TextSize = 13
                 StatsText.Text = "FPS: 0 | MS: 0ms"
                 
-                -- DRAGGABLE SCRIPT FOR FPS/MS HUD
                 local dragging, dragInput, dragStart, startPos
                 StatsFrame.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -251,7 +235,7 @@ UtilsTab:Button({
                 
                 WindUI:Notify({
                     Title = "HUD Display",
-                    Content = "Live FPS & MS counter active (Draggable!).",
+                    Content = "Live FPS & MS counter active.",
                     Duration = 2
                 })
             end
@@ -280,7 +264,7 @@ UtilsTab:Button({
             end)
             WindUI:Notify({
                 Title = "Anti AFK",
-                Content = "Anti AFK is now Active!",
+                Content = "Anti AFK is active!",
                 Duration = 3
             })
         end)
@@ -302,7 +286,7 @@ DiscordTab:Button({
             setclipboard("https://discord.gg/yourinvite")
             WindUI:Notify({
                 Title = "Discord",
-                Content = "Discord invite link copied to clipboard!",
+                Content = "Discord invite link copied!",
                 Duration = 3
             })
         end)
@@ -319,10 +303,9 @@ local OwnerTab = Window:Tab({
 
 OwnerTab:Paragraph({
     Title = "Hub Information",
-    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: Active"
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN"
 })
 
--- Final Success Notification
 WindUI:Notify({
     Title = "LATINA HUB",
     Content = "Loaded successfully!",
