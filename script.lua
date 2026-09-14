@@ -17,7 +17,7 @@ local MainTab = Window:Tab({
 
 -- MIRANDA
 MainTab:Button({
-    Title = "Steal an Egg Script 1",
+    Title = "MIRANDA",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
@@ -27,7 +27,7 @@ MainTab:Button({
 
 -- LENNON
 MainTab:Button({
-    Title = "Steal an Egg Script 2",
+    Title = "LENNON",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
@@ -37,7 +37,7 @@ MainTab:Button({
 
 -- RENE BATERBONIA
 MainTab:Button({
-    Title = "Script 3",
+    Title = "RENE BATERBONIA",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()
