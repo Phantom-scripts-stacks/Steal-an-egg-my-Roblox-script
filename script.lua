@@ -1,21 +1,25 @@
--- ==========================================
--- [ MAMAAAA HUB - CLEAN CODE ]
--- ==========================================
+-- ========================================================
+-- [ LATINA HUB - ULTIMATE OPTIMIZED VERSION (3.5s INTRO) ]
+-- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
 
--- [ 3.0 SECONDS EXACT INTRO ANIMATION ]
+-- Services
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- [ 3.5 SECONDS EXACT INTRO ANIMATION ]
 task.spawn(function()
     pcall(function()
-        local CoreGui = game:GetService("CoreGui")
-        local TweenService = game:GetService("TweenService")
-        
-        if CoreGui:FindFirstChild("MAMAAAA_IntroBanner") then
-            CoreGui.MAMAAAA_IntroBanner:Destroy()
+        if CoreGui:FindFirstChild("LATINA_IntroBanner") then
+            CoreGui.LATINA_IntroBanner:Destroy()
         end
         
         local IntroGui = Instance.new("ScreenGui")
-        IntroGui.Name = "MAMAAAA_IntroBanner"
+        IntroGui.Name = "LATINA_IntroBanner"
         IntroGui.Parent = CoreGui
         IntroGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         
@@ -51,7 +55,8 @@ task.spawn(function()
         })
         introTween:Play()
         
-        task.delay(3.0, function()
+        -- Exact 3.5 seconds delay before fade out
+        task.delay(3.5, function()
             local outTween = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 0, 0, 0),
                 ImageTransparency = 1
@@ -77,9 +82,8 @@ task.spawn(function()
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://4590657391"
         sound.Volume = 2
-        sound.Parent = game:GetService("CoreGui")
+        sound.Parent = CoreGui
         sound:Play()
-        
         sound.Ended:Connect(function()
             sound:Destroy()
         end)
@@ -88,33 +92,32 @@ end)
 
 -- Create the Main Window
 local Window = WindUI:CreateWindow({
-    Title = "MAMAAAA Hub",
+    Title = "LATINA HUB",
     Icon = "shield",
     Author = "UNKNOWN",
-    Folder = "MAMAAAAHub",
-    Size = UDim2.fromOffset(500, 350),
+    Folder = "LATINAHub",
+    Size = UDim2.fromOffset(500, 360),
     Theme = "Dark",
     Acrylic = false
 })
 
 Window:ToggleTransparency(false)
 
--- ==========================================
--- [ FLOATING CIRCLE BUTTON ]
--- ==========================================
+-- ========================================================
+-- [ FLOATING CIRCLE BUTTON (SYNCHRONIZED WITH WINDOW HIDE) ]
+-- ========================================================
+local ScreenGui, CircleFrame
 pcall(function()
-    local CoreGui = game:GetService("CoreGui")
-    
-    if CoreGui:FindFirstChild("MAMAAAA_FloatingCircle") then
-        CoreGui.MAMAAAA_FloatingCircle:Destroy()
+    if CoreGui:FindFirstChild("LATINA_FloatingCircle") then
+        CoreGui.LATINA_FloatingCircle:Destroy()
     end
     
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "MAMAAAA_FloatingCircle"
+    ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "LATINA_FloatingCircle"
     ScreenGui.Parent = CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    local CircleFrame = Instance.new("Frame")
+    CircleFrame = Instance.new("Frame")
     CircleFrame.Name = "ToggleCircle"
     CircleFrame.Parent = ScreenGui
     CircleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -131,11 +134,12 @@ pcall(function()
     UIStroke.Color = Color3.fromRGB(255, 0, 0)
     UIStroke.Thickness = 3
     
+    -- Optimized Glowing Border Loop
     task.spawn(function()
         while CircleFrame and CircleFrame.Parent do
-            local TweenService = game:GetService("TweenService")
             TweenService:Create(UIStroke, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(255, 100, 100)}):Play()
             task.wait(0.8)
+            if not CircleFrame or not CircleFrame.Parent then break end
             TweenService:Create(UIStroke, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(200, 0, 0)}):Play()
             task.wait(0.8)
         end
@@ -160,17 +164,24 @@ pcall(function()
     
     local isOpen = true
     
+    -- Toggle Button Click Action & Window Sync
     ClickButton.MouseButton1Click:Connect(function()
         isOpen = not isOpen
         Window:Toggle(isOpen)
-        local TweenService = game:GetService("TweenService")
+        if ScreenGui then
+            ScreenGui.Enabled = isOpen
+        end
+        
+        -- Animation feedback
         TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 48, 0, 48)}):Play()
         task.wait(0.1)
-        TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 55, 0, 55)}):Play()
+        if CircleFrame then
+            TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 55, 0, 55)}):Play()
+        end
     end)
     
+    -- Smooth Mobile Dragging Support
     local dragging, dragStart, startPos
-    
     ClickButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
@@ -185,7 +196,7 @@ pcall(function()
         end
     end)
     
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
+    UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
             local delta = input.Position - dragStart
             CircleFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -193,21 +204,60 @@ pcall(function()
     end)
 end)
 
--- ==========================================
--- [ MAIN TAB: STEAL AN EGG (KEY & KEYLESS) ]
--- ==========================================
+-- ========================================================
+-- [ MAIN TAB: STEAL AN EGG (KEYLESS & KEY SYSTEM SEPARATED) ]
+-- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
     Icon = "home"
 })
 
 MainTab:Paragraph({
-    Title = "Script Options",
-    Content = "Choose between Key System scripts or Keyless scripts below."
+    Title = "Steal an Egg Hub",
+    Content = "Select scripts from Keyless or Key System categories below."
+})
+
+-- KEYLESS SECTION
+MainTab:Paragraph({
+    Title = "🔓 Keyless Scripts",
+    Content = "Direct execution scripts (No Key required)."
 })
 
 MainTab:Button({
-    Title = "[Key System] Script Slot 1",
+    Title = "Keyless Script Slot 1",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
+        end)
+    end
+})
+
+MainTab:Button({
+    Title = "Keyless Script Slot 2",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
+        end)
+    end
+})
+
+MainTab:Button({
+    Title = "Keyless Script Slot 3",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("(put your keyless script here)"))()
+        end)
+    end
+})
+
+-- KEY SYSTEM SECTION
+MainTab:Paragraph({
+    Title = "🔑 Key System Scripts",
+    Content = "Scripts that require a secure verification key."
+})
+
+MainTab:Button({
+    Title = "Key System Script Slot 1",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("(put your key system script here)"))()
@@ -216,7 +266,7 @@ MainTab:Button({
 })
 
 MainTab:Button({
-    Title = "[Key System] Script Slot 2",
+    Title = "Key System Script Slot 2",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("(put your key system script here)"))()
@@ -224,39 +274,47 @@ MainTab:Button({
     end
 })
 
-MainTab:Button({
-    Title = "[Keyless] Script Slot 1",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "[Keyless] Script Slot 2",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "[Keyless] Script Slot 3",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
-})
-
--- ==========================================
--- [ UTILITIES TAB ]
--- ==========================================
+-- ========================================================
+-- [ UTILITIES TAB: FPS BOOSTER, SERVER FINDER, ANTI AFK ]
+-- ========================================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
     Icon = "wrench"
+})
+
+UtilsTab:Paragraph({
+    Title = "Performance & Tools",
+    Content = "Optimize your game performance and server utilities."
+})
+
+UtilsTab:Button({
+    Title = "⚡ FPS Booster / Optimizer",
+    Callback = function()
+        pcall(function()
+            local Terrain = workspace:FindFirstChildOfClass("Terrain")
+            if Terrain then
+                Terrain.WaterTransparency = 1
+                Terrain.WaterWaveSize = 0
+            end
+            
+            for _, v in ipairs(game:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.Material = Enum.Material.SmoothPlastic
+                    v.CastShadow = false
+                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") then
+                    v.Enabled = false
+                end
+            end
+            
+            UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualityLevel.Level1
+            
+            WindUI:Notify({
+                Title = "FPS Booster",
+                Content = "Game optimized successfully for maximum FPS!",
+                Duration = 3
+            })
+        end)
+    end
 })
 
 UtilsTab:Button({
@@ -273,19 +331,23 @@ UtilsTab:Button({
     Callback = function()
         pcall(function()
             local vu = game:GetService("VirtualUser")
-            game:GetService("Players").LocalPlayer.Idled:Connect(function()
-                vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            LocalPlayer.Idled:Connect(function()
+                vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
                 task.wait(1)
-                vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
             end)
-            WindUI:Notify({ Title = "Anti AFK", Content = "Anti AFK is now Active!", Duration = 3 })
+            WindUI:Notify({
+                Title = "Anti AFK",
+                Content = "Anti AFK is now Active!",
+                Duration = 3
+            })
         end)
     end
 })
 
--- ==========================================
+-- ========================================================
 -- [ DISCORD TAB ]
--- ==========================================
+-- ========================================================
 local DiscordTab = Window:Tab({
     Title = "Discord",
     Icon = "message-square"
@@ -310,9 +372,9 @@ DiscordTab:Button({
     end
 })
 
--- ==========================================
+-- ========================================================
 -- [ OWNER TAB ]
--- ==========================================
+-- ========================================================
 local OwnerTab = Window:Tab({
     Title = "Owner",
     Icon = "user"
@@ -320,11 +382,12 @@ local OwnerTab = Window:Tab({
 
 OwnerTab:Paragraph({
     Title = "Hub Information",
-    Content = "Hub Name: MAMAAAA Hub\nOwner / Creator: UNKNOWN\nStatus: Secure & Clean"
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: 100x Optimized & Secure"
 })
 
+-- Final Success Notification
 WindUI:Notify({
-    Title = "MAMAAAA Hub",
-    Content = "Loaded successfully!",
+    Title = "LATINA HUB",
+    Content = "Successfully loaded with FPS Booster & Key/Keyless setup!",
     Duration = 3
 })
