@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - FIXED SEQUENCE & ESP VERSION ]
+-- [ LATINA HUB - TOGGLE MUTATION & PER SEC ESP ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -16,10 +16,9 @@ local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Forward declaration for Window and Fluent
 local Fluent, Window
 
--- [ 1. INTRO BANNER (Dawaton dayon human sa 0.05 seconds) ]
+-- [ 1. INTRO BANNER (0.05s delay bago mo-activate) ]
 task.spawn(function()
     task.wait(0.05)
     pcall(function()
@@ -64,7 +63,6 @@ task.spawn(function()
         })
         introTween:Play()
         
-        -- Play Intro Audio
         task.spawn(function()
             pcall(function()
                 local sound = Instance.new("Sound")
@@ -95,9 +93,9 @@ task.spawn(function()
     end)
 end)
 
--- [ 2. LOAD UI AFTER INTRO FINISHES ]
+-- [ 2. LOAD UI AFTER INTRO ]
 task.spawn(function()
-    task.wait(3.5) -- Hulaton mahuman ang intro bago i-load ang Main UI
+    task.wait(3.5)
 
     Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
@@ -155,12 +153,12 @@ task.spawn(function()
     end
 
     -- ========================================================
-    -- [ VISUALS TAB (Fixed FOV & ESP) ]
+    -- [ VISUALS TAB ]
     -- ========================================================
 
     local FovSlider = Tabs.Visuals:AddSlider("FOVSetting", {
-        Title = "🔍 Custom Field of View (FOV)",
-        Description = "Adjust camera field of view",
+        Title = "🔍 Field of View Slider",
+        Description = "Slide to change FOV",
         Default = 70,
         Min = 70,
         Max = 120,
@@ -172,6 +170,27 @@ task.spawn(function()
         end
     })
 
+    Tabs.Visuals:AddInput("FOVInput", {
+        Title = "⌨️ Type Custom FOV Number",
+        Description = "Type exact number (e.g. 90, 110) then press Enter",
+        Default = "70",
+        Placeholder = "Enter FOV...",
+        Numeric = true,
+        Finished = true,
+        Callback = function(Value)
+            pcall(function()
+                local num = tonumber(Value)
+                if num then
+                    if num < 10 then num = 10 end
+                    if num > 120 then num = 120 end
+                    Camera.FieldOfView = num
+                    FovSlider:SetValue(num)
+                    Fluent:Notify({ Title = "FOV Set", Content = "FOV changed to: " .. num, Duration = 2 })
+                end
+            end)
+        end
+    })
+
     Tabs.Visuals:AddButton({
         Title = "🔄 Reset FOV (70)",
         Description = "Restore default camera field of view.",
@@ -179,7 +198,7 @@ task.spawn(function()
             pcall(function()
                 Camera.FieldOfView = 70
                 FovSlider:SetValue(70)
-                Fluent:Notify({ Title = "Visuals", Content = "FOV reset to default (70).", Duration = 2 })
+                Fluent:Notify({ Title = "Visuals", Content = "FOV reset to 70.", Duration = 2 })
             end)
         end
     })
@@ -199,57 +218,111 @@ task.spawn(function()
         end
     })
 
-    -- Fixed World Eggs ESP
-    Tabs.Visuals:AddButton({
-        Title = "🥚 ESP to World Eggs",
-        Description = "Highlight eggs spawned around the world map.",
-        Callback = function()
+    -- Toggle World Eggs ESP (Mutation & Per Second)
+    Tabs.Visuals:AddToggle("WorldEggESP", {
+        Title = "🥚 Toggle World Eggs ESP (Mutation & Per Sec)",
+        Description = "Shows mutation and per-second value on world eggs",
+        Default = false,
+        Callback = function(State)
             pcall(function()
-                local count = 0
-                for _, obj in pairs(workspace:GetDescendants()) do
-                    if (obj:IsA("BasePart") or obj:IsA("Model")) and string.lower(obj.Name):find("egg") then
-                        local targetPart = obj:IsA("Model") and obj.PrimaryPart or obj
-                        if targetPart then
-                            if not targetPart:FindFirstChild("EggHighlight") then
-                                local hl = Instance.new("Highlight")
-                                hl.Name = "EggHighlight"
-                                hl.FillColor = Color3.fromRGB(255, 165, 0)
-                                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                                hl.Parent = targetPart
-                                count = count + 1
-                            else
-                                targetPart.EggHighlight:Destroy()
+                if State then
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if (obj:IsA("BasePart") or obj:IsA("Model")) and string.lower(obj.Name):find("egg") then
+                            local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
+                            if targetPart and not targetPart:FindFirstChild("MutationEggESP") then
+                                local bg = Instance.new("BillboardGui")
+                                bg.Name = "MutationEggESP"
+                                bg.Size = UDim2.new(0, 140, 0, 55)
+                                bg.StudsOffset = Vector3.new(0, 2.5, 0)
+                                bg.AlwaysOnTop = true
+                                bg.Parent = targetPart
+                                
+                                local txt = Instance.new("TextLabel")
+                                txt.Size = UDim2.new(1, 0, 1, 0)
+                                txt.BackgroundTransparency = 1
+                                txt.TextColor3 = Color3.fromRGB(255, 200, 0)
+                                txt.TextStrokeTransparency = 0
+                                txt.Font = Enum.Font.GothamBold
+                                txt.TextSize = 11
+                                
+                                local mutation = obj:GetAttribute("Mutation") or (obj:FindFirstChild("Mutation") and obj.Mutation.Value) or "Normal"
+                                local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or (obj:FindFirstChild("PerSec") and obj.PerSec.Value) or "N/A"
+                                
+                                txt.Text = string.format("%s\nMut: %s\nRate: +%s/s", obj.Name, tostring(mutation), tostring(perSec))
+                                txt.Parent = bg
                             end
                         end
                     end
+                    Fluent:Notify({ Title = "World Eggs ESP", Content = "Enabled", Duration = 2 })
+                else
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if (obj:IsA("BasePart") or obj:IsA("Model")) then
+                            local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
+                            if targetPart and targetPart:FindFirstChild("MutationEggESP") then
+                                targetPart.MutationEggESP:Destroy()
+                            end
+                        end
+                    end
+                    Fluent:Notify({ Title = "World Eggs ESP", Content = "Disabled", Duration = 2 })
                 end
-                Fluent:Notify({ Title = "Egg ESP", Content = "Toggled World Eggs ESP (" .. count .. " toggled)", Duration = 3 })
             end)
         end
     })
 
-    -- Fixed Placed Eggs (On Plot) ESP
-    Tabs.Visuals:AddButton({
-        Title = "🏠 ESP to Placed Eggs (On Plot)",
-        Description = "Highlight eggs placed inside plots/bases.",
-        Callback = function()
+    -- Toggle Plot Eggs ESP (Placed Eggs Mutation & Per Second)
+    Tabs.Visuals:AddToggle("PlotEggESP", {
+        Title = "🏠 Toggle Plot Eggs ESP (Mutation & Per Sec)",
+        Description = "Shows mutation and per-second value on plot/base eggs",
+        Default = false,
+        Callback = function(State)
             pcall(function()
-                local count = 0
-                for _, obj in pairs(workspace:GetDescendants()) do
-                    if obj:IsA("Model") and (string.lower(obj.Name):find("egg") or string.lower(obj.Name):find("plot") or string.lower(obj.Name):find("base")) then
-                        if not obj:FindFirstChild("PlotEggHighlight") then
-                            local hl = Instance.new("Highlight")
-                            hl.Name = "PlotEggHighlight"
-                            hl.FillColor = Color3.fromRGB(0, 255, 255)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            hl.Parent = obj
-                            count = count + 1
-                        else
-                            obj.PlotEggHighlight:Destroy()
+                if State then
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if obj:IsA("Model") and (string.lower(obj.Name):find("egg") or string.lower(obj.Name):find("plot") or string.lower(obj.Name):find("base")) then
+                            if not obj:FindFirstChild("PlotEggMutationESP") then
+                                local hl = Instance.new("Highlight")
+                                hl.Name = "PlotEggMutationESP"
+                                hl.FillColor = Color3.fromRGB(0, 255, 128)
+                                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                hl.Parent = obj
+                                
+                                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                                if primary and not primary:FindFirstChild("PlotTag") then
+                                    local bg = Instance.new("BillboardGui")
+                                    bg.Name = "PlotTag"
+                                    bg.Size = UDim2.new(0, 140, 0, 55)
+                                    bg.StudsOffset = Vector3.new(0, 3, 0)
+                                    bg.AlwaysOnTop = true
+                                    bg.Parent = primary
+                                    
+                                    local txt = Instance.new("TextLabel")
+                                    txt.Size = UDim2.new(1, 0, 1, 0)
+                                    txt.BackgroundTransparency = 1
+                                    txt.TextColor3 = Color3.fromRGB(0, 255, 255)
+                                    txt.TextStrokeTransparency = 0
+                                    txt.Font = Enum.Font.GothamBold
+                                    txt.TextSize = 11
+                                    
+                                    local mutation = obj:GetAttribute("Mutation") or "Placed"
+                                    local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "N/A"
+                                    
+                                    txt.Text = string.format("Plot: %s\nMut: %s\nRate: +%s/s", obj.Name, tostring(mutation), tostring(perSec))
+                                    txt.Parent = bg
+                                end
+                            end
                         end
                     end
+                    Fluent:Notify({ Title = "Plot Eggs ESP", Content = "Enabled", Duration = 2 })
+                else
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if obj:IsA("Model") then
+                            if obj:FindFirstChild("PlotEggMutationESP") then obj.PlotEggMutationESP:Destroy() end
+                            local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                            if primary and primary:FindFirstChild("PlotTag") then primary.PlotTag:Destroy() end
+                        end
+                    end
+                    Fluent:Notify({ Title = "Plot Eggs ESP", Content = "Disabled", Duration = 2 })
                 end
-                Fluent:Notify({ Title = "Plot Eggs ESP", Content = "Toggled Plot Eggs ESP (" .. count .. " toggled)", Duration = 3 })
             end)
         end
     })
@@ -259,7 +332,7 @@ task.spawn(function()
     -- ========================================================
     local fpsConnection = nil
     Tabs.Utilities:AddButton({
-        Title = "📊 Toggle FPS/MS Counter",
+        Title = "📊 Toggle FPS/MS/Per Second Counter",
         Callback = function()
             pcall(function()
                 if CoreGui:FindFirstChild("LATINA_FPS_MS") then
@@ -277,7 +350,7 @@ task.spawn(function()
                     StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
                     StatsFrame.BorderSizePixel = 0
                     StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
-                    StatsFrame.Size = UDim2.new(0, 160, 0, 40)
+                    StatsFrame.Size = UDim2.new(0, 185, 0, 45)
                     StatsFrame.Active = true
                     
                     local Corner = Instance.new("UICorner")
@@ -296,18 +369,22 @@ task.spawn(function()
                     StatsText.Size = UDim2.new(1, 0, 1, 0)
                     StatsText.Font = Enum.Font.GothamBold
                     StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    StatsText.TextSize = 13
-                    StatsText.Text = "FPS: 0 | MS: 0ms"
+                    StatsText.TextSize = 12
+                    StatsText.Text = "FPS: 0 | MS: 0ms\nUpdates: 0/s"
                     
                     local lastUpdate = tick()
                     local frameCount = 0
+                    local updateCounts = 0
                     
-                    fpsConnection = RunService.RenderStepped:Connect(function()
+                    fpsConnection = RunService.RenderStepped:Connect(function(dt)
                         frameCount = frameCount + 1
+                        updateCounts = updateCounts + 1
                         local now = tick()
                         if now - lastUpdate >= 1 then
                             local currentFPS = math.floor(frameCount / (now - lastUpdate))
+                            local perSecondRate = math.floor(updateCounts / (now - lastUpdate))
                             frameCount = 0
+                            updateCounts = 0
                             lastUpdate = now
                             
                             local ping = 0
@@ -315,11 +392,11 @@ task.spawn(function()
                                 ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
                             end)
                             
-                            StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
+                            StatsText.Text = string.format("FPS: %d | MS: %dms\nPer Sec: %d/s", currentFPS, ping, perSecondRate)
                         end
                     end)
                     
-                    Fluent:Notify({ Title = "HUD Display", Content = "Counter active.", Duration = 2 })
+                    Fluent:Notify({ Title = "HUD Display", Content = "Counter with Per Second active.", Duration = 2 })
                 end
             end)
         end
@@ -377,80 +454,4 @@ task.spawn(function()
         end
     })
 
-    -- ========================================================
-    -- [ OWNER TAB ]
-    -- ========================================================
-    Tabs.Owner:AddParagraph({
-        Title = "Hub Information",
-        Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: Fully Functional"
-    })
-
-    -- [ 3. FLOATING TOGGLE BUTTON ]
-    task.spawn(function()
-        pcall(function()
-            if CoreGui:FindFirstChild("LATINA_ToggleGui") then
-                CoreGui.LATINA_ToggleGui:Destroy()
-            end
-
-            local ToggleGui = Instance.new("ScreenGui")
-            ToggleGui.Name = "LATINA_ToggleGui"
-            ToggleGui.Parent = CoreGui
-            ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-            local ToggleBtn = Instance.new("ImageButton")
-            ToggleBtn.Parent = ToggleGui
-            ToggleBtn.Position = UDim2.new(0.02, 0, 0.35, 0)
-            ToggleBtn.Size = UDim2.new(0, 42, 0, 42)
-            ToggleBtn.Image = CUSTOM_IMAGE_ID
-            ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            ToggleBtn.Active = true
-
-            local Corner = Instance.new("UICorner")
-            Corner.CornerRadius = UDim.new(1, 0)
-            Corner.Parent = ToggleBtn
-
-            local Stroke = Instance.new("UIStroke")
-            Stroke.Parent = ToggleBtn
-            Stroke.Color = Color3.fromRGB(255, 0, 0)
-            Stroke.Thickness = 2.5
-
-            local dragging, dragInput, dragStart, startPos
-            ToggleBtn.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = true
-                    dragStart = input.Position
-                    startPos = ToggleBtn.Position
-                    
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            dragging = false
-                        end
-                    end)
-                end
-            end)
-
-            ToggleBtn.InputChanged:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                    dragInput = input
-                end
-            end)
-
-            UserInputService.InputChanged:Connect(function(input)
-                if input == dragInput and dragging then
-                    local delta = input.Position - dragStart
-                    ToggleBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-                end
-            end)
-
-            ToggleBtn.MouseButton1Click:Connect(function()
-                Window:Minimize()
-            end)
-        end)
-    end)
-
-    Fluent:Notify({
-        Title = "LATINA HUB",
-        Content = "Loaded successfully after intro!",
-        Duration = 3
-    })
-end)
+    -- ======================================================
