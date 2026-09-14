@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - FINAL POLISHED VERSION ]
+-- [ LATINA HUB - FIXED EXECUTION VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -75,11 +75,11 @@ end)
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ EXECUTION SOUND EFFECT (UPDATED ID & VOLUME 3.5) ]
+-- [ SAFE EXECUTION SOUND EFFECT ]
 task.spawn(function()
     pcall(function()
         local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://70687053615562"
+        sound.SoundId = "rbxassetid://4590657391" -- Gibalik sa safe ID para dili ma-block
         sound.Volume = 3.5
         sound.Parent = CoreGui
         sound:Play()
@@ -244,4 +244,82 @@ UtilsTab:Button({
                 Title = "FPS Booster & HUD",
                 Content = "Boosted successfully! Live FPS & MS counter is now visible.",
                 Duration = 3
-                            
+            })
+        end)
+    end
+})
+
+UtilsTab:Button({
+    Title = "Server Finder",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
+        end)
+    end
+})
+
+UtilsTab:Button({
+    Title = "Anti AFK",
+    Callback = function()
+        pcall(function()
+            local vu = game:GetService("VirtualUser")
+            LocalPlayer.Idled:Connect(function()
+                vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+            WindUI:Notify({
+                Title = "Anti AFK",
+                Content = "Anti AFK is now Active!",
+                Duration = 3
+            })
+        end)
+    end
+})
+
+-- ========================================================
+-- [ DISCORD TAB ]
+-- ========================================================
+local DiscordTab = Window:Tab({
+    Title = "Discord",
+    Icon = "message-square"
+})
+
+DiscordTab:Paragraph({
+    Title = "Community Discord",
+    Content = "Join our Discord server for updates, scripts, and support!"
+})
+
+DiscordTab:Button({
+    Title = "Copy Discord Invite Link",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://discord.gg/yourinvite")
+            WindUI:Notify({
+                Title = "Discord",
+                Content = "Discord invite link copied to clipboard!",
+                Duration = 3
+            })
+        end)
+    end
+})
+
+-- ========================================================
+-- [ OWNER TAB ]
+-- ========================================================
+local OwnerTab = Window:Tab({
+    Title = "Owner",
+    Icon = "user"
+})
+
+OwnerTab:Paragraph({
+    Title = "Hub Information",
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: 100x Optimized & Polished"
+})
+
+-- Final Success Notification
+WindUI:Notify({
+    Title = "LATINA HUB",
+    Content = "Successfully loaded! Enjoy your scripts.",
+    Duration = 3
+})
