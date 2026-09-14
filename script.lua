@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - SAFE ANTI-AFK & FLOATING TOGGLE BUTTON ]
+-- [ LATINA HUB - STABLE EXECUTION VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -13,7 +13,7 @@ local UserInputService = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
--- [ 3.5 SECONDS INTRO ]
+-- [ 1. INTRO BANNER ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_IntroBanner") then
@@ -74,10 +74,20 @@ task.spawn(function()
     end)
 end)
 
--- Load the UI Library
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+-- [ 2. STABLE UI LIBRARY LOADER ]
+local WindUI do
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+    end)
+    if success and result then
+        WindUI = result
+    else
+        -- Fallback kung naay block sa raw link
+        WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+    end
+end
 
--- [ AUDIO PLAYBACK ]
+-- [ 3. AUDIO PLAYBACK ]
 task.spawn(function()
     pcall(function()
         local sound = Instance.new("Sound")
@@ -91,7 +101,7 @@ task.spawn(function()
     end)
 end)
 
--- Create Main Window (CIRCLE ICON)
+-- [ 4. MAIN WINDOW ]
 local Window = WindUI:CreateWindow({
     Title = "LATINA HUB",
     Icon = "circle",
@@ -104,9 +114,7 @@ local Window = WindUI:CreateWindow({
 
 Window:ToggleTransparency(false)
 
--- ========================================================
--- [ FLOATING CIRCULAR TOGGLE BUTTON (FROM YOUR SCREENSHOT) ]
--- ========================================================
+-- [ 5. FLOATING TOGGLE BUTTON ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_ToggleGui") then
@@ -135,7 +143,6 @@ task.spawn(function()
         Stroke.Color = Color3.fromRGB(255, 0, 0)
         Stroke.Thickness = 3
 
-        -- Make Floating Button Draggable
         local dragging, dragInput, dragStart, startPos
         ToggleBtn.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -164,7 +171,6 @@ task.spawn(function()
             end
         end)
 
-        -- Click to Toggle UI Open/Close
         ToggleBtn.MouseButton1Click:Connect(function()
             Window:Toggle()
         end)
@@ -172,14 +178,13 @@ task.spawn(function()
 end)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG (CIRCLE ICON) ]
+-- [ MAIN TAB: STEAL AN EGG ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
     Icon = "circle"
 })
 
--- KEYLESS SECTION
 local KeylessSection = MainTab:Section({
     Title = "🔓 Keyless Scripts (10 Slots)",
     Opened = false
@@ -196,7 +201,6 @@ for i = 1, 10 do
     })
 end
 
--- KEY SYSTEM SECTION
 local KeySystemSection = MainTab:Section({
     Title = "🔑 Key System Scripts (10 Slots)",
     Opened = false
@@ -214,7 +218,7 @@ for i = 1, 10 do
 end
 
 -- ========================================================
--- [ UTILITIES TAB: DRAGGABLE HUD & SAFE ANTI-AFK ]
+-- [ UTILITIES TAB ]
 -- ========================================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
@@ -269,7 +273,7 @@ UtilsTab:Button({
                 
                 local dragging, dragInput, dragStart, startPos
                 StatsFrame.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch me then
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         dragging = true
                         dragStart = input.Position
                         startPos = StatsFrame.Position
@@ -334,7 +338,6 @@ UtilsTab:Button({
     end
 })
 
--- SAFE ANTI-AFK (Disables Roblox Idle Disconnect Connections Directly)
 UtilsTab:Button({
     Title = "🛡️ Safe Anti AFK",
     Callback = function()
@@ -354,7 +357,7 @@ UtilsTab:Button({
             
             WindUI:Notify({
                 Title = "Anti AFK",
-                Content = "Safe Anti-AFK Enabled (No Input Emulation)!",
+                Content = "Safe Anti-AFK Enabled!",
                 Duration = 3
             })
         end)
