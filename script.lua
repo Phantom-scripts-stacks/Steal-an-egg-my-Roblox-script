@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - OPTIMIZED & BIGGER INTRO ]
+-- [ LATINA HUB - FINAL ULTIMATE VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -9,9 +9,10 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- [ 3.5 SECONDS EXACT BIGGER INTRO ANIMATION ]
+-- [ 3.5 SECONDS EXACT CENTERED INTRO ANIMATION ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_IntroBanner") then
@@ -49,14 +50,12 @@ task.spawn(function()
         
         TweenService:Create(Backdrop, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.5}):Play()
         
-        -- Gi-padako ang size ngadto sa 380x380 (mas dako na kaayo)
         local introTween = TweenService:Create(IntroImage, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Size = UDim2.new(0, 380, 0, 380),
             ImageTransparency = 0
         })
         introTween:Play()
         
-        -- Exact 3.5 seconds delay before fade out
         task.delay(3.5, function()
             local outTween = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 0, 0, 0),
@@ -105,20 +104,19 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ FLOATING CIRCLE BUTTON (SYNCED WITH WINDOW CLOSE) ]
+-- [ FLOATING CIRCLE BUTTON (STAYS ACTIVE ALWAYS) ]
 -- ========================================================
-local ScreenGui, CircleFrame
 pcall(function()
     if CoreGui:FindFirstChild("LATINA_FloatingCircle") then
         CoreGui.LATINA_FloatingCircle:Destroy()
     end
     
-    ScreenGui = Instance.new("ScreenGui")
+    local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "LATINA_FloatingCircle"
     ScreenGui.Parent = CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    CircleFrame = Instance.new("Frame")
+    local CircleFrame = Instance.new("Frame")
     CircleFrame.Name = "ToggleCircle"
     CircleFrame.Parent = ScreenGui
     CircleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -135,7 +133,6 @@ pcall(function()
     UIStroke.Color = Color3.fromRGB(255, 0, 0)
     UIStroke.Thickness = 3
     
-    -- Optimized Glowing Border Loop
     task.spawn(function()
         while CircleFrame and CircleFrame.Parent do
             TweenService:Create(UIStroke, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(255, 100, 100)}):Play()
@@ -164,20 +161,10 @@ pcall(function()
     ClickButton.Text = ""
     
     local isOpen = true
-    
-    -- Function to Toggle UI and Icon state accurately
-    local function ToggleUI(state)
-        isOpen = state
-        Window:Toggle(isOpen)
-        if ScreenGui then
-            ScreenGui.Enabled = isOpen
-        end
-    end
-    
     ClickButton.MouseButton1Click:Connect(function()
-        ToggleUI(not isOpen)
+        isOpen = not isOpen
+        Window:Toggle(isOpen)
         
-        -- Animation feedback
         TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 48, 0, 48)}):Play()
         task.wait(0.1)
         if CircleFrame then
@@ -185,7 +172,6 @@ pcall(function()
         end
     end)
     
-    -- Smooth Mobile Dragging Support
     local dragging, dragStart, startPos
     ClickButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -210,7 +196,7 @@ pcall(function()
 end)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG (KEYLESS & KEY SYSTEM SEPARATED) ]
+-- [ MAIN TAB: STEAL AN EGG (10 KEYLESS & 10 KEY SYSTEM WITH COLLAPSIBLE/DROPDOWN) ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
@@ -222,65 +208,42 @@ MainTab:Paragraph({
     Content = "Select scripts from Keyless or Key System categories below."
 })
 
--- KEYLESS SECTION
-MainTab:Paragraph({
-    Title = "🔓 Keyless Scripts",
-    Content = "Direct execution scripts (No Key required)."
+-- KEYLESS SECTION (Collapsible / Dropdown with 10 Slots)
+local KeylessSection = MainTab:Section({
+    Title = "🔓 Keyless Scripts (10 Slots)",
+    Opened = false
 })
 
-MainTab:Button({
-    Title = "Keyless Script Slot 1",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
+for i = 1, 10 do
+    KeylessSection:Button({
+        Title = "Keyless Script Slot " .. i,
+        Callback = function()
+            pcall(function()
+                loadstring(game:HttpGet("(put your keyless script " .. i .. " here)"))()
+            end)
+        end
+    })
+end
+
+-- KEY SYSTEM SECTION (Collapsible / Dropdown with 10 Slots)
+local KeySystemSection = MainTab:Section({
+    Title = "🔑 Key System Scripts (10 Slots)",
+    Opened = false
 })
 
-MainTab:Button({
-    Title = "Keyless Script Slot 2",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Keyless Script Slot 3",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your keyless script here)"))()
-        end)
-    end
-})
-
--- KEY SYSTEM SECTION
-MainTab:Paragraph({
-    Title = "🔑 Key System Scripts",
-    Content = "Scripts that require a secure verification key."
-})
-
-MainTab:Button({
-    Title = "Key System Script Slot 1",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your key system script here)"))()
-        end)
-    end
-})
-
-MainTab:Button({
-    Title = "Key System Script Slot 2",
-    Callback = function()
-        pcall(function()
-            loadstring(game:HttpGet("(put your key system script here)"))()
-        end)
-    end
-})
+for i = 1, 10 do
+    KeySystemSection:Button({
+        Title = "Key System Script Slot " .. i,
+        Callback = function()
+            pcall(function()
+                loadstring(game:HttpGet("(put your key system script " .. i .. " here)"))()
+            end)
+        end
+    })
+end
 
 -- ========================================================
--- [ UTILITIES TAB: FPS BOOSTER, SERVER FINDER, ANTI AFK ]
+-- [ UTILITIES TAB: MANUAL FPS BOOSTER + FPS/MS COUNTER & MORE ]
 -- ========================================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
@@ -289,13 +252,15 @@ local UtilsTab = Window:Tab({
 
 UtilsTab:Paragraph({
     Title = "Performance & Tools",
-    Content = "Optimize your game performance and server utilities."
+    Content = "Activate FPS booster to optimize game and show FPS & MS."
 })
 
+local fpsConnection = nil
 UtilsTab:Button({
-    Title = "⚡ FPS Booster / Optimizer",
+    Title = "⚡ FPS Booster & Show FPS/MS",
     Callback = function()
         pcall(function()
+            -- Optimize game
             local Terrain = workspace:FindFirstChildOfClass("Terrain")
             if Terrain then
                 Terrain.WaterTransparency = 1
@@ -312,10 +277,66 @@ UtilsTab:Button({
             end
             
             UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualityLevel.Level1
+
+            -- Create FPS & MS Display HUD if not exists
+            if not CoreGui:FindFirstChild("LATINA_FPS_MS") then
+                local StatsGui = Instance.new("ScreenGui")
+                StatsGui.Name = "LATINA_FPS_MS"
+                StatsGui.Parent = CoreGui
+                StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                
+                local StatsFrame = Instance.new("Frame")
+                StatsFrame.Parent = StatsGui
+                StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                StatsFrame.BorderSizePixel = 0
+                StatsFrame.Position = UDim2.new(0.05, 0, 0.12, 0)
+                StatsFrame.Size = UDim2.new(0, 150, 0, 35)
+                
+                local Corner = Instance.new("UICorner")
+                Corner.CornerRadius = UDim.new(0.2, 0)
+                Corner.Parent = StatsFrame
+                
+                local Stroke = Instance.new("UIStroke")
+                Stroke.Parent = StatsFrame
+                Stroke.Color = Color3.fromRGB(255, 0, 0)
+                Stroke.Thickness = 1.5
+                
+                local StatsText = Instance.new("TextLabel")
+                StatsText.Name = "StatsLabel"
+                StatsText.Parent = StatsFrame
+                StatsText.BackgroundTransparency = 1
+                StatsText.Size = UDim2.new(1, 0, 1, 0)
+                StatsText.Font = Enum.Font.Code
+                StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                StatsText.TextSize = 13
+                StatsText.Text = "FPS: 0 | MS: 0ms"
+                
+                local lastUpdate = 0
+                local frameCount = 0
+                local currentFPS = 0
+                
+                if fpsConnection then fpsConnection:Disconnect() end
+                fpsConnection = RunService.RenderStepped:Connect(function(dt)
+                    frameCount = frameCount + 1
+                    local now = tick()
+                    if now - lastUpdate >= 1 then
+                        currentFPS = math.floor(frameCount / (now - lastUpdate))
+                        frameCount = 0
+                        lastUpdate = now
+                        
+                        local ping = 0
+                        pcall(function()
+                            ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+                        end)
+                        
+                        StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
+                    end
+                end)
+            end
             
             WindUI:Notify({
-                Title = "FPS Booster",
-                Content = "Game optimized successfully for maximum FPS!",
+                Title = "FPS Booster & HUD",
+                Content = "Optimized successfully! FPS & MS Counter activated.",
                 Duration = 3
             })
         end)
@@ -387,12 +408,12 @@ local OwnerTab = Window:Tab({
 
 OwnerTab:Paragraph({
     Title = "Hub Information",
-    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: 100x Optimized & Secure"
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: Fully Loaded & Optimized"
 })
 
 -- Final Success Notification
 WindUI:Notify({
     Title = "LATINA HUB",
-    Content = "Successfully loaded with Bigger Intro & FPS Booster!",
+    Content = "Successfully loaded with 10 Key/Keyless slots and FPS/MS counter!",
     Duration = 3
 })
