@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - LIGHTWEIGHT & CIRCLE ICON ]
+-- [ LATINA HUB - SAFE ANTI-AFK & FLOATING TOGGLE BUTTON ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -10,6 +10,7 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [ 3.5 SECONDS INTRO ]
@@ -76,6 +77,20 @@ end)
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
+-- [ AUDIO PLAYBACK ]
+task.spawn(function()
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://70687053615562"
+        sound.Volume = 5
+        sound.Parent = workspace
+        SoundService:PlayLocalSound(sound)
+        sound.Ended:Connect(function()
+            sound:Destroy()
+        end)
+    end)
+end)
+
 -- Create Main Window (CIRCLE ICON)
 local Window = WindUI:CreateWindow({
     Title = "LATINA HUB",
@@ -88,6 +103,73 @@ local Window = WindUI:CreateWindow({
 })
 
 Window:ToggleTransparency(false)
+
+-- ========================================================
+-- [ FLOATING CIRCULAR TOGGLE BUTTON (FROM YOUR SCREENSHOT) ]
+-- ========================================================
+task.spawn(function()
+    pcall(function()
+        if CoreGui:FindFirstChild("LATINA_ToggleGui") then
+            CoreGui.LATINA_ToggleGui:Destroy()
+        end
+
+        local ToggleGui = Instance.new("ScreenGui")
+        ToggleGui.Name = "LATINA_ToggleGui"
+        ToggleGui.Parent = CoreGui
+        ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        local ToggleBtn = Instance.new("ImageButton")
+        ToggleBtn.Parent = ToggleGui
+        ToggleBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
+        ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+        ToggleBtn.Image = CUSTOM_IMAGE_ID
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        ToggleBtn.Active = true
+
+        local Corner = Instance.new("UICorner")
+        Corner.CornerRadius = UDim.new(1, 0)
+        Corner.Parent = ToggleBtn
+
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Parent = ToggleBtn
+        Stroke.Color = Color3.fromRGB(255, 0, 0)
+        Stroke.Thickness = 3
+
+        -- Make Floating Button Draggable
+        local dragging, dragInput, dragStart, startPos
+        ToggleBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = ToggleBtn.Position
+                
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+
+        ToggleBtn.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                local delta = input.Position - dragStart
+                ToggleBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end)
+
+        -- Click to Toggle UI Open/Close
+        ToggleBtn.MouseButton1Click:Connect(function()
+            Window:Toggle()
+        end)
+    end)
+end)
 
 -- ========================================================
 -- [ MAIN TAB: STEAL AN EGG (CIRCLE ICON) ]
@@ -132,7 +214,7 @@ for i = 1, 10 do
 end
 
 -- ========================================================
--- [ UTILITIES TAB: DRAGGABLE FPS/MS HUD ]
+-- [ UTILITIES TAB: DRAGGABLE HUD & SAFE ANTI-AFK ]
 -- ========================================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
@@ -187,7 +269,7 @@ UtilsTab:Button({
                 
                 local dragging, dragInput, dragStart, startPos
                 StatsFrame.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch me then
                         dragging = true
                         dragStart = input.Position
                         startPos = StatsFrame.Position
@@ -252,19 +334,27 @@ UtilsTab:Button({
     end
 })
 
+-- SAFE ANTI-AFK (Disables Roblox Idle Disconnect Connections Directly)
 UtilsTab:Button({
-    Title = "Anti AFK",
+    Title = "🛡️ Safe Anti AFK",
     Callback = function()
         pcall(function()
-            local vu = game:GetService("VirtualUser")
-            LocalPlayer.Idled:Connect(function()
-                vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                task.wait(1)
-                vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            end)
+            local GC = getconnections or get_connections
+            if GC then
+                for _, connection in pairs(GC(LocalPlayer.Idled)) do
+                    if connection.Disable then
+                        connection:Disable()
+                    elseif connection.Disconnect then
+                        connection:Disconnect()
+                    end
+                end
+            else
+                LocalPlayer.Idled:Connect(function() end)
+            end
+            
             WindUI:Notify({
                 Title = "Anti AFK",
-                Content = "Anti AFK is active!",
+                Content = "Safe Anti-AFK Enabled (No Input Emulation)!",
                 Duration = 3
             })
         end)
