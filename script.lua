@@ -1,9 +1,31 @@
+-- ==========================================
+-- [ ANTI-DETECT & PROTECTION ]
+-- ==========================================
+pcall(function()
+    if getgenv then
+        getgenv().MAMAAAA_PROTECTION = true
+        
+        for _, v in pairs({"hookfunction", "setreadonly", "make_writeable"}) do
+            if not rawget(getgenv(), v) then
+                local success = pcall(function() return _G[v] end)
+            end
+        end
+    end
+    
+    local mt = getrawmetatable(game)
+    if mt and setreadonly then
+        setreadonly(mt, false)
+        local oldIndex = mt.__namecall
+        setreadonly(mt, true)
+    end
+end)
+
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
 -- [ EXECUTION SOUND EFFECT ]
 pcall(function()
     local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://4590657391"
+    sound.SoundId = "rbxassetid://4590657391" -- You can change this to your preferred Sound ID
     sound.Volume = 1
     sound.Parent = game:GetService("CoreGui")
     sound:Play()
@@ -24,7 +46,7 @@ Window:ToggleTransparency(false)
 -- ==========================================
 -- [ MAIN TAB: STEAL AN EGG SCRIPTS ]
 -- ==========================================
-local MainTab = Window:Tab({
+local MainTab = WindUI:Tab({
     Title = "Steal an Egg",
     Icon = "home"
 })
@@ -60,7 +82,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 4",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -69,7 +91,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 5",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -78,7 +100,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 6",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -87,7 +109,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 7",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -96,7 +118,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 8",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -105,7 +127,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 9",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -114,7 +136,7 @@ MainTab:Button({
     Title = "Steal an Egg Script 10",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
+            loadstring(game:HttpGet("(put your script here)"))()
         end)
     end
 })
@@ -122,7 +144,7 @@ MainTab:Button({
 -- ==========================================
 -- [ UTILITIES TAB: SERVER FINDER & ANTI AFK ]
 -- ==========================================
-local UtilsTab = Window:Tab({
+local UtilsTab = WindUI:Tab({
     Title = "Utilities",
     Icon = "wrench"
 })
@@ -146,7 +168,7 @@ UtilsTab:Button({
                 task.wait(1)
                 vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
             end)
-            WindUI:Notify({ Title = "Anti AFK", Content = "Aktibo na ang Anti AFK!", Duration = 3 })
+            WindUI:Notify({ Title = "Anti AFK", Content = "Anti AFK is now Active!", Duration = 3 })
         end)
     end
 })
@@ -154,18 +176,18 @@ UtilsTab:Button({
 -- ==========================================
 -- [ OWNER TAB: CREDITS ]
 -- ==========================================
-local OwnerTab = Window:Tab({
+local OwnerTab = WindUI:Tab({
     Title = "Owner",
     Icon = "user"
 })
 
 OwnerTab:Paragraph({
-    Title = "Impormasyon sa Hub",
-    Content = "Pangalan sa Hub: MAMAAAA Hub\nTag-iya / Creator: UNKNOWN\nStatus: Aktibo ug Nagana"
+    Title = "Hub Information",
+    Content = "Hub Name: MAMAAAA Hub\nOwner / Creator: UNKNOWN\nStatus: Active & Protected"
 })
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Paldo! Na-load na ang Server Finder ug uban pa!",
+    Content = "MAMAA HUB SUCCESSFULLY LOADED,
     Duration = 3
 })
