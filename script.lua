@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - ULTIMATE OPTIMIZED VERSION (3.5s INTRO) ]
+-- [ LATINA HUB - OPTIMIZED & BIGGER INTRO ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -11,7 +11,7 @@ local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- [ 3.5 SECONDS EXACT INTRO ANIMATION ]
+-- [ 3.5 SECONDS EXACT BIGGER INTRO ANIMATION ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_IntroBanner") then
@@ -49,8 +49,9 @@ task.spawn(function()
         
         TweenService:Create(Backdrop, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.5}):Play()
         
+        -- Gi-padako ang size ngadto sa 380x380 (mas dako na kaayo)
         local introTween = TweenService:Create(IntroImage, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 280, 0, 280),
+            Size = UDim2.new(0, 380, 0, 380),
             ImageTransparency = 0
         })
         introTween:Play()
@@ -104,7 +105,7 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ FLOATING CIRCLE BUTTON (SYNCHRONIZED WITH WINDOW HIDE) ]
+-- [ FLOATING CIRCLE BUTTON (SYNCED WITH WINDOW CLOSE) ]
 -- ========================================================
 local ScreenGui, CircleFrame
 pcall(function()
@@ -164,13 +165,17 @@ pcall(function()
     
     local isOpen = true
     
-    -- Toggle Button Click Action & Window Sync
-    ClickButton.MouseButton1Click:Connect(function()
-        isOpen = not isOpen
+    -- Function to Toggle UI and Icon state accurately
+    local function ToggleUI(state)
+        isOpen = state
         Window:Toggle(isOpen)
         if ScreenGui then
             ScreenGui.Enabled = isOpen
         end
+    end
+    
+    ClickButton.MouseButton1Click:Connect(function()
+        ToggleUI(not isOpen)
         
         -- Animation feedback
         TweenService:Create(CircleFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 48, 0, 48)}):Play()
@@ -388,6 +393,6 @@ OwnerTab:Paragraph({
 -- Final Success Notification
 WindUI:Notify({
     Title = "LATINA HUB",
-    Content = "Successfully loaded with FPS Booster & Key/Keyless setup!",
+    Content = "Successfully loaded with Bigger Intro & FPS Booster!",
     Duration = 3
 })
