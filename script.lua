@@ -1,27 +1,40 @@
--- ==========================================
--- SCRIPT TITLE : MAMAAAA
--- CREATED BY   : UNKNOWN
--- ==========================================
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-print("Loaded: MAMAAAA")
+local Window = Rayfield:CreateWindow({
+   Name = "MAMAAAA Hub",
+   LoadingTitle = "Loading Master Hub...",
+   LoadingSubtitle = "By UNKNOWN",
+   ConfigurationSaving = { Enabled = false }
+})
 
--- [ SCRIPT 1 ]
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
-    end)
-end)
+local MainTab = Window:CreateTab("Main Scripts", 4483362458)
 
--- [ SCRIPT 2 ]
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
-    end)
-end)
+-- [ BUTTON 1 ]
+MainTab:CreateButton({
+   Name = "Steal an Egg Script 1",
+   Callback = function()
+       pcall(function()
+           loadstring(game:HttpGet("https://raw.githubusercontent.com/eiltrunduhub/loader/main/stealeggs"))()
+       end)
+   end,
+})
 
--- [ SCRIPT 3 ]
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/65bf3459d87ba3ac46350e154b640929.lua"))()
-    end)
-end)
+-- [ BUTTON 2 ]
+MainTab:CreateButton({
+   Name = "Steal an Egg Script 2",
+   Callback = function()
+       pcall(function()
+           loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
+       end)
+   end,
+})
+
+-- [ BUTTON 3 ]
+MainTab:CreateButton({
+   Name = "Script 3",
+   Callback = function()
+       pcall(function()
+           loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
+       end)
+   end,
+})
