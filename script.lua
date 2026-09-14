@@ -3,25 +3,18 @@
 -- CREATED BY   : UNKNOWN
 -- ==========================================
 
-print("Loaded: put your script title here")
+print("Loaded: MAMAAAA")
 
 -- [ SCRIPT 1 ]
 task.spawn(function()
     pcall(function()
-        loadstring(game:HttpGet("put your script link here"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
     end)
 end)
 
 -- [ SCRIPT 2 ]
 task.spawn(function()
     pcall(function()
-        loadstring(game:HttpGet("put your script link here"))()
-    end)
-end)
-
--- [ SCRIPT 3 ]
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("put your script link here"))()
+        -- loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
     end)
 end)
