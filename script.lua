@@ -1,8 +1,8 @@
 -- ==========================================
--- [ MAMAAAA HUB - 3.0s INTRO & KEY SYSTEM ]
+-- [ MAMAAAA HUB - CLEAN CODE ]
 -- ==========================================
 
-local CUSTOM_IMAGE_ID = "rbxassetid://132064687707304"
+local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
 
 -- [ 3.0 SECONDS EXACT INTRO ANIMATION ]
 task.spawn(function()
@@ -51,7 +51,6 @@ task.spawn(function()
         })
         introTween:Play()
         
-        -- Exact 3.0 seconds total display time before fade out
         task.delay(3.0, function()
             local outTween = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
                 Size = UDim2.new(0, 0, 0, 0),
@@ -101,7 +100,7 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ==========================================
--- [ 10X GLOWING FLOATING CIRCLE BUTTON ]
+-- [ FLOATING CIRCLE BUTTON ]
 -- ==========================================
 pcall(function()
     local CoreGui = game:GetService("CoreGui")
@@ -118,7 +117,7 @@ pcall(function()
     local CircleFrame = Instance.new("Frame")
     CircleFrame.Name = "ToggleCircle"
     CircleFrame.Parent = ScreenGui
-    CircleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    CircleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     CircleFrame.BorderSizePixel = 0
     CircleFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
     CircleFrame.Size = UDim2.new(0, 55, 0, 55)
@@ -145,7 +144,8 @@ pcall(function()
     local IsagiImage = Instance.new("ImageLabel")
     IsagiImage.Parent = CircleFrame
     IsagiImage.BackgroundTransparency = 1
-    IsagiImage.Size = UDim2.new(1, 0, 1, 0)
+    IsagiImage.Size = UDim2.new(1, -6, 1, -6)
+    IsagiImage.Position = UDim2.new(0, 3, 0, 3)
     IsagiImage.Image = CUSTOM_IMAGE_ID
     
     local ImageCorner = Instance.new("UICorner")
@@ -155,7 +155,7 @@ pcall(function()
     local ClickButton = Instance.new("TextButton")
     ClickButton.Parent = CircleFrame
     ClickButton.BackgroundTransparency = 1
-    ClickButton.Size = UDim2.new(1, 1, 1, 1)
+    ClickButton.Size = UDim2.new(1, 0, 1, 0)
     ClickButton.Text = ""
     
     local isOpen = true
@@ -206,7 +206,6 @@ MainTab:Paragraph({
     Content = "Choose between Key System scripts or Keyless scripts below."
 })
 
--- KEY SYSTEM SECTION
 MainTab:Button({
     Title = "[Key System] Script Slot 1",
     Callback = function()
@@ -225,7 +224,6 @@ MainTab:Button({
     end
 })
 
--- KEYLESS SECTION
 MainTab:Button({
     Title = "[Keyless] Script Slot 1",
     Callback = function()
@@ -254,7 +252,7 @@ MainTab:Button({
 })
 
 -- ==========================================
--- [ UTILITIES TAB: SERVER FINDER & ANTI AFK ]
+-- [ UTILITIES TAB ]
 -- ==========================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
@@ -313,15 +311,8 @@ DiscordTab:Button({
 })
 
 -- ==========================================
--- [ OWNER TAB: CREDITS ]
+-- [ OWNER TAB ]
 -- ==========================================
-ObjectTab = Window:Tab({
-    Title = "Owner",
-    Icon = "user"
-})
-
-ObjectTab = OwnerTab -- fallback safety
--- Using direct variable setup for Owner Tab
 local OwnerTab = Window:Tab({
     Title = "Owner",
     Icon = "user"
@@ -334,6 +325,6 @@ OwnerTab:Paragraph({
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Loaded successfully with Key & Keyless options!",
+    Content = "Loaded successfully!",
     Duration = 3
 })
