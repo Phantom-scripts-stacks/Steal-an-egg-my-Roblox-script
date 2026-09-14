@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - CIRCLE ICON & FIXED AUDIO ]
+-- [ LATINA HUB - CIRCLE ICON CONFIRMED & DRAGGABLE HUD ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -91,7 +91,7 @@ task.spawn(function()
     end)
 end)
 
--- Create the Main Window (CIRCLE ICON)
+-- Create the Main Window (WITH CIRCLE ICON)
 local Window = WindUI:CreateWindow({
     Title = "LATINA HUB",
     Icon = "circle",
@@ -105,7 +105,7 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG (CIRCLE ICON) ]
+-- [ MAIN TAB: STEAL AN EGG (WITH CIRCLE ICON) ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
