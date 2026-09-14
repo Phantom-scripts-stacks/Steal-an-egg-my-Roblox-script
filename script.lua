@@ -1,5 +1,14 @@
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
+-- [ EXECUTION SOUND EFFECT ]
+pcall(function()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://4590657391"
+    sound.Volume = 1
+    sound.Parent = game:GetService("CoreGui")
+    sound:Play()
+end)
+
 local Window = WindUI:CreateWindow({
     Title = "MAMAAAA Hub",
     Icon = "shield",
@@ -12,23 +21,23 @@ local Window = WindUI:CreateWindow({
 
 Window:ToggleTransparency(false)
 
--- [ MAIN TAB: SCRIPTS & UTILITIES ]
+-- ==========================================
+-- [ MAIN TAB: STEAL AN EGG SCRIPTS ]
+-- ==========================================
 local MainTab = Window:Tab({
-    Title = "Scripts steal an egg",
+    Title = "Steal an Egg",
     Icon = "home"
 })
 
--- [ BUTTON 1 ] (you can change this)
 MainTab:Button({
     Title = "Steal an Egg Script 1",
     Callback = function()
         pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/eiltrunduhub/loader/main/stealeggs"))()
         end)
     end
 })
 
--- [ BUTTON 2 ] (you can change this)
 MainTab:Button({
     Title = "Steal an Egg Script 2",
     Callback = function()
@@ -38,9 +47,8 @@ MainTab:Button({
     end
 })
 
--- [ BUTTON 3 ] (you can change this)
 MainTab:Button({
-    Title = "Script 3",
+    Title = "Steal an Egg Script 3",
     Callback = function()
         pcall(function()
             loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/55bf341d087ba3acd5190a5d6d4d9824.lua"))()
@@ -48,117 +56,82 @@ MainTab:Button({
     end
 })
 
--- [ BUTTON 4 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 4",
+    Title = "Steal an Egg Script 4",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 5 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 5",
+    Title = "Steal an Egg Script 5",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 6 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 6",
+    Title = "Steal an Egg Script 6",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 7 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 7",
+    Title = "Steal an Egg Script 7",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 8 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 8",
+    Title = "Steal an Egg Script 8",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 9 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 9",
+    Title = "Steal an Egg Script 9",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ BUTTON 10 ] (you can change this)
 MainTab:Button({
-    Title = "Script Slot 10",
+    Title = "Steal an Egg Script 10",
     Callback = function()
         pcall(function()
-            -- (you can change this link)
-            loadstring(game:HttpGet("PUT_LINK_HERE"))()
+            loadstring(game:HttpGet("(ibutang imong Kuan Ari)"))()
         end)
     end
 })
 
--- [ UTILITIES TAB: SERVER HOP & ANTI AFK ]
+-- ==========================================
+-- [ UTILITIES TAB: SERVER FINDER & ANTI AFK ]
+-- ==========================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
     Icon = "wrench"
 })
 
 UtilsTab:Button({
-    Title = "Server Hop",
+    Title = "Server Finder",
     Callback = function()
         pcall(function()
-            local TeleportService = game:GetService("TeleportService")
-            local Players = game:GetService("Players")
-            local req = http and http.request or syn and syn.request or request
-            if req then
-                local servers = {}
-                local cursor = ""
-                repeat
-                    local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or "")
-                    local body = game:GetService("HttpService"):JSONDecode(req({Url = url}).Body)
-                    cursor = body.nextPageCursor
-                    for _, v in ipairs(body.data) do
-                        if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                            table.insert(servers, v.id)
-                        end
-                    end
-                until cursor == nil or #servers > 0
-                if #servers > 0 then
-                    TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
-                else
-                    WindUI:Notify({ Title = "Server Hop", Content = "No other servers found!", Duration = 3 })
-                end
-            else
-                TeleportService:Teleport(game.PlaceId, Players.LocalPlayer)
-            end
+            loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
         end)
     end
 })
@@ -173,24 +146,26 @@ UtilsTab:Button({
                 task.wait(1)
                 vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
             end)
-            WindUI:Notify({ Title = "Anti AFK", Content = "Anti AFK is now Active!", Duration = 3 })
+            WindUI:Notify({ Title = "Anti AFK", Content = "Aktibo na ang Anti AFK!", Duration = 3 })
         end)
     end
 })
 
+-- ==========================================
 -- [ OWNER TAB: CREDITS ]
+-- ==========================================
 local OwnerTab = Window:Tab({
     Title = "Owner",
     Icon = "user"
 })
 
 OwnerTab:Paragraph({
-    Title = "Hub Information",
-    Content = "Hub Name: MAMAAAA Hub\nOwner / Creator: UNKNOWN\nStatus: Active & Working"
+    Title = "Impormasyon sa Hub",
+    Content = "Pangalan sa Hub: MAMAAAA Hub\nTag-iya / Creator: UNKNOWN\nStatus: Aktibo ug Nagana"
 })
 
 WindUI:Notify({
     Title = "MAMAAAA Hub",
-    Content = "Hub loaded successfully with Utilities & Owner tab!",
+    Content = "Paldo! Na-load na ang Server Finder ug uban pa!",
     Duration = 3
 })
