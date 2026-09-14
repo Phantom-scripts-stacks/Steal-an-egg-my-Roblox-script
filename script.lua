@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - FIXED EXECUTION VERSION ]
+-- [ LATINA HUB - DRAGGABLE HUD & VOLUME 30 ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -9,9 +9,10 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- [ 3.5 SECONDS INTRO: CENTERED & SLIGHTLY UP ]
+-- [ 3.5 SECONDS INTRO ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_IntroBanner") then
@@ -75,12 +76,12 @@ end)
 -- Load the UI Library
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
--- [ SAFE EXECUTION SOUND EFFECT ]
+-- [ YOUR CUSTOM SOUND EFFECT (VOLUME: 30) ]
 task.spawn(function()
     pcall(function()
         local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://4590657391" -- Gibalik sa safe ID para dili ma-block
-        sound.Volume = 3.5
+        sound.SoundId = "rbxassetid://70687053615562"
+        sound.Volume = 30
         sound.Parent = CoreGui
         sound:Play()
         sound.Ended:Connect(function()
@@ -103,16 +104,11 @@ local Window = WindUI:CreateWindow({
 Window:ToggleTransparency(false)
 
 -- ========================================================
--- [ MAIN TAB: STEAL AN EGG (10 KEYLESS & 10 KEY SYSTEM) ]
+-- [ MAIN TAB: STEAL AN EGG ]
 -- ========================================================
 local MainTab = Window:Tab({
     Title = "Steal an Egg",
     Icon = "home"
-})
-
-MainTab:Paragraph({
-    Title = "Steal an Egg Hub",
-    Content = "Select scripts from Keyless or Key System categories below."
 })
 
 -- KEYLESS SECTION (10 Slots)
@@ -150,101 +146,114 @@ for i = 1, 10 do
 end
 
 -- ========================================================
--- [ UTILITIES TAB: FIXED FPS BOOSTER + LIVE FPS/MS COUNTER ]
+-- [ UTILITIES TAB: DRAGGABLE FPS/MS HUD ]
 -- ========================================================
 local UtilsTab = Window:Tab({
     Title = "Utilities",
     Icon = "wrench"
 })
 
-UtilsTab:Paragraph({
-    Title = "Performance & Tools",
-    Content = "Click FPS booster to optimize game and display live FPS/MS."
-})
-
 local fpsConnection = nil
 UtilsTab:Button({
-    Title = "⚡ FPS Booster & Show FPS/MS",
+    Title = "📊 Toggle FPS/MS Counter",
     Callback = function()
         pcall(function()
-            local Terrain = workspace:FindFirstChildOfClass("Terrain")
-            if Terrain then
-                Terrain.WaterTransparency = 1
-                Terrain.WaterWaveSize = 0
-            end
-            
-            for _, v in ipairs(game:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.Material = Enum.Material.SmoothPlastic
-                    v.CastShadow = false
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") then
-                    v.Enabled = false
-                end
-            end
-            
-            UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualityLevel.Level1
-
             if CoreGui:FindFirstChild("LATINA_FPS_MS") then
+                if fpsConnection then fpsConnection:Disconnect() end
                 CoreGui.LATINA_FPS_MS:Destroy()
+                WindUI:Notify({
+                    Title = "HUD Display",
+                    Content = "FPS & MS Counter hidden.",
+                    Duration = 2
+                })
+            else
+                local StatsGui = Instance.new("ScreenGui")
+                StatsGui.Name = "LATINA_FPS_MS"
+                StatsGui.Parent = CoreGui
+                StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                
+                local StatsFrame = Instance.new("Frame")
+                StatsFrame.Parent = StatsGui
+                StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                StatsFrame.BorderSizePixel = 0
+                StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
+                StatsFrame.Size = UDim2.new(0, 160, 0, 40)
+                StatsFrame.Active = true
+                
+                local Corner = Instance.new("UICorner")
+                Corner.CornerRadius = UDim.new(0.2, 0)
+                Corner.Parent = StatsFrame
+                
+                local Stroke = Instance.new("UIStroke")
+                Stroke.Parent = StatsFrame
+                Stroke.Color = Color3.fromRGB(255, 50, 50)
+                Stroke.Thickness = 2
+                
+                local StatsText = Instance.new("TextLabel")
+                StatsText.Name = "StatsLabel"
+                StatsText.Parent = StatsFrame
+                StatsText.BackgroundTransparency = 1
+                StatsText.Size = UDim2.new(1, 0, 1, 0)
+                StatsText.Font = Enum.Font.GothamBold
+                StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                StatsText.TextSize = 13
+                StatsText.Text = "FPS: 0 | MS: 0ms"
+                
+                -- DRAGGABLE SCRIPT FOR FPS/MS HUD
+                local dragging, dragInput, dragStart, startPos
+                StatsFrame.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                        dragging = true
+                        dragStart = input.Position
+                        startPos = StatsFrame.Position
+                        
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragging = false
+                            end
+                        end)
+                    end
+                end)
+                
+                StatsFrame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                
+                UserInputService.InputChanged:Connect(function(input)
+                    if input == dragInput and dragging then
+                        local delta = input.Position - dragStart
+                        StatsFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                    end
+                end)
+                
+                local lastUpdate = tick()
+                local frameCount = 0
+                
+                fpsConnection = RunService.RenderStepped:Connect(function()
+                    frameCount = frameCount + 1
+                    local now = tick()
+                    if now - lastUpdate >= 1 then
+                        local currentFPS = math.floor(frameCount / (now - lastUpdate))
+                        frameCount = 0
+                        lastUpdate = now
+                        
+                        local ping = 0
+                        pcall(function()
+                            ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+                        end)
+                        
+                        StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
+                    end
+                end)
+                
+                WindUI:Notify({
+                    Title = "HUD Display",
+                    Content = "Live FPS & MS counter active (Draggable!).",
+                    Duration = 2
+                })
             end
-            
-            local StatsGui = Instance.new("ScreenGui")
-            StatsGui.Name = "LATINA_FPS_MS"
-            StatsGui.Parent = CoreGui
-            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            
-            local StatsFrame = Instance.new("Frame")
-            StatsFrame.Parent = StatsGui
-            StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            StatsFrame.BorderSizePixel = 0
-            StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
-            StatsFrame.Size = UDim2.new(0, 160, 0, 40)
-            
-            local Corner = Instance.new("UICorner")
-            Corner.CornerRadius = UDim.new(0.2, 0)
-            Corner.Parent = StatsFrame
-            
-            local Stroke = Instance.new("UIStroke")
-            Stroke.Parent = StatsFrame
-            Stroke.Color = Color3.fromRGB(255, 0, 0)
-            Stroke.Thickness = 2
-            
-            local StatsText = Instance.new("TextLabel")
-            StatsText.Name = "StatsLabel"
-            StatsText.Parent = StatsFrame
-            StatsText.BackgroundTransparency = 1
-            StatsText.Size = UDim2.new(1, 0, 1, 0)
-            StatsText.Font = Enum.Font.GothamBold
-            StatsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            StatsText.TextSize = 13
-            StatsText.Text = "FPS: 0 | MS: 0ms"
-            
-            local lastUpdate = tick()
-            local frameCount = 0
-            
-            if fpsConnection then fpsConnection:Disconnect() end
-            fpsConnection = RunService.RenderStepped:Connect(function()
-                frameCount = frameCount + 1
-                local now = tick()
-                if now - lastUpdate >= 1 then
-                    local currentFPS = math.floor(frameCount / (now - lastUpdate))
-                    frameCount = 0
-                    lastUpdate = now
-                    
-                    local ping = 0
-                    pcall(function()
-                        ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-                    end)
-                    
-                    StatsText.Text = string.format("FPS: %d | MS: %dms", currentFPS, ping)
-                end
-            end)
-            
-            WindUI:Notify({
-                Title = "FPS Booster & HUD",
-                Content = "Boosted successfully! Live FPS & MS counter is now visible.",
-                Duration = 3
-            })
         end)
     end
 })
@@ -285,11 +294,6 @@ local DiscordTab = Window:Tab({
     Icon = "message-square"
 })
 
-DiscordTab:Paragraph({
-    Title = "Community Discord",
-    Content = "Join our Discord server for updates, scripts, and support!"
-})
-
 DiscordTab:Button({
     Title = "Copy Discord Invite Link",
     Callback = function()
@@ -314,12 +318,12 @@ local OwnerTab = Window:Tab({
 
 OwnerTab:Paragraph({
     Title = "Hub Information",
-    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: 100x Optimized & Polished"
+    Content = "Hub Name: LATINA HUB\nOwner / Creator: UNKNOWN\nStatus: Active"
 })
 
 -- Final Success Notification
 WindUI:Notify({
     Title = "LATINA HUB",
-    Content = "Successfully loaded! Enjoy your scripts.",
+    Content = "Loaded successfully!",
     Duration = 3
 })
