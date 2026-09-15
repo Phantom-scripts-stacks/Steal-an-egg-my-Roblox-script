@@ -204,7 +204,7 @@ local h=0.5
 while VB and VB.Parent do h=(h+0.008)%1 local c=Color3.fromHSV(h,1,1) VB.TextColor3=c VB.BackgroundColor3=c task.wait(0.03)end
 end)
 local ML=Instance.new("TextLabel",TBAR)
-ML.Size=UDim2.new(0,120,0,12)
+ML.Size=UDim2.new(0,140,0,12)
 ML.Position=UDim2.new(1,-180,0,15)
 ML.BackgroundTransparency=1
 ML.Text="FPS -- | --ms"
