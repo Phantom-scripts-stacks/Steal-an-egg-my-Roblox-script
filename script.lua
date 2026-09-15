@@ -12,16 +12,12 @@ local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local UserInputService = game:GetService("UserInputService")
 
--- Tangtangon daan kung naa pay daan nga GUI
 if PlayerGui:FindFirstChild("LatinaRayfieldStyle") then
     PlayerGui.LatinaRayfieldStyle:Destroy()
 end
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
 
--- ==========================================
--- [ GLOBAL CLICK SOUND SETUP ]
--- ==========================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LatinaRayfieldStyle"
 ScreenGui.ResetOnSpawn = false
@@ -30,7 +26,7 @@ ScreenGui.Parent = PlayerGui
 
 local ClickSound = Instance.new("Sound")
 ClickSound.Name = "ClickSoundEffect"
-ClickSound.SoundId = "rbxassetid://906107293" -- Standard clean UI click sound
+ClickSound.SoundId = "rbxassetid://906107293"
 ClickSound.Volume = 0.7
 ClickSound.Parent = ScreenGui
 
@@ -40,9 +36,6 @@ local function PlayClick()
     end)
 end
 
--- ==========================================
--- [ NOTIFICATION SYSTEM ]
--- ==========================================
 local function ShowNotification(text)
     task.spawn(function()
         pcall(function()
@@ -68,14 +61,12 @@ local function ShowNotification(text)
             NotifText.Font = Enum.Font.GothamBold
             NotifText.ZIndex = 100000
 
-            -- Slide down animation
             TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0.5, -130, 0, 20)
             }):Play()
 
             task.wait(3)
 
-            -- Slide up and destroy
             local fadeOut = TweenService:Create(NotifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
                 Position = UDim2.new(0.5, -130, 0, -60)
             })
@@ -86,9 +77,6 @@ local function ShowNotification(text)
     end)
 end
 
--- ==========================================
--- [ THEMES DEFINITION ]
--- ==========================================
 local Themes = {
     ["Dark Purple"] = {
         MainBg = Color3.fromRGB(18, 18, 24),
@@ -164,9 +152,6 @@ local Themes = {
 
 local CurrentTheme = Themes["Dark Purple"]
 
--- ==========================================
--- [ 1. FLOATING RAINBOW CIRCLE ICON ]
--- ==========================================
 local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "FloatingToggle"
 ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
@@ -195,9 +180,6 @@ task.spawn(function()
     end
 end)
 
--- ==========================================
--- [ 2. INTRO BANNER ]
--- ==========================================
 local function PlayIntro(onComplete)
     task.spawn(function()
         pcall(function()
@@ -241,9 +223,6 @@ local function PlayIntro(onComplete)
     end)
 end
 
--- ==========================================
--- [ 3. MAIN WINDOW SETUP ]
--- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainWindow"
 MainFrame.Size = UDim2.new(0, 480, 0, 320)
@@ -258,7 +237,6 @@ MainFrame.Parent = ScreenGui
 local MainCorner = Instance.new("UICorner", MainFrame)
 MainCorner.CornerRadius = UDim.new(0, 10)
 
--- Rainbow Stroke sa Kilid-kilid (Borders)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Thickness = 2
 task.spawn(function()
@@ -270,7 +248,6 @@ task.spawn(function()
     end
 end)
 
--- Top Bar Header
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 36)
 TopBar.BackgroundColor3 = CurrentTheme.TopBar
@@ -288,7 +265,6 @@ CoverFix.BorderSizePixel = 0
 CoverFix.ZIndex = 101
 CoverFix.Parent = TopBar
 
--- Rayfield Style X Button
 local CloseXBtn = Instance.new("TextButton")
 CloseXBtn.Size = UDim2.new(0, 26, 0, 26)
 CloseXBtn.Position = UDim2.new(1, -32, 0.5, -13)
@@ -303,7 +279,6 @@ CloseXBtn.Parent = TopBar
 local CloseXCorner = Instance.new("UICorner", CloseXBtn)
 CloseXCorner.CornerRadius = UDim.new(0, 6)
 
--- Rainbow Title Label
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
@@ -325,7 +300,6 @@ task.spawn(function()
     end
 end)
 
--- FPS & MS Counter
 local StatsLabel = Instance.new("TextLabel")
 StatsLabel.Size = UDim2.new(0, 120, 1, 0)
 StatsLabel.Position = UDim2.new(1, -158, 0, 0)
@@ -351,9 +325,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==========================================
--- [ 4. RAYFIELD STYLE CONFIRMATION PROMPT ]
--- ==========================================
 local ConfirmOverlay = Instance.new("Frame")
 ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
 ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -417,7 +388,6 @@ CloseWindowBtn.Parent = ConfirmBox
 local CloseWindowCorner = Instance.new("UICorner", CloseWindowBtn)
 CloseWindowCorner.CornerRadius = UDim.new(0, 6)
 
--- Smooth Opening & Closing Animation
 local isOpen = true
 local function ToggleWindow()
     PlayClick()
@@ -451,7 +421,6 @@ CloseXBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visibl
 CancelBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visible = false end)
 CloseWindowBtn.MouseButton1Click:Connect(function() PlayClick() ScreenGui:Destroy() end)
 
--- [ HOTKEY (RIGHT SHIFT) ]
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed then
         if input.KeyCode == Enum.KeyCode.RightShift then
@@ -465,9 +434,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- ==========================================
--- [ TABS SYSTEM SETUP ]
--- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Size = UDim2.new(0, 125, 1, -48)
 Sidebar.Position = UDim2.new(0, 6, 0, 42)
@@ -553,11 +519,184 @@ local function CreateTab(title)
 
     return Page
 end
-
 local allElementButtons = {}
 local function AddButtonToPage(page, name, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -4, 0, 34)
     Btn.BackgroundColor3 = CurrentTheme.ElementBg
     Btn.Text = "  " .. name
-    B
+    Btn.TextColor3 = CurrentTheme.TextMain
+    Btn.TextSize = 11
+    Btn.Font = Enum.Font.GothamSemibold
+    Btn.TextXAlignment = Enum.TextXAlignment.Left
+    Btn.ZIndex = 104
+    Btn.Parent = page
+
+    local Corner = Instance.new("UICorner", Btn)
+    Corner.CornerRadius = UDim.new(0, 6)
+
+    local Stroke = Instance.new("UIStroke", Btn)
+    Stroke.Color = Color3.fromRGB(45, 45, 60)
+    Stroke.Thickness = 1
+
+    table.insert(allElementButtons, {Btn = Btn, Stroke = Stroke})
+    Btn.MouseButton1Click:Connect(function()
+        PlayClick()
+        callback()
+    end)
+end
+
+local function ApplyTheme(themeName)
+    CurrentTheme = Themes[themeName]
+    MainFrame.BackgroundColor3 = CurrentTheme.MainBg
+    TopBar.BackgroundColor3 = CurrentTheme.TopBar
+    CoverFix.BackgroundColor3 = CurrentTheme.TopBar
+
+    for _, t in ipairs(allTabButtons) do
+        if t.Button == activeTabButton then
+            t.Button.BackgroundColor3 = Color3.fromRGB(114, 137, 218)
+            t.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            t.Button.BackgroundColor3 = CurrentTheme.TopBar
+            t.Button.TextColor3 = CurrentTheme.TextDim
+        end
+    end
+
+    for _, el in ipairs(allElementButtons) do
+        el.Btn.BackgroundColor3 = CurrentTheme.ElementBg
+        el.Btn.TextColor3 = CurrentTheme.TextMain
+    end
+end
+
+local MainTab = CreateTab("Main")
+AddButtonToPage(MainTab, "💡 Feature 1 (Fullbright)", function()
+    pcall(function()
+        Lighting.Brightness = Lighting.Brightness == 1 and 2 or 1
+        Lighting.GlobalShadows = not Lighting.GlobalShadows
+    end)
+end)
+AddButtonToPage(MainTab, "🔄 Rejoin Server", function()
+    pcall(function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+end)
+
+local EggTab = CreateTab("Steal an Egg")
+
+local scriptInput = ""
+
+local TextBoxFrame = Instance.new("TextBox")
+TextBoxFrame.Size = UDim2.new(1, -4, 0, 100)
+TextBoxFrame.BackgroundColor3 = CurrentTheme.ElementBg
+TextBoxFrame.TextColor3 = CurrentTheme.TextMain
+TextBoxFrame.PlaceholderText = "I-paste ang imong loadstring o script dinhi..."
+TextBoxFrame.PlaceholderColor3 = Color3.fromRGB(120, 120, 150)
+TextBoxFrame.Text = ""
+TextBoxFrame.TextSize = 11
+TextBoxFrame.Font = Enum.Font.Code
+TextBoxFrame.TextXAlignment = Enum.TextXAlignment.Left
+TextBoxFrame.TextYAlignment = Enum.TextYAlignment.Top
+TextBoxFrame.ClearTextOnFocus = false
+TextBoxFrame.MultiLine = true
+TextBoxFrame.ZIndex = 104
+TextBoxFrame.Parent = EggTab
+
+local TBCorner = Instance.new("UICorner", TextBoxFrame)
+TBCorner.CornerRadius = UDim.new(0, 6)
+
+local TBStroke = Instance.new("UIStroke", TextBoxFrame)
+TBStroke.Color = Color3.fromRGB(45, 45, 60)
+TBStroke.Thickness = 1
+
+TextBoxFrame:GetPropertyChangedSignal("Text"):Connect(function()
+    scriptInput = TextBoxFrame.Text
+end)
+
+AddButtonToPage(EggTab, "🚀 Execute Script", function()
+    pcall(function()
+        if scriptInput and scriptInput ~= "" then
+            local func, err = loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
+            if func then
+                func()
+                ShowNotification("Script Executed Successfully!")
+            else
+                ShowNotification("Syntax Error: Naay sayop sa script!")
+            end
+        else
+            ShowNotification("Wala pay script nga gibutang!")
+        end
+    end)
+end)
+
+AddButtonToPage(EggTab, "🗑️ Clear Text", function()
+    pcall(function()
+        TextBoxFrame.Text = ""
+        scriptInput = ""
+        ShowNotification("Text Cleared")
+    end)
+end)
+
+local FpsTab = CreateTab("FPS Boost")
+AddButtonToPage(FpsTab, "⚡ Low Graphics / Boost FPS", function()
+    pcall(function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.Material = Enum.Material.SmoothPlastic
+                v.Reflectance = 0
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v.Transparency = 1
+            end
+        end
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+    end)
+end)
+AddButtonToPage(FpsTab, "🌫️ Remove Fog & Shadows", function()
+    pcall(function()
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        for _, v in pairs(Lighting:GetChildren()) do
+            if v:IsA("PostEffect") then v.Enabled = false end
+        end
+    end)
+end)
+
+local ThemeTab = CreateTab("Themes")
+AddButtonToPage(ThemeTab, "🎨 Dark Purple (Default)", function() ApplyTheme("Dark Purple") end)
+AddButtonToPage(ThemeTab, "🎨 Midnight Blue", function() ApplyTheme("Midnight Blue") end)
+AddButtonToPage(ThemeTab, "🎨 Crimson Red", function() ApplyTheme("Crimson Red") end)
+AddButtonToPage(ThemeTab, "🎨 Emerald Green", function() ApplyTheme("Emerald Green") end)
+AddButtonToPage(ThemeTab, "🎨 Sunset Orange", function() ApplyTheme("Sunset Orange") end)
+AddButtonToPage(ThemeTab, "🎨 Neon Cyberpunk", function() ApplyTheme("Neon Cyberpunk") end)
+AddButtonToPage(ThemeTab, "🎨 Rose Pink", function() ApplyTheme("Rose Pink") end)
+AddButtonToPage(ThemeTab, "🎨 Toxic Lime", function() ApplyTheme("Toxic Lime") end)
+AddButtonToPage(ThemeTab, "🎨 Matrix Code", function() ApplyTheme("Matrix Code") end)
+AddButtonToPage(ThemeTab, "🎨 Golden Luxury", function() ApplyTheme("Golden Luxury") end)
+
+local SettingsTab = CreateTab("Settings")
+AddButtonToPage(SettingsTab, "⚙️ Toggle Keybind Info", function()
+    ShowNotification("Press Right Shift to Hide/Show Hub")
+end)
+
+local DiscordTab = CreateTab("Discord")
+AddButtonToPage(DiscordTab, "📋 Copy Discord Invite", function()
+    pcall(function()
+        if setclipboard then setclipboard("https://discord.gg/yourinvite") end
+    end)
+end)
+
+local OwnerTab = CreateTab("Owner")
+AddButtonToPage(OwnerTab, "👑 Owner: ANONYMOUS", function() end)
+
+PlayIntro(function()
+    MainFrame.Visible = true
+    MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    MainFrame.BackgroundTransparency = 1
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 480, 0, 320),
+        Position = UDim2.new(0.5, -240, 0.5, -160),
+        BackgroundTransparency = 0
+    }):Play()
+
+    ShowNotification("LATINA SUCCESSFULLY LOADED")
+end)
