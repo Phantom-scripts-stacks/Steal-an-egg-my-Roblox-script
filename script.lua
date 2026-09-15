@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - ULTIMATE SOUND EDITION ]
+-- [ LATINA HUB - ULTIMATE SOUND EDITION (PART 1) ]
 -- ========================================================
 
 local Players = game:GetService("Players")
@@ -12,16 +12,12 @@ local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local UserInputService = game:GetService("UserInputService")
 
--- Tangtangon daan kung naa pay daan nga GUI
 if PlayerGui:FindFirstChild("LatinaRayfieldStyle") then
     PlayerGui.LatinaRayfieldStyle:Destroy()
 end
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
 
--- ==========================================
--- [ GLOBAL CLICK SOUND SETUP ]
--- ==========================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LatinaRayfieldStyle"
 ScreenGui.ResetOnSpawn = false
@@ -40,9 +36,6 @@ local function PlayClick()
     end)
 end
 
--- ==========================================
--- [ NOTIFICATION SYSTEM ]
--- ==========================================
 local function ShowNotification(text)
     task.spawn(function()
         pcall(function()
@@ -84,9 +77,6 @@ local function ShowNotification(text)
     end)
 end
 
--- ==========================================
--- [ THEMES DEFINITION ]
--- ==========================================
 local Themes = {
     ["Dark Purple"] = {
         MainBg = Color3.fromRGB(18, 18, 24),
@@ -162,9 +152,6 @@ local Themes = {
 
 local CurrentTheme = Themes["Dark Purple"]
 
--- ==========================================
--- [ 1. FLOATING RAINBOW CIRCLE ICON ]
--- ==========================================
 local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "FloatingToggle"
 ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
@@ -193,9 +180,6 @@ task.spawn(function()
     end
 end)
 
--- ==========================================
--- [ 2. INTRO BANNER ]
--- ==========================================
 local function PlayIntro(onComplete)
     task.spawn(function()
         pcall(function()
@@ -239,9 +223,6 @@ local function PlayIntro(onComplete)
     end)
 end
 
--- ==========================================
--- [ 3. MAIN WINDOW SETUP ]
--- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainWindow"
 MainFrame.Size = UDim2.new(0, 480, 0, 320)
@@ -266,7 +247,6 @@ task.spawn(function()
         task.wait(0.03)
     end
 end)
-
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 36)
 TopBar.BackgroundColor3 = CurrentTheme.TopBar
@@ -344,9 +324,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==========================================
--- [ 4. CONFIRMATION PROMPT ]
--- ==========================================
 local ConfirmOverlay = Instance.new("Frame")
 ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
 ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -456,9 +433,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- ==========================================
--- [ TABS SYSTEM SETUP ]
--- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Size = UDim2.new(0, 125, 1, -48)
 Sidebar.Position = UDim2.new(0, 6, 0, 42)
@@ -561,9 +535,6 @@ local function AddButtonToPage(page, name, callback)
     local Corner = Instance.new("UICorner", Btn)
     Corner.CornerRadius = UDim.new(0, 6)
 
-    local Corner = Instance.new("UICorner", Btn)
-    Corner.CornerRadius = UDim.new(0, 6)
-
     local Stroke = Instance.new("UIStroke", Btn)
     Stroke.Color = Color3.fromRGB(45, 45, 60)
     Stroke.Thickness = 1
@@ -597,10 +568,6 @@ local function ApplyTheme(themeName)
     end
 end
 
--- ==========================================
--- [ TABS & CONTENT ]
--- ==========================================
-
 local MainTab = CreateTab("Main")
 AddButtonToPage(MainTab, "💡 Feature 1 (Fullbright)", function()
     pcall(function()
@@ -612,14 +579,12 @@ AddButtonToPage(MainTab, "🔄 Rejoin Server", function()
     pcall(function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 end)
 
--- LISTAHAN SA IMONG MGA SCRIPT LINKS SA STEAL AN EGG
 local ScriptsList = {
-    {Name = "RENE BATERBONIA", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()"},
-    {Name = "Horizon", Link = "script_key = "Trial"
-        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()"},
+    {Name = "ON Hub", Link = ""},
+    {Name = "Horizon", Link = ""},
     {Name = "Nisi Hub", Link = ""},
     {Name = "Lennon", Link = ""},
-    {Name = "Miranda", Link = ""},
+    {Name = "Miranda", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
     {Name = "Lkz", Link = ""},
     {Name = "Zeroin", Link = ""},
     {Name = "Decode", Link = ""},
@@ -706,9 +671,6 @@ end)
 local OwnerTab = CreateTab("Owner")
 AddButtonToPage(OwnerTab, "👑 Owner: ANONYMOUS", function() end)
 
--- ==========================================
--- [ RUN INTRO THEN SHOW UI & NOTIFICATION ]
--- ==========================================
 PlayIntro(function()
     MainFrame.Visible = true
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
