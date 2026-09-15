@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - 100% WORKING & EXECUTABLE VERSION ]
+-- [ LATINA HUB - ULTIMATE FEATURE-PACKED VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -16,7 +16,7 @@ local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- [ 1. SAFE INTRO BANNER ]
+-- [ 1. INTRO BANNER ]
 task.spawn(function()
     pcall(function()
         if CoreGui:FindFirstChild("LATINA_IntroBanner") then
@@ -32,13 +32,13 @@ task.spawn(function()
         Backdrop.Parent = IntroGui
         Backdrop.Size = UDim2.new(1, 0, 1, 0)
         Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        Backdrop.BackgroundTransparency = 0.5
+        Backdrop.BackgroundTransparency = 0.4
         
         local IntroImage = Instance.new("ImageLabel")
         IntroImage.Parent = IntroGui
         IntroImage.AnchorPoint = Vector2.new(0.5, 0.5)
         IntroImage.Position = UDim2.new(0.5, 0, 0.43, 0)
-        IntroImage.Size = UDim2.new(0, 300, 0, 300)
+        IntroImage.Size = UDim2.new(0, 280, 0, 280)
         IntroImage.BackgroundTransparency = 1
         IntroImage.Image = CUSTOM_IMAGE_ID
         
@@ -72,37 +72,69 @@ task.spawn(function()
 
     local Window = Fluent:CreateWindow({
         Title = "LATINA HUB",
-        SubTitle = "by UNKNOWN",
+        SubTitle = "by UNKNOWN & Boss",
         TabWidth = 130,
-        Size = UDim2.fromOffset(480, 340),
+        Size = UDim2.fromOffset(480, 360),
         Acrylic = false,
         Theme = "Darker",
         MinimizeKey = Enum.KeyCode.LeftControl
     })
 
     local Tabs = {
-        Main = Window:AddTab({ Title = "Steal Egg", Icon = "target" }),
+        Main = Window:AddTab({ Title = "Steal & Farm", Icon = "target" }),
         Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye" }),
+        Player = Window:AddTab({ Title = "Player", Icon = "user-check" }),
         Utilities = Window:AddTab({ Title = "Utilities", Icon = "tool" }),
         Discord = Window:AddTab({ Title = "Discord", Icon = "message-square" }),
         Owner = Window:AddTab({ Title = "Owner", Icon = "user" })
     }
 
     -- ========================================================
-    -- [ MAIN TAB ]
+    -- [ MAIN TAB (STEAL & FARM) ]
     -- ========================================================
     Tabs.Main:AddParagraph({
-        Title = "Keyless Scripts",
-        Content = "Pilia ang slot sa ubos para ma-execute."
+        Title = "Auto Steal & Farm Features",
+        Content = "Pilia ang mga gustong i-activate para sa pag-steal."
     })
 
-    for i = 1, 5 do
+    local autoStealActive = false
+    Tabs.Main:AddToggle("AutoStealToggle", {
+        Title = "Auto Steal Eggs",
+        Description = "Automatikong kuha sa mga duol nga itlog",
+        Default = false,
+        Callback = function(State)
+            autoStealActive = State
+            task.spawn(function()
+                while autoStealActive do
+                    pcall(function()
+                        local char = LocalPlayer.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            for _, obj in pairs(workspace:GetDescendants()) do
+                                if obj:IsA("Model") and string.lower(obj.Name):find("egg") then
+                                    local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                                    if primary and (primary.Position - char.HumanoidRootPart.Position).Magnitude < 15 then
+                                        -- Fire touch interest or prompt kung naa
+                                        firetouchinterest(char.HumanoidRootPart, primary, 0)
+                                        firetouchinterest(char.HumanoidRootPart, primary, 1)
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.5)
+                end
+            end)
+            Fluent:Notify({ Title = "Auto Steal", Content = State ? "Gi-on ang Auto Steal" : "Gi-off ang Auto Steal", Duration = 2 })
+        end
+    })
+
+    for i = 1, 3 do
         Tabs.Main:AddButton({
-            Title = "Slot " .. i,
-            Description = "Execute keyless script.",
+            Title = "Quick Script Slot " .. i,
+            Description = "Execute custom script slot.",
             Callback = function()
                 pcall(function()
-                    -- Ibutang ang imong script dinhi kung naa na
+                    Fluent:Notify({ Title = "Slot", Content = "Gi-execute ang Slot " .. i, Duration = 2 })
                 end)
             end
         })
@@ -232,8 +264,56 @@ task.spawn(function()
     })
 
     -- ========================================================
+    -- [ PLAYER TAB (BAG-ONG FEATURE) ]
+    -- ========================================================
+    Tabs.Player:AddSlider("WalkSpeedSlider", {
+        Title = "WalkSpeed",
+        Description = "I-adjust ang kakusog sa paglakaw",
+        Default = 16,
+        Min = 16,
+        Max = 100,
+        Rounding = 0,
+        Callback = function(Value)
+            pcall(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    LocalPlayer.Character.Humanoid.WalkSpeed = Value
+                end
+            end)
+        end
+    })
+
+    Tabs.Player:AddSlider("JumpPowerSlider", {
+        Title = "JumpPower",
+        Description = "I-adjust ang kataas sa pag-ambak",
+        Default = 50,
+        Min = 50,
+        Max = 200,
+        Rounding = 0,
+        Callback = function(Value)
+            pcall(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    LocalPlayer.Character.Humanoid.JumpPower = Value
+                end
+            end)
+        end
+    })
+
+    -- ========================================================
     -- [ UTILITIES TAB ]
     -- ========================================================
+    Tabs.Utilities:AddDropdown("ThemeDropdown", {
+        Title = "UI Theme Selector",
+        Description = "Pilia ang gusto nimong tema sa Hub",
+        Values = {"Darker", "Dark", "Light", "Aqua", "Amethyst", "Rose"},
+        Default = 1,
+        Callback = function(Value)
+            pcall(function()
+                Fluent:SetTheme(Value)
+                Fluent:Notify({ Title = "Theme", Content = "Gibag-o sa: " .. Value, Duration = 2 })
+            end)
+        end
+    })
+
     local fpsConnection = nil
     Tabs.Utilities:AddButton({
         Title = "Toggle Draggable FPS / MS Counter",
@@ -320,7 +400,7 @@ task.spawn(function()
                         v.Transparency = 1
                     end
                 end
-                Fluent:Notify({ Title = "FPS Booster", Content = "Na-boost na ang dula!", Duration = 3 })
+                Fluent:Notify({ Title = "FPS Booster", Content = "Na-boost na ang tibuok dula!", Duration = 3 })
             end)
         end
     })
@@ -354,7 +434,7 @@ task.spawn(function()
     -- ========================================================
     Tabs.Owner:AddParagraph({
         Title = "Hub Information",
-        Content = "Hub Name: LATINA HUB\nCreator: UNKNOWN\nStatus: Optimized & Fully Executable"
+        Content = "Hub Name: LATINA HUB\nCreator: UNKNOWN & Boss\nStatus: Fully Loaded with Features!"
     })
 
     -- [ 3. FLOATING TOGGLE BUTTON ]
@@ -394,7 +474,7 @@ task.spawn(function()
 
     Fluent:Notify({
         Title = "LATINA HUB",
-        Content = "Na-execute na gyud successfully, boss!",
+        Content = "Na-load na ang tanang features, boss!",
         Duration = 3
     })
 end)
