@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - FIXED EGGS ESP & DRAGGABLE FPS ]
+-- [ LATINA HUB - FIXED ULTIMATE VERSION ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -218,42 +218,43 @@ task.spawn(function()
         end
     })
 
-    -- Helper function to check kung egg ba gyud ug dili pet
-    local function isValidEgg(obj)
-        local nameLower = string.lower(obj.Name)
-        -- Siguraduha nga naa ang pulong nga "egg" ug WALA ang pulong nga "pet"
-        if nameLower:find("egg") and not nameLower:find("pet") then
+    -- Hugot nga checker para i-segregate ang egg ug i-block ang pets
+    local function isStrictEgg(model)
+        if not model:IsA("Model") then return false end
+        local name = string.lower(model.Name)
+        -- Kinahanglan naay 'egg' pero WALA gyud 'pet' o 'player' o 'character'
+        if name:find("egg") and not name:find("pet") and not name:find("player") then
             return true
         end
         return false
     end
 
-    -- Toggle World Eggs ESP (Strict Eggs Only, No Duplicates)
+    -- Toggle World Eggs ESP (Fixed overlapping & strictly models only)
     Tabs.Visuals:AddToggle("WorldEggESP", {
         Title = "World Eggs ESP",
-        Description = "Eggs ra (Walay apil pets) + Mutation & Rate",
+        Description = "Limpyo nga ESP para sa mga itlog ra",
         Default = false,
         Callback = function(State)
             pcall(function()
                 if State then
                     for _, obj in pairs(workspace:GetDescendants()) do
-                        if (obj:IsA("BasePart") or obj:IsA("Model")) and isValidEgg(obj) then
-                            local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if targetPart and not targetPart:FindFirstChild("LATINA_WorldEggESP") then
+                        if isStrictEgg(obj) then
+                            local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                            if primary and not primary:FindFirstChild("LATINA_CleanWorldEgg") then
                                 local bg = Instance.new("BillboardGui")
-                                bg.Name = "LATINA_WorldEggESP"
-                                bg.Size = UDim2.new(0, 140, 0, 50)
-                                bg.StudsOffset = Vector3.new(0, 2.5, 0)
+                                bg.Name = "LATINA_CleanWorldEgg"
+                                bg.Size = UDim2.new(0, 120, 0, 40)
+                                bg.StudsOffset = Vector3.new(0, 2, 0)
                                 bg.AlwaysOnTop = true
-                                bg.Parent = targetPart
+                                bg.Parent = primary
                                 
                                 local txt = Instance.new("TextLabel")
                                 txt.Size = UDim2.new(1, 0, 1, 0)
                                 txt.BackgroundTransparency = 1
-                                txt.TextColor3 = Color3.fromRGB(255, 200, 0)
+                                txt.TextColor3 = Color3.fromRGB(255, 220, 50)
                                 txt.TextStrokeTransparency = 0
                                 txt.Font = Enum.Font.GothamBold
-                                txt.TextSize = 10
+                                txt.TextSize = 11
                                 
                                 local mutation = obj:GetAttribute("Mutation") or "Normal"
                                 local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "0"
@@ -266,10 +267,10 @@ task.spawn(function()
                     Fluent:Notify({ Title = "ESP", Content = "World Eggs ESP On", Duration = 2 })
                 else
                     for _, obj in pairs(workspace:GetDescendants()) do
-                        if obj:IsA("BasePart") or obj:IsA("Model") then
-                            local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if targetPart and targetPart:FindFirstChild("LATINA_WorldEggESP") then
-                                targetPart.LATINA_WorldEggESP:Destroy()
+                        if obj:IsA("Model") then
+                            local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                            if primary and primary:FindFirstChild("LATINA_CleanWorldEgg") then
+                                primary.LATINA_CleanWorldEgg:Destroy()
                             end
                         end
                     end
@@ -279,45 +280,49 @@ task.spawn(function()
         end
     })
 
-    -- Toggle Plot Eggs ESP (Strict Eggs Only inside plots/bases, No Duplicates)
+    -- Toggle Plot Eggs ESP (Fixed para makita gyud sa mga bases/plots)
     Tabs.Visuals:AddToggle("PlotEggESP", {
         Title = "Plot Eggs ESP",
-        Description = "I-track ang mga itlog sa mga plot/base",
+        Description = "I-track ang mga itlog sa mga plot",
         Default = false,
         Callback = function(State)
             pcall(function()
                 if State then
                     for _, obj in pairs(workspace:GetDescendants()) do
-                        if obj:IsA("Model") and isValidEgg(obj) then
-                            if not obj:FindFirstChild("LATINA_PlotHighlight") then
-                                local hl = Instance.new("Highlight")
-                                hl.Name = "LATINA_PlotHighlight"
-                                hl.FillColor = Color3.fromRGB(0, 255, 128)
-                                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                                hl.Parent = obj
-                                
-                                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                                if primary and not primary:FindFirstChild("LATINA_PlotEggTag") then
-                                    local bg = Instance.new("BillboardGui")
-                                    bg.Name = "LATINA_PlotEggTag"
-                                    bg.Size = UDim2.new(0, 140, 0, 50)
-                                    bg.StudsOffset = Vector3.new(0, 3, 0)
-                                    bg.AlwaysOnTop = true
-                                    bg.Parent = primary
+                        if isStrictEgg(obj) then
+                            -- Tan-awon nato kung naa ba sa sulod sa plot o base folder
+                            local parentName = string.lower(obj.Parent.Name)
+                            if parentName:find("plot") or parentName:find("base") or parentName:find("slot") or obj:GetAttribute("Owner") then
+                                if not obj:FindFirstChild("LATINA_PlotHighlight") then
+                                    local hl = Instance.new("Highlight")
+                                    hl.Name = "LATINA_PlotHighlight"
+                                    hl.FillColor = Color3.fromRGB(0, 255, 128)
+                                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                    hl.Parent = obj
                                     
-                                    local txt = Instance.new("TextLabel")
-                                    txt.Size = UDim2.new(1, 0, 1, 0)
-                                    txt.BackgroundTransparency = 1
-                                    txt.TextColor3 = Color3.fromRGB(0, 255, 255)
-                                    txt.TextStrokeTransparency = 0
-                                    txt.Font = Enum.Font.GothamBold
-                                    txt.TextSize = 10
-                                    
-                                    local mutation = obj:GetAttribute("Mutation") or "Placed"
-                                    local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "0"
-                                    
-                                    txt.Text = string.format("🏠 Plot Egg\nMut: %s | +%s/s", tostring(mutation), tostring(perSec))
-                                    txt.Parent = bg
+                                    local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                                    if primary and not primary:FindFirstChild("LATINA_PlotTag") then
+                                        local bg = Instance.new("BillboardGui")
+                                        bg.Name = "LATINA_PlotTag"
+                                        bg.Size = UDim2.new(0, 120, 0, 40)
+                                        bg.StudsOffset = Vector3.new(0, 2.5, 0)
+                                        bg.AlwaysOnTop = true
+                                        bg.Parent = primary
+                                        
+                                        local txt = Instance.new("TextLabel")
+                                        txt.Size = UDim2.new(1, 0, 1, 0)
+                                        txt.BackgroundTransparency = 1
+                                        txt.TextColor3 = Color3.fromRGB(0, 255, 255)
+                                        txt.TextStrokeTransparency = 0
+                                        txt.Font = Enum.Font.GothamBold
+                                        txt.TextSize = 11
+                                        
+                                        local mutation = obj:GetAttribute("Mutation") or "Placed"
+                                        local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "0"
+                                        
+                                        txt.Text = string.format("🏠 Plot Egg\nMut: %s | +%s/s", tostring(mutation), tostring(perSec))
+                                        txt.Parent = bg
+                                    end
                                 end
                             end
                         end
@@ -328,7 +333,7 @@ task.spawn(function()
                         if obj:IsA("Model") then
                             if obj:FindFirstChild("LATINA_PlotHighlight") then obj.LATINA_PlotHighlight:Destroy() end
                             local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                            if primary and primary:FindFirstChild("LATINA_PlotEggTag") then primary.LATINA_PlotEggTag:Destroy() end
+                            if primary and primary:FindFirstChild("LATINA_PlotTag") then primary.LATINA_PlotTag:Destroy() end
                         end
                     end
                     Fluent:Notify({ Title = "ESP", Content = "Plot Eggs ESP Off", Duration = 2 })
@@ -369,6 +374,7 @@ task.spawn(function()
                     StatsGui.Name = "LATINA_FPS_MS"
                     StatsGui.Parent = CoreGui
                     StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                    StatsGui.ResetOnSpawn = false
                     
                     local StatsFrame = Instance.new("Frame")
                     StatsFrame.Parent = StatsGui
@@ -377,7 +383,7 @@ task.spawn(function()
                     StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
                     StatsFrame.Size = UDim2.new(0, 160, 0, 40)
                     StatsFrame.Active = true
-                    StatsFrame.Draggable = true -- Gihimo nang Draggable!
+                    StatsFrame.Draggable = true
                     
                     local Corner = Instance.new("UICorner")
                     Corner.CornerRadius = UDim.new(0.2, 0)
@@ -424,10 +430,10 @@ task.spawn(function()
         end
     })
 
-    -- FPS Booster Button para mo-boost gyud sa performance
+    -- Gipauswag nga Ultimate FPS Booster
     Tabs.Utilities:AddButton({
         Title = "🚀 Ultimate FPS Booster",
-        Description = "Pangtangtang lag ug pa-paspas sa dula",
+        Description = "Hugot nga pag-optimize sa Roblox performance",
         Callback = function()
             pcall(function()
                 local Terrain = workspace:FindFirstChildOfClass("Terrain")
@@ -440,6 +446,7 @@ task.spawn(function()
                 Lighting.GlobalShadows = false
                 Lighting.FogEnd = 9e9
                 settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+                
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
                         v.Material = Enum.Material.SmoothPlastic
@@ -448,19 +455,6 @@ task.spawn(function()
                         v.Transparency = 1
                     end
                 end
-                Fluent:Notify({ Title = "FPS Booster", Content = "Na-boost na ang imong FPS ug na-minimize ang lag!", Duration = 3 })
-            end)
-        end
-    })
-
-    Tabs.Utilities:AddButton({
-        Title = "Rejoin Server",
-        Description = "Balik sa parehong server",
-        Callback = function()
-            pcall(function()
-                TeleportService:Teleport(game.PlaceId, LocalPlayer)
-            end)
-        end
-    })
-
-   
+                
+                RunService.3DRenderingEnabled = true
+ 
