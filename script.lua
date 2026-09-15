@@ -638,15 +638,22 @@ local savedScripts = {
     {Name = "Script 23", Link = ""},
     {Name = "Script 24", Link = ""},
     {Name = "Script 25", Link = ""}
-}
-
-AddButtonToPage(EggTab, "🗑️ Clear Text", function()
-    pcall(function()
-        TextBoxFrame.Text = ""
-        scriptInput = ""
-        ShowNotification("Text Cleared")
+for _, scriptData in ipairs(savedScripts) do
+    AddButtonToPage(ScriptsTab, "⚡ " .. scriptData.Name, function()
+        task.spawn(function()
+            pcall(function()
+                if scriptData.Link and scriptData.Link ~= "" then
+                    loadstring(game:HttpGet(scriptData.Link))()
+                    ShowNotification(scriptData.Name .. " Executed!")
+                else
+                    ShowNotification("Wala pay link ang " .. scriptData.Name)
+                end
+            end)
+        end)
     end)
-end)
+    end
+    
+
 
 local FpsTab = CreateTab("FPS Boost")
 AddButtonToPage(FpsTab, "⚡ Low Graphics / Boost FPS", function()
