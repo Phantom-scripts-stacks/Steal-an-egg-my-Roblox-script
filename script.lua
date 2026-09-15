@@ -1,5 +1,5 @@
 -- ========================================================
--- [ LATINA HUB - THEME SELECTOR & OPTIMIZED VERSION ]
+-- [ LATINA HUB - FIXED EGGS ESP & DRAGGABLE FPS ]
 -- ========================================================
 
 local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
@@ -105,7 +105,7 @@ task.spawn(function()
         TabWidth = 130,
         Size = UDim2.fromOffset(480, 340),
         Acrylic = false,
-        Theme = "Darker", -- Default set to Darker (Dark Ocean style)
+        Theme = "Darker",
         MinimizeKey = Enum.KeyCode.LeftControl
     })
 
@@ -218,20 +218,31 @@ task.spawn(function()
         end
     })
 
+    -- Helper function to check kung egg ba gyud ug dili pet
+    local function isValidEgg(obj)
+        local nameLower = string.lower(obj.Name)
+        -- Siguraduha nga naa ang pulong nga "egg" ug WALA ang pulong nga "pet"
+        if nameLower:find("egg") and not nameLower:find("pet") then
+            return true
+        end
+        return false
+    end
+
+    -- Toggle World Eggs ESP (Strict Eggs Only, No Duplicates)
     Tabs.Visuals:AddToggle("WorldEggESP", {
         Title = "World Eggs ESP",
-        Description = "I-on/Off ang Mutation ug Rate sa World Eggs",
+        Description = "Eggs ra (Walay apil pets) + Mutation & Rate",
         Default = false,
         Callback = function(State)
             pcall(function()
                 if State then
                     for _, obj in pairs(workspace:GetDescendants()) do
-                        if (obj:IsA("BasePart") or obj:IsA("Model")) and string.lower(obj.Name):find("egg") then
+                        if (obj:IsA("BasePart") or obj:IsA("Model")) and isValidEgg(obj) then
                             local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if targetPart and not targetPart:FindFirstChild("MutationEggESP") then
+                            if targetPart and not targetPart:FindFirstChild("LATINA_WorldEggESP") then
                                 local bg = Instance.new("BillboardGui")
-                                bg.Name = "MutationEggESP"
-                                bg.Size = UDim2.new(0, 130, 0, 45)
+                                bg.Name = "LATINA_WorldEggESP"
+                                bg.Size = UDim2.new(0, 140, 0, 50)
                                 bg.StudsOffset = Vector3.new(0, 2.5, 0)
                                 bg.AlwaysOnTop = true
                                 bg.Parent = targetPart
@@ -247,7 +258,7 @@ task.spawn(function()
                                 local mutation = obj:GetAttribute("Mutation") or "Normal"
                                 local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "0"
                                 
-                                txt.Text = string.format("%s\nMut: %s | +%s/s", obj.Name, tostring(mutation), tostring(perSec))
+                                txt.Text = string.format("🥚 %s\nMut: %s | +%s/s", obj.Name, tostring(mutation), tostring(perSec))
                                 txt.Parent = bg
                             end
                         end
@@ -257,8 +268,8 @@ task.spawn(function()
                     for _, obj in pairs(workspace:GetDescendants()) do
                         if obj:IsA("BasePart") or obj:IsA("Model") then
                             local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if targetPart and targetPart:FindFirstChild("MutationEggESP") then
-                                targetPart.MutationEggESP:Destroy()
+                            if targetPart and targetPart:FindFirstChild("LATINA_WorldEggESP") then
+                                targetPart.LATINA_WorldEggESP:Destroy()
                             end
                         end
                     end
@@ -268,27 +279,28 @@ task.spawn(function()
         end
     })
 
+    -- Toggle Plot Eggs ESP (Strict Eggs Only inside plots/bases, No Duplicates)
     Tabs.Visuals:AddToggle("PlotEggESP", {
         Title = "Plot Eggs ESP",
-        Description = "I-on/Off ang Mutation ug Rate sa Plot Eggs",
+        Description = "I-track ang mga itlog sa mga plot/base",
         Default = false,
         Callback = function(State)
             pcall(function()
                 if State then
                     for _, obj in pairs(workspace:GetDescendants()) do
-                        if obj:IsA("Model") and (string.lower(obj.Name):find("egg") or string.lower(obj.Name):find("plot") or string.lower(obj.Name):find("base")) then
-                            if not obj:FindFirstChild("PlotEggMutationESP") then
+                        if obj:IsA("Model") and isValidEgg(obj) then
+                            if not obj:FindFirstChild("LATINA_PlotHighlight") then
                                 local hl = Instance.new("Highlight")
-                                hl.Name = "PlotEggMutationESP"
+                                hl.Name = "LATINA_PlotHighlight"
                                 hl.FillColor = Color3.fromRGB(0, 255, 128)
                                 hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                                 hl.Parent = obj
                                 
                                 local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                                if primary and not primary:FindFirstChild("PlotTag") then
+                                if primary and not primary:FindFirstChild("LATINA_PlotEggTag") then
                                     local bg = Instance.new("BillboardGui")
-                                    bg.Name = "PlotTag"
-                                    bg.Size = UDim2.new(0, 130, 0, 45)
+                                    bg.Name = "LATINA_PlotEggTag"
+                                    bg.Size = UDim2.new(0, 140, 0, 50)
                                     bg.StudsOffset = Vector3.new(0, 3, 0)
                                     bg.AlwaysOnTop = true
                                     bg.Parent = primary
@@ -304,7 +316,7 @@ task.spawn(function()
                                     local mutation = obj:GetAttribute("Mutation") or "Placed"
                                     local perSec = obj:GetAttribute("PerSec") or obj:GetAttribute("ValuePerSec") or "0"
                                     
-                                    txt.Text = string.format("Plot\nMut: %s | +%s/s", tostring(mutation), tostring(perSec))
+                                    txt.Text = string.format("🏠 Plot Egg\nMut: %s | +%s/s", tostring(mutation), tostring(perSec))
                                     txt.Parent = bg
                                 end
                             end
@@ -314,9 +326,9 @@ task.spawn(function()
                 else
                     for _, obj in pairs(workspace:GetDescendants()) do
                         if obj:IsA("Model") then
-                            if obj:FindFirstChild("PlotEggMutationESP") then obj.PlotEggMutationESP:Destroy() end
+                            if obj:FindFirstChild("LATINA_PlotHighlight") then obj.LATINA_PlotHighlight:Destroy() end
                             local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                            if primary and primary:FindFirstChild("PlotTag") then primary.PlotTag:Destroy() end
+                            if primary and primary:FindFirstChild("LATINA_PlotEggTag") then primary.LATINA_PlotEggTag:Destroy() end
                         end
                     end
                     Fluent:Notify({ Title = "ESP", Content = "Plot Eggs ESP Off", Duration = 2 })
@@ -329,7 +341,6 @@ task.spawn(function()
     -- [ UTILITIES TAB ]
     -- ========================================================
     
-    -- Theme Selector Dropdown
     Tabs.Utilities:AddDropdown("ThemeDropdown", {
         Title = "UI Theme Selector",
         Description = "Pilia ang gusto nimong tema",
@@ -345,8 +356,8 @@ task.spawn(function()
 
     local fpsConnection = nil
     Tabs.Utilities:AddButton({
-        Title = "Toggle FPS / MS Counter",
-        Description = "I-pakita ang performance sa screen",
+        Title = "Toggle Draggable FPS / MS Counter",
+        Description = "I-pakita ug i-drag ang performance hud",
         Callback = function()
             pcall(function()
                 if CoreGui:FindFirstChild("LATINA_FPS_MS") then
@@ -366,6 +377,7 @@ task.spawn(function()
                     StatsFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
                     StatsFrame.Size = UDim2.new(0, 160, 0, 40)
                     StatsFrame.Active = true
+                    StatsFrame.Draggable = true -- Gihimo nang Draggable!
                     
                     local Corner = Instance.new("UICorner")
                     Corner.CornerRadius = UDim.new(0.2, 0)
@@ -406,8 +418,37 @@ task.spawn(function()
                         end
                     end)
                     
-                    Fluent:Notify({ Title = "HUD", Content = "Counter gi-on.", Duration = 2 })
+                    Fluent:Notify({ Title = "HUD", Content = "Draggable Counter gi-on.", Duration = 2 })
                 end
+            end)
+        end
+    })
+
+    -- FPS Booster Button para mo-boost gyud sa performance
+    Tabs.Utilities:AddButton({
+        Title = "🚀 Ultimate FPS Booster",
+        Description = "Pangtangtang lag ug pa-paspas sa dula",
+        Callback = function()
+            pcall(function()
+                local Terrain = workspace:FindFirstChildOfClass("Terrain")
+                if Terrain then
+                    Terrain.WaterWaveSize = 0
+                    Terrain.WaterWaveTransparency = 1
+                    Terrain.WaterTransparency = 1
+                    Terrain.WaterReflectance = 0
+                end
+                Lighting.GlobalShadows = false
+                Lighting.FogEnd = 9e9
+                settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
+                        v.Material = Enum.Material.SmoothPlastic
+                        v.Reflectance = 0
+                    elseif v:IsA("Decal") or v:IsA("Texture") then
+                        v.Transparency = 1
+                    end
+                end
+                Fluent:Notify({ Title = "FPS Booster", Content = "Na-boost na ang imong FPS ug na-minimize ang lag!", Duration = 3 })
             end)
         end
     })
@@ -422,51 +463,4 @@ task.spawn(function()
         end
     })
 
-    Tabs.Utilities:AddButton({
-        Title = "Low Server Finder",
-        Description = "Pangita og server nga gamay ra ang tawo",
-        Callback = function()
-            pcall(function()
-                loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()
-            end)
-        end
-    })
-
-    Tabs.Utilities:AddButton({
-        Title = "Safe Anti AFK",
-        Description = "Dili ka ma-kick tungod sa dugay nga pag-idle",
-        Callback = function()
-            pcall(function()
-                local GC = getconnections or get_connections
-                if GC then
-                    for _, connection in pairs(GC(LocalPlayer.Idled)) do
-                        if connection.Disable then
-                            connection:Disable()
-                        elseif connection.Disconnect then
-                            connection:Disconnect()
-                        end
-                    end
-                else
-                    LocalPlayer.Idled:Connect(function() end)
-                end
-                Fluent:Notify({ Title = "Anti AFK", Content = "Na-enable na!", Duration = 3 })
-            end)
-        end
-    })
-
-    -- ========================================================
-    -- [ DISCORD TAB ]
-    -- ========================================================
-    Tabs.Discord:AddButton({
-        Title = "Copy Discord Link",
-        Description = "Kopyaha ang invite link sa clipboard",
-        Callback = function()
-            pcall(function()
-                setclipboard("https://discord.gg/yourinvite")
-                Fluent:Notify({ Title = "Discord", Content = "Na-kopya na ang link!", Duration = 3 })
-            end)
-        end
-    })
-
-    -- ========================================================
-    -- [
+   
