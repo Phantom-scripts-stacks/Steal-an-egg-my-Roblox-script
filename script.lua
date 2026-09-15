@@ -610,21 +610,35 @@ TextBoxFrame:GetPropertyChangedSignal("Text"):Connect(function()
     scriptInput = TextBoxFrame.Text
 end)
 
-AddButtonToPage(EggTab, "🚀 Execute Script", function()
-    pcall(function()
-        if scriptInput and scriptInput ~= "" then
-            local func, err = loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
-            if func then
-                func()
-                ShowNotification("Script Executed Successfully!")
-            else
-                ShowNotification("Syntax Error: Naay sayop sa script!")
-            end
-        else
-            ShowNotification("Wala pay script nga gibutang!")
-        end
-    end)
-end)
+local ScriptsTab = CreateTab("Scripts")
+
+local savedScripts = {
+    {Name = "Skibidi", Link = ""},
+    {Name = "ON hub", Link = ""},
+    {Name = "Horizon", Link = ""},
+    {Name = "Nisi hub", Link = ""},
+    {Name = "Lennon", Link = ""},
+    {Name = "Miranda", Link = ""},
+    {Name = "Lkz", Link = ""},
+    {Name = "Zeroin", Link = ""},
+    {Name = "Decode", Link = ""},
+    {Name = "Blyko hub", Link = ""},
+    {Name = "Hoshi hub", Link = ""},
+    {Name = "Script 12", Link = ""},
+    {Name = "Script 13", Link = ""},
+    {Name = "Script 14", Link = ""},
+    {Name = "Script 15", Link = ""},
+    {Name = "Script 16", Link = ""},
+    {Name = "Script 17", Link = ""},
+    {Name = "Script 18", Link = ""},
+    {Name = "Script 19", Link = ""},
+    {Name = "Script 20", Link = ""},
+    {Name = "Script 21", Link = ""},
+    {Name = "Script 22", Link = ""},
+    {Name = "Script 23", Link = ""},
+    {Name = "Script 24", Link = ""},
+    {Name = "Script 25", Link = ""}
+}
 
 AddButtonToPage(EggTab, "🗑️ Clear Text", function()
     pcall(function()
