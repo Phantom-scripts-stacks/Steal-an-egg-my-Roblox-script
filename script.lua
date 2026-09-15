@@ -615,7 +615,8 @@ end)
 -- LISTAHAN SA IMONG MGA SCRIPT LINKS SA STEAL AN EGG
 local ScriptsList = {
     {Name = "RENE BATERBONIA", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()"},
-    {Name = "Horizon", Link = "script_key = "Trial"loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()"},
+    {Name = "Horizon", Link = "script_key = "Trial"
+        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()"},
     {Name = "Nisi Hub", Link = ""},
     {Name = "Lennon", Link = ""},
     {Name = "Miranda", Link = ""},
