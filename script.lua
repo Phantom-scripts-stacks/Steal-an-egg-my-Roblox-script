@@ -581,7 +581,7 @@ end)
 
 local ScriptsList = {
     {Name = "ON Hub", Link = "https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua"},
-    {Name = "Horizon", Link = "script_key = https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"}
+    {Name = "Horizon", Link = "https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"},
     {Name = "Nisi Hub", Link = ""},
     {Name = "Lennon", Link = "https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"},
     {Name = "Miranda", Link = "https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"},
