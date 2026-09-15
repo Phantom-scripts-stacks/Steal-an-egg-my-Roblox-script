@@ -580,11 +580,11 @@ AddButtonToPage(MainTab, "🔄 Rejoin Server", function()
 end)
 
 local ScriptsList = {
-    {Name = "ON Hub", Link = ""},
-    {Name = "Horizon", Link = ""},
+    {Name = "ON Hub", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua", true))()"}
+    {Name = "Horizon", Link = "script_key = "Trial"loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()"}
     {Name = "Nisi Hub", Link = ""},
-    {Name = "Lennon", Link = ""},
-    {Name = "Miranda", Link = ""},
+    {Name = "Lennon", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()"}
+    {Name = "Miranda", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()"}
     {Name = "Lkz", Link = ""},
     {Name = "Zeroin", Link = ""},
     {Name = "Decode", Link = ""},
