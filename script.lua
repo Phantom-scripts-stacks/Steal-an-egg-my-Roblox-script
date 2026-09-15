@@ -584,7 +584,7 @@ local ScriptsList = {
     {Name = "Horizon", Link = ""},
     {Name = "Nisi Hub", Link = ""},
     {Name = "Lennon", Link = ""},
-    {Name = "Miranda", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"))()
+    {Name = "Miranda", Link = ""},
     {Name = "Lkz", Link = ""},
     {Name = "Zeroin", Link = ""},
     {Name = "Decode", Link = ""},
@@ -682,6 +682,5 @@ PlayIntro(function()
         Position = UDim2.new(0.5, -240, 0.5, -160),
         BackgroundTransparency = 0
     }):Play()
-
     ShowNotification("LATINA SUCCESSFULLY LOADED")
 end)
