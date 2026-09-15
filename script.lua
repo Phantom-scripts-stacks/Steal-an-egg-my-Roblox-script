@@ -133,7 +133,7 @@ TB.MouseEnter:Connect(function()TS:Create(TB,TweenInfo.new(0.18),{Size=UDim2.new
 TB.MouseLeave:Connect(function()TS:Create(TB,TweenInfo.new(0.18),{Size=UDim2.new(0,52,0,52)}):Play()TS:Create(TG,TweenInfo.new(0.18),{BackgroundTransparency=0.88}):Play()end)
 local MF=Instance.new("Frame",SG)
 MF.Name="MainWindow"
-MF.Size=UDim2.new(0,380,0,270)
+MF.Size=UDim2.new(0,380,0,290)
 MF.Position=UDim2.new(0.5,-190,0,80)
 MF.BackgroundColor3=Themes[Config.Theme].MainBg
 MF.Active=true
