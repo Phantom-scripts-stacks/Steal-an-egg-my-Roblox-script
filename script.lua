@@ -1,686 +1,1626 @@
--- ========================================================
--- [ LATINA HUB - ULTIMATE SOUND EDITION (PART 1) ]
--- ========================================================
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
-local TeleportService = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
-local Stats = game:GetService("Stats")
-local UserInputService = game:GetService("UserInputService")
-
-if PlayerGui:FindFirstChild("LatinaRayfieldStyle") then
-    PlayerGui.LatinaRayfieldStyle:Destroy()
+task.wait(1)
+local P=game:GetService("Players")
+local LP=P.LocalPlayer
+local PG=LP:WaitForChild("PlayerGui")
+local TS=game:GetService("TweenService")
+local TPS=game:GetService("TeleportService")
+local RS=game:GetService("RunService")
+local UIS=game:GetService("UserInputService")
+local HS=game:GetService("HttpService")
+local LT=game:GetService("Lighting")
+local ST=game:GetService("Stats")
+local MPS=game:GetService("MarketplaceService")
+for _,n in ipairs({"LatinaHubV6","LatinaTopLabel"}) do if PG:FindFirstChild(n) then PG[n]:Destroy() end end
+if LT:FindFirstChild("LatinaBlur") then LT.LatinaBlur:Destroy() end
+local CF="latina_hub_config.json"
+local function svC(t)pcall(function()if writefile then writefile(CF,HS:JSONEncode(t))end end)end
+local function ldC()
+local ok,d=pcall(function()if readfile and isfile and isfile(CF)then return HS:JSONDecode(readfile(CF))end end)
+return (ok and d) or {}
 end
-
-local CUSTOM_IMAGE_ID = "rbxassetid://100104680190424"
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LatinaRayfieldStyle"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.Parent = PlayerGui
-
-local ClickSound = Instance.new("Sound")
-ClickSound.Name = "ClickSoundEffect"
-ClickSound.SoundId = "rbxassetid://906107293"
-ClickSound.Volume = 0.7
-ClickSound.Parent = ScreenGui
-
-local function PlayClick()
-    pcall(function()
-        ClickSound:Play()
-    end)
-end
-
-local function ShowNotification(text)
-    task.spawn(function()
-        pcall(function()
-            local NotifFrame = Instance.new("Frame", ScreenGui)
-            NotifFrame.Size = UDim2.new(0, 260, 0, 45)
-            NotifFrame.Position = UDim2.new(0.5, -130, 0, -60)
-            NotifFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-            NotifFrame.ZIndex = 99999
-            
-            local NotifCorner = Instance.new("UICorner", NotifFrame)
-            NotifCorner.CornerRadius = UDim.new(0, 8)
-            
-            local NotifStroke = Instance.new("UIStroke", NotifFrame)
-            NotifStroke.Color = Color3.fromRGB(114, 137, 218)
-            NotifStroke.Thickness = 1.5
-            
-            local NotifText = Instance.new("TextLabel", NotifFrame)
-            NotifText.Size = UDim2.new(1, 0, 1, 0)
-            NotifText.BackgroundTransparency = 1
-            NotifText.Text = text
-            NotifText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            NotifText.TextSize = 12
-            NotifText.Font = Enum.Font.GothamBold
-            NotifText.ZIndex = 100000
-
-            TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0.5, -130, 0, 20)
-            }):Play()
-
-            task.wait(3)
-
-            local fadeOut = TweenService:Create(NotifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                Position = UDim2.new(0.5, -130, 0, -60)
-            })
-            fadeOut:Play()
-            fadeOut.Completed:Wait()
-            NotifFrame:Destroy()
-        end)
-    end)
-end
-
-local Themes = {
-    ["Dark Purple"] = {
-        MainBg = Color3.fromRGB(18, 18, 24),
-        TopBar = Color3.fromRGB(24, 24, 32),
-        ElementBg = Color3.fromRGB(24, 24, 32),
-        TextMain = Color3.fromRGB(240, 240, 255),
-        TextDim = Color3.fromRGB(170, 170, 190)
-    },
-    ["Midnight Blue"] = {
-        MainBg = Color3.fromRGB(10, 15, 25),
-        TopBar = Color3.fromRGB(15, 22, 36),
-        ElementBg = Color3.fromRGB(15, 22, 36),
-        TextMain = Color3.fromRGB(230, 240, 255),
-        TextDim = Color3.fromRGB(140, 160, 190)
-    },
-    ["Crimson Red"] = {
-        MainBg = Color3.fromRGB(20, 12, 14),
-        TopBar = Color3.fromRGB(28, 16, 19),
-        ElementBg = Color3.fromRGB(28, 16, 19),
-        TextMain = Color3.fromRGB(255, 230, 230),
-        TextDim = Color3.fromRGB(190, 150, 150)
-    },
-    ["Emerald Green"] = {
-        MainBg = Color3.fromRGB(12, 20, 16),
-        TopBar = Color3.fromRGB(16, 28, 22),
-        ElementBg = Color3.fromRGB(16, 28, 22),
-        TextMain = Color3.fromRGB(230, 255, 240),
-        TextDim = Color3.fromRGB(150, 190, 170)
-    },
-    ["Sunset Orange"] = {
-        MainBg = Color3.fromRGB(22, 15, 12),
-        TopBar = Color3.fromRGB(33, 22, 16),
-        ElementBg = Color3.fromRGB(33, 22, 16),
-        TextMain = Color3.fromRGB(255, 235, 220),
-        TextDim = Color3.fromRGB(190, 160, 140)
-    },
-    ["Neon Cyberpunk"] = {
-        MainBg = Color3.fromRGB(13, 13, 18),
-        TopBar = Color3.fromRGB(20, 20, 28),
-        ElementBg = Color3.fromRGB(20, 20, 28),
-        TextMain = Color3.fromRGB(0, 255, 255),
-        TextDim = Color3.fromRGB(150, 150, 180)
-    },
-    ["Rose Pink"] = {
-        MainBg = Color3.fromRGB(22, 14, 18),
-        TopBar = Color3.fromRGB(32, 20, 26),
-        ElementBg = Color3.fromRGB(32, 20, 26),
-        TextMain = Color3.fromRGB(255, 220, 235),
-        TextDim = Color3.fromRGB(190, 150, 170)
-    },
-    ["Toxic Lime"] = {
-        MainBg = Color3.fromRGB(14, 20, 12),
-        TopBar = Color3.fromRGB(20, 30, 16),
-        ElementBg = Color3.fromRGB(20, 30, 16),
-        TextMain = Color3.fromRGB(200, 255, 120),
-        TextDim = Color3.fromRGB(150, 180, 130)
-    },
-    ["Matrix Code"] = {
-        MainBg = Color3.fromRGB(8, 12, 8),
-        TopBar = Color3.fromRGB(12, 20, 12),
-        ElementBg = Color3.fromRGB(12, 20, 12),
-        TextMain = Color3.fromRGB(50, 255, 50),
-        TextDim = Color3.fromRGB(100, 180, 100)
-    },
-    ["Golden Luxury"] = {
-        MainBg = Color3.fromRGB(20, 18, 12),
-        TopBar = Color3.fromRGB(30, 26, 16),
-        ElementBg = Color3.fromRGB(30, 26, 16),
-        TextMain = Color3.fromRGB(255, 223, 128),
-        TextDim = Color3.fromRGB(180, 160, 120)
-    }
+local Config=ldC()
+Config.Theme=Config.Theme or "Default"
+Config.Toggles=Config.Toggles or {}
+local ACC=Color3.fromRGB(130,140,255)
+local ACG=Color3.fromRGB(110,220,150)
+local ACR=Color3.fromRGB(255,95,110)
+local ACY=Color3.fromRGB(255,200,100)
+local Themes={
+Default={MainBg=Color3.fromRGB(18,18,26),MainBg2=Color3.fromRGB(24,24,34),TopBar=Color3.fromRGB(28,28,40),Element=Color3.fromRGB(30,30,44),ElementHover=Color3.fromRGB(42,42,60),Border=Color3.fromRGB(48,48,68),Accent=Color3.fromRGB(130,140,255),Text=Color3.fromRGB(235,235,250),TextDim=Color3.fromRGB(150,150,175)},
+Cyberpunk={MainBg=Color3.fromRGB(14,10,22),MainBg2=Color3.fromRGB(22,14,34),TopBar=Color3.fromRGB(26,16,40),Element=Color3.fromRGB(32,20,48),ElementHover=Color3.fromRGB(44,28,64),Border=Color3.fromRGB(60,36,84),Accent=Color3.fromRGB(255,90,200),Text=Color3.fromRGB(240,230,255),TextDim=Color3.fromRGB(180,150,210)},
+Emerald={MainBg=Color3.fromRGB(12,20,18),MainBg2=Color3.fromRGB(18,28,24),TopBar=Color3.fromRGB(20,32,28),Element=Color3.fromRGB(26,42,36),ElementHover=Color3.fromRGB(36,56,48),Border=Color3.fromRGB(48,76,64),Accent=Color3.fromRGB(90,220,160),Text=Color3.fromRGB(230,250,240),TextDim=Color3.fromRGB(150,200,175)},
+Ruby={MainBg=Color3.fromRGB(24,14,16),MainBg2=Color3.fromRGB(32,18,22),TopBar=Color3.fromRGB(38,22,26),Element=Color3.fromRGB(48,28,34),ElementHover=Color3.fromRGB(64,38,46),Border=Color3.fromRGB(84,50,60),Accent=Color3.fromRGB(255,100,120),Text=Color3.fromRGB(250,230,235),TextDim=Color3.fromRGB(200,160,170)},
+Midnight={MainBg=Color3.fromRGB(10,14,22),MainBg2=Color3.fromRGB(16,20,30),TopBar=Color3.fromRGB(20,26,40),Element=Color3.fromRGB(24,32,48),ElementHover=Color3.fromRGB(34,44,64),Border=Color3.fromRGB(48,62,88),Accent=Color3.fromRGB(120,170,255),Text=Color3.fromRGB(230,240,255),TextDim=Color3.fromRGB(150,170,200)},
+Sunset={MainBg=Color3.fromRGB(24,18,16),MainBg2=Color3.fromRGB(32,24,20),TopBar=Color3.fromRGB(40,30,26),Element=Color3.fromRGB(50,38,32),ElementHover=Color3.fromRGB(66,50,42),Border=Color3.fromRGB(88,66,56),Accent=Color3.fromRGB(255,160,90),Text=Color3.fromRGB(250,235,225),TextDim=Color3.fromRGB(200,175,160)},
+Mono={MainBg=Color3.fromRGB(16,16,16),MainBg2=Color3.fromRGB(22,22,22),TopBar=Color3.fromRGB(28,28,28),Element=Color3.fromRGB(34,34,34),ElementHover=Color3.fromRGB(46,46,46),Border=Color3.fromRGB(60,60,60),Accent=Color3.fromRGB(220,220,220),Text=Color3.fromRGB(240,240,240),TextDim=Color3.fromRGB(150,150,150)}
 }
-
-local CurrentTheme = Themes["Dark Purple"]
-
-local ToggleBtn = Instance.new("ImageButton")
-ToggleBtn.Name = "FloatingToggle"
-ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
-ToggleBtn.Position = UDim2.new(0.015, 0, 0.12, 0)
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-ToggleBtn.BackgroundTransparency = 0.1
-ToggleBtn.Image = CUSTOM_IMAGE_ID
-ToggleBtn.Active = true
-ToggleBtn.Draggable = true
-ToggleBtn.Visible = true
-ToggleBtn.ZIndex = 99999
-ToggleBtn.Parent = ScreenGui
-
-local ToggleCorner = Instance.new("UICorner", ToggleBtn)
-ToggleCorner.CornerRadius = UDim.new(1, 0)
-
-local ToggleStroke = Instance.new("UIStroke", ToggleBtn)
-ToggleStroke.Thickness = 3.5
-
+local SG=Instance.new("ScreenGui")
+SG.Name="LatinaHubV6"
+SG.ResetOnSpawn=false
+SG.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+SG.IgnoreGuiInset=true
+SG.Parent=PG
+local BL=Instance.new("BlurEffect",LT)
+BL.Name="LatinaBlur"
+BL.Size=0
+local CS=Instance.new("Sound",SG) CS.SoundId="rbxassetid://906107293" CS.Volume=0.4
+local ES=Instance.new("Sound",SG) ES.SoundId="rbxassetid://6026984224" ES.Volume=0.5
+local SS=Instance.new("Sound",SG) SS.SoundId="rbxassetid://6536419944" SS.Volume=0.4
+local IS=Instance.new("Sound",SG) IS.SoundId="rbxassetid://130788815" IS.Volume=0.6
+local function pC()pcall(function()CS:Play()end)end
+local function pE()pcall(function()ES:Play()end)end
+local function pS()pcall(function()SS:Play()end)end
+local function cor(p,r)local c=Instance.new("UICorner",p)c.CornerRadius=UDim.new(0,r or 8)return c end
+local function str(p,c,t,tr)local s=Instance.new("UIStroke",p)s.Color=c or Color3.fromRGB(70,70,90)s.Thickness=t or 1 s.Transparency=tr or 0.5 s.ApplyStrokeMode=Enum.ApplyStrokeMode.Border return s end
+local function gr(p,c1,c2,r)local g=Instance.new("UIGradient",p)g.Rotation=r or 90 g.Color=ColorSequence.new(c1,c2)return g end
+local NQ,NB={},false
+local NH={}
+local function showN(t,k)
+table.insert(NH,{text=t,kind=k or "info",time=os.time()})
+if #NH>50 then table.remove(NH,1)end
+table.insert(NQ,{text=t,kind=k or "info"})
+if NB then return end
+NB=true
 task.spawn(function()
-    local hue = 0
-    while ToggleBtn and ToggleBtn.Parent do
-        hue = (hue + 0.005) % 1
-        ToggleStroke.Color = Color3.fromHSV(hue, 1, 1)
-        task.wait(0.03)
-    end
+while #NQ>0 do
+local e=table.remove(NQ,1)
+pcall(function()
+local bc=ACC
+if e.kind=="success" then bc=ACG elseif e.kind=="error" then bc=ACR end
+local F=Instance.new("Frame",SG)
+F.Size=UDim2.new(0,280,0,44)
+F.Position=UDim2.new(0.5,-140,1,20)
+F.BackgroundColor3=Themes[Config.Theme].TopBar
+F.BackgroundTransparency=0.35
+F.ZIndex=99999
+cor(F,10)
+str(F,Themes[Config.Theme].Border,1,0.7)
+gr(F,Themes[Config.Theme].TopBar,Themes[Config.Theme].MainBg)
+local b=Instance.new("Frame",F)
+b.Size=UDim2.new(0,3,1,-14)
+b.Position=UDim2.new(0,8,0,7)
+b.BackgroundColor3=bc
+b.BackgroundTransparency=0.3
+b.BorderSizePixel=0
+b.ZIndex=100001
+cor(b,2)
+local T=Instance.new("TextLabel",F)
+T.Size=UDim2.new(1,-28,1,0)
+T.Position=UDim2.new(0,20,0,0)
+T.BackgroundTransparency=1
+T.Text=e.text
+T.TextColor3=Themes[Config.Theme].Text
+T.TextTransparency=0.1
+T.TextSize=11
+T.Font=Enum.Font.GothamMedium
+T.TextWrapped=true
+T.TextXAlignment=Enum.TextXAlignment.Left
+T.ZIndex=100000
+TS:Create(F,TweenInfo.new(0.4,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),{Position=UDim2.new(0.5,-140,1,-60)}):Play()
+task.wait(2.4)
+local out=TS:Create(F,TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Position=UDim2.new(0.5,-140,1,20),BackgroundTransparency=1})
+TS:Create(T,TweenInfo.new(0.3),{TextTransparency=1}):Play()
+out:Play() out.Completed:Wait()
+F:Destroy()
 end)
-
-local function PlayIntro(onComplete)
-    task.spawn(function()
-        pcall(function()
-            local Backdrop = Instance.new("Frame", ScreenGui)
-            Backdrop.Size = UDim2.new(1, 0, 1, 0)
-            Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            Backdrop.BackgroundTransparency = 1
-            Backdrop.ZIndex = 5000
-
-            local IntroImage = Instance.new("ImageLabel", ScreenGui)
-            IntroImage.AnchorPoint = Vector2.new(0.5, 0.5)
-            IntroImage.Position = UDim2.new(0.5, 0, 0.5, 0)
-            IntroImage.Size = UDim2.new(0, 0, 0, 0)
-            IntroImage.BackgroundTransparency = 1
-            IntroImage.Image = CUSTOM_IMAGE_ID
-            IntroImage.ZIndex = 5001
-
-            local UICorner = Instance.new("UICorner", IntroImage)
-            UICorner.CornerRadius = UDim.new(0.15, 0)
-
-            local UIStroke = Instance.new("UIStroke", IntroImage)
-            UIStroke.Color = Color3.fromRGB(114, 137, 218)
-            UIStroke.Thickness = 4
-            UIStroke.Transparency = 1
-
-            TweenService:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 0.4}):Play()
-            TweenService:Create(IntroImage, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 300, 0, 300)}):Play()
-            TweenService:Create(UIStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
-
-            task.wait(2.2)
-
-            TweenService:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-            local fadeOutImg = TweenService:Create(IntroImage, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
-            fadeOutImg:Play()
-            
-            fadeOutImg.Completed:Wait()
-            Backdrop:Destroy()
-            IntroImage:Destroy()
-            if onComplete then onComplete() end
-        end)
-    end)
+task.wait(0.12)
 end
-
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainWindow"
-MainFrame.Size = UDim2.new(0, 480, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -240, 0.5, -160)
-MainFrame.BackgroundColor3 = CurrentTheme.MainBg
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Visible = false
-MainFrame.ZIndex = 100
-MainFrame.Parent = ScreenGui
-
-local MainCorner = Instance.new("UICorner", MainFrame)
-MainCorner.CornerRadius = UDim.new(0, 10)
-
-local MainStroke = Instance.new("UIStroke", MainFrame)
-MainStroke.Thickness = 2
+NB=false
+end)
+end
+local TB=Instance.new("ImageButton",SG)
+TB.Name="FloatingToggle"
+TB.Size=UDim2.new(0,52,0,52)
+TB.Position=UDim2.new(0,18,1,-100)
+TB.AnchorPoint=Vector2.new(0,1)
+TB.BackgroundColor3=Themes[Config.Theme].TopBar
+TB.Image="rbxassetid://100104680190424"
+TB.AutoButtonColor=false
+TB.Active=true
+TB.Draggable=true
+TB.ZIndex=99999
+cor(TB,999)
+local TBS=str(TB,ACC,2,0)
+local TG=Instance.new("Frame",TB)
+TG.Size=UDim2.new(1,6,1,6)
+TG.Position=UDim2.new(0,-3,0,-3)
+TG.BackgroundColor3=ACC
+TG.BackgroundTransparency=0.88
+TG.BorderSizePixel=0
+TG.ZIndex=99998
+cor(TG,999)
+TB.MouseEnter:Connect(function()TS:Create(TB,TweenInfo.new(0.18),{Size=UDim2.new(0,56,0,56)}):Play()TS:Create(TG,TweenInfo.new(0.18),{BackgroundTransparency=0.7}):Play()end)
+TB.MouseLeave:Connect(function()TS:Create(TB,TweenInfo.new(0.18),{Size=UDim2.new(0,52,0,52)}):Play()TS:Create(TG,TweenInfo.new(0.18),{BackgroundTransparency=0.88}):Play()end)
+local MF=Instance.new("Frame",SG)
+MF.Name="MainWindow"
+MF.Size=UDim2.new(0,380,0,270)
+MF.Position=UDim2.new(0.5,-190,0,80)
+MF.BackgroundColor3=Themes[Config.Theme].MainBg
+MF.Active=true
+MF.Visible=false
+MF.ZIndex=100
+cor(MF,14)
+local MG=gr(MF,Themes[Config.Theme].MainBg,Themes[Config.Theme].MainBg2,90)
+local MS=str(MF,Themes[Config.Theme].Border,1.5,0.3)
+local TBAR=Instance.new("Frame",MF)
+TBAR.Size=UDim2.new(1,0,0,42)
+TBAR.BackgroundColor3=Themes[Config.Theme].TopBar
+TBAR.Active=true
+TBAR.ZIndex=101
+cor(TBAR,14)
+local TF=Instance.new("Frame",TBAR)
+TF.Size=UDim2.new(1,0,0,14)
+TF.Position=UDim2.new(0,0,1,-14)
+TF.BackgroundColor3=Themes[Config.Theme].TopBar
+TF.BorderSizePixel=0
+TF.ZIndex=101
+local TG2=gr(TBAR,Themes[Config.Theme].TopBar,Themes[Config.Theme].MainBg,90)
+local AL=Instance.new("Frame",TBAR)
+AL.Size=UDim2.new(1,0,0,2)
+AL.Position=UDim2.new(0,0,1,-1)
+AL.BackgroundColor3=ACC
+AL.BorderSizePixel=0
+AL.ZIndex=102
+local BS=Instance.new("Frame",TBAR)
+BS.Size=UDim2.new(0,26,0,26)
+BS.Position=UDim2.new(0,12,0.5,-13)
+BS.BackgroundColor3=ACC
+BS.ZIndex=103
+cor(BS,7)
+gr(BS,Color3.fromRGB(150,160,255),Color3.fromRGB(100,110,220))
+local BI=Instance.new("ImageLabel",BS)
+BI.Size=UDim2.new(1,-6,1,-6)
+BI.Position=UDim2.new(0,3,0,3)
+BI.BackgroundTransparency=1
+BI.Image="rbxassetid://100104680190424"
+BI.ZIndex=104
+local TL=Instance.new("TextLabel",TBAR)
+TL.Size=UDim2.new(0,200,0,18)
+TL.Position=UDim2.new(0,46,0,4)
+TL.BackgroundTransparency=1
+TL.Text="LATINA HUB"
+TL.TextColor3=Themes[Config.Theme].Text
+TL.TextSize=13
+TL.Font=Enum.Font.GothamBold
+TL.TextXAlignment=Enum.TextXAlignment.Left
+TL.ZIndex=103
 task.spawn(function()
-    local hue = 0
-    while MainFrame and MainFrame.Parent do
-        hue = (hue + 0.003) % 1
-        MainStroke.Color = Color3.fromHSV(hue, 1, 1)
-        task.wait(0.03)
-    end
+local h=0
+while TL and TL.Parent do h=(h+0.006)%1 TL.TextColor3=Color3.fromHSV(h,1,1) task.wait(0.03)end
 end)
-local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 36)
-TopBar.BackgroundColor3 = CurrentTheme.TopBar
-TopBar.ZIndex = 101
-TopBar.Parent = MainFrame
-
-local TopBarCorner = Instance.new("UICorner", TopBar)
-TopBarCorner.CornerRadius = UDim.new(0, 10)
-
-local CoverFix = Instance.new("Frame")
-CoverFix.Size = UDim2.new(1, 0, 0, 10)
-CoverFix.Position = UDim2.new(0, 0, 1, -10)
-CoverFix.BackgroundColor3 = CurrentTheme.TopBar
-CoverFix.BorderSizePixel = 0
-CoverFix.ZIndex = 101
-CoverFix.Parent = TopBar
-
-local CloseXBtn = Instance.new("TextButton")
-CloseXBtn.Size = UDim2.new(0, 26, 0, 26)
-CloseXBtn.Position = UDim2.new(1, -32, 0.5, -13)
-CloseXBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
-CloseXBtn.Text = "✕"
-CloseXBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
-CloseXBtn.TextSize = 13
-CloseXBtn.Font = Enum.Font.GothamBold
-CloseXBtn.ZIndex = 105
-CloseXBtn.Parent = TopBar
-
-local CloseXCorner = Instance.new("UICorner", CloseXBtn)
-CloseXCorner.CornerRadius = UDim.new(0, 6)
-
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
-TitleLabel.Position = UDim2.new(0, 10, 0, 0)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "LATINA HUB | FREEMIUM"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize = 12
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.ZIndex = 102
-TitleLabel.Parent = TopBar
-
+local VB=Instance.new("TextLabel",TBAR)
+VB.Size=UDim2.new(0,96,0,14)
+VB.Position=UDim2.new(0,46,0,23)
+VB.BackgroundColor3=ACC
+VB.BackgroundTransparency=0.7
+VB.Text="V1 NEW RELEASE"
+VB.TextColor3=ACC
+VB.TextSize=8
+VB.Font=Enum.Font.GothamBold
+VB.ZIndex=103
+cor(VB,4)
 task.spawn(function()
-    local hue = 0
-    while TitleLabel and TitleLabel.Parent do
-        hue = (hue + 0.005) % 1
-        TitleLabel.TextColor3 = Color3.fromHSV(hue, 1, 1)
-        task.wait(0.03)
-    end
+local h=0.5
+while VB and VB.Parent do h=(h+0.008)%1 local c=Color3.fromHSV(h,1,1) VB.TextColor3=c VB.BackgroundColor3=c task.wait(0.03)end
 end)
-
-local StatsLabel = Instance.new("TextLabel")
-StatsLabel.Size = UDim2.new(0, 120, 1, 0)
-StatsLabel.Position = UDim2.new(1, -158, 0, 0)
-StatsLabel.BackgroundTransparency = 1
-StatsLabel.Text = "FPS: 0 | MS: 0"
-StatsLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
-StatsLabel.TextSize = 10
-StatsLabel.Font = Enum.Font.GothamBold
-StatsLabel.TextXAlignment = Enum.TextXAlignment.Right
-StatsLabel.ZIndex = 102
-StatsLabel.Parent = TopBar
-
-local lastTick = tick()
-local frameCount = 0
-RunService.RenderStepped:Connect(function()
-    frameCount = frameCount + 1
-    if tick() - lastTick >= 1 then
-        local fps = frameCount
-        local ping = math.round(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        StatsLabel.Text = "FPS: " .. fps .. " | MS: " .. ping
-        frameCount = 0
-        lastTick = tick()
-    end
-end)
-
-local ConfirmOverlay = Instance.new("Frame")
-ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
-ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ConfirmOverlay.BackgroundTransparency = 0.5
-ConfirmOverlay.Visible = false
-ConfirmOverlay.ZIndex = 500
-ConfirmOverlay.Parent = MainFrame
-
-local ConfirmBox = Instance.new("Frame")
-ConfirmBox.Size = UDim2.new(0, 280, 0, 130)
-ConfirmBox.AnchorPoint = Vector2.new(0.5, 0.5)
-ConfirmBox.Position = UDim2.new(0.5, 0, 0.5, 0)
-ConfirmBox.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-ConfirmBox.ZIndex = 501
-ConfirmBox.Parent = ConfirmOverlay
-
-local ConfirmBoxCorner = Instance.new("UICorner", ConfirmBox)
-ConfirmBoxCorner.CornerRadius = UDim.new(0, 8)
-
-local ConfirmBoxStroke = Instance.new("UIStroke", ConfirmBox)
-ConfirmBoxStroke.Color = Color3.fromRGB(50, 50, 70)
-ConfirmBoxStroke.Thickness = 1.5
-
-local ConfirmText = Instance.new("TextLabel")
-ConfirmText.Size = UDim2.new(1, -20, 0, 50)
-ConfirmText.Position = UDim2.new(0, 10, 0, 15)
-ConfirmText.BackgroundTransparency = 1
-ConfirmText.Text = "Are you sure you want to close this hub?"
-ConfirmText.TextColor3 = Color3.fromRGB(240, 240, 255)
-ConfirmText.TextSize = 12
-ConfirmText.Font = Enum.Font.GothamSemibold
-ConfirmText.TextWrapped = true
-ConfirmText.ZIndex = 502
-ConfirmText.Parent = ConfirmBox
-
-local CancelBtn = Instance.new("TextButton")
-CancelBtn.Size = UDim2.new(0, 120, 0, 32)
-CancelBtn.Position = UDim2.new(0, 15, 1, -45)
-CancelBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
-CancelBtn.Text = "Cancel"
-CancelBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-CancelBtn.TextSize = 11
-CancelBtn.Font = Enum.Font.GothamBold
-CancelBtn.ZIndex = 502
-CancelBtn.Parent = ConfirmBox
-
-local CancelCorner = Instance.new("UICorner", CancelBtn)
-CancelCorner.CornerRadius = UDim.new(0, 6)
-
-local CloseWindowBtn = Instance.new("TextButton")
-CloseWindowBtn.Size = UDim2.new(0, 120, 0, 32)
-CloseWindowBtn.Position = UDim2.new(1, -135, 1, -45)
-CloseWindowBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-CloseWindowBtn.Text = "Close Window"
-CloseWindowBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseWindowBtn.TextSize = 11
-CloseWindowBtn.Font = Enum.Font.GothamBold
-CloseWindowBtn.ZIndex = 502
-CloseWindowBtn.Parent = ConfirmBox
-
-local CloseWindowCorner = Instance.new("UICorner", CloseWindowBtn)
-CloseWindowCorner.CornerRadius = UDim.new(0, 6)
-
-local isOpen = true
-local function ToggleWindow()
-    PlayClick()
-    isOpen = not isOpen
-    ConfirmOverlay.Visible = false
-    if isOpen then
-        MainFrame.Visible = true
-        MainFrame.Size = UDim2.new(0, 0, 0, 0)
-        MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-        MainFrame.BackgroundTransparency = 1
-        
-        TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 480, 0, 320),
-            Position = UDim2.new(0.5, -240, 0.5, -160),
-            BackgroundTransparency = 0
-        }):Play()
-    else
-        local tween = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            BackgroundTransparency = 1
-        })
-        tween:Play()
-        tween.Completed:Wait()
-        if not isOpen then MainFrame.Visible = false end
-    end
+local ML=Instance.new("TextLabel",TBAR)
+ML.Size=UDim2.new(0,100,0,12)
+ML.Position=UDim2.new(1,-180,0,15)
+ML.BackgroundTransparency=1
+ML.Text="FPS -- | --ms"
+ML.TextColor3=ACG
+ML.TextSize=9
+ML.Font=Enum.Font.GothamBold
+ML.TextXAlignment=Enum.TextXAlignment.Right
+ML.ZIndex=104
+local DH=Instance.new("TextLabel",TBAR)
+DH.Size=UDim2.new(0,60,1,0)
+DH.Position=UDim2.new(0,200,0,0)
+DH.BackgroundTransparency=1
+DH.Text="⋮⋮"
+DH.TextColor3=Themes[Config.Theme].TextDim
+DH.TextSize=10
+DH.Font=Enum.Font.GothamBold
+DH.ZIndex=103
+local function iB(pr,tx,c,x)
+local b=Instance.new("TextButton",pr)
+b.Size=UDim2.new(0,26,0,26)
+b.Position=UDim2.new(1,x,0.5,-13)
+b.BackgroundColor3=Themes[Config.Theme].Element
+b.Text=tx
+b.TextColor3=c
+b.TextSize=13
+b.Font=Enum.Font.GothamBold
+b.AutoButtonColor=false
+b.ZIndex=105
+cor(b,8)
+str(b,Themes[Config.Theme].Border,1,0.5)
+return b
 end
-
-ToggleBtn.MouseButton1Click:Connect(ToggleWindow)
-CloseXBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visible = true end)
-CancelBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visible = false end)
-CloseWindowBtn.MouseButton1Click:Connect(function() PlayClick() ScreenGui:Destroy() end)
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.RightShift then
-            ToggleWindow()
-            if isOpen then
-                ShowNotification("LATINA HUB: Opened")
-            else
-                ShowNotification("LATINA HUB: Minimized")
-            end
-        end
-    end
+local MB=iB(TBAR,"–",Themes[Config.Theme].TextDim,-64)
+local CB=iB(TBAR,"✕",ACR,-34)
+CB.MouseEnter:Connect(function()TS:Create(CB,TweenInfo.new(0.15),{BackgroundColor3=ACR}):Play()CB.TextColor3=Color3.fromRGB(20,20,30)end)
+CB.MouseLeave:Connect(function()TS:Create(CB,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element}):Play()CB.TextColor3=ACR end)
+MB.MouseEnter:Connect(function()TS:Create(MB,TweenInfo.new(0.15),{BackgroundColor3=ACC}):Play()MB.TextColor3=Color3.fromRGB(20,20,30)end)
+MB.MouseLeave:Connect(function()TS:Create(MB,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element}):Play()MB.TextColor3=Themes[Config.Theme].TextDim end)
+local DRG=false
+local DS=nil
+local SP=nil
+TBAR.InputBegan:Connect(function(input)
+if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end
+local t=input.Target
+if t and (t:IsA("TextButton") or t:IsA("ImageButton") or t:IsA("TextBox")) then return end
+DRG=true
+DS=input.Position
+SP=MF.Position
 end)
-
-local Sidebar = Instance.new("ScrollingFrame")
-Sidebar.Size = UDim2.new(0, 125, 1, -48)
-Sidebar.Position = UDim2.new(0, 6, 0, 42)
-Sidebar.BackgroundTransparency = 1
-Sidebar.BorderSizePixel = 0
-Sidebar.CanvasSize = UDim2.new(0, 0, 0, 300)
-Sidebar.ScrollBarThickness = 2
-Sidebar.ZIndex = 102
-Sidebar.Parent = MainFrame
-
-local SidebarLayout = Instance.new("UIListLayout", Sidebar)
-SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarLayout.Padding = UDim.new(0, 5)
-
-local PagesContainer = Instance.new("Frame")
-PagesContainer.Size = UDim2.new(1, -142, 1, -48)
-PagesContainer.Position = UDim2.new(0, 136, 0, 42)
-PagesContainer.BackgroundTransparency = 1
-PagesContainer.ZIndex = 102
-PagesContainer.Parent = MainFrame
-
-local activeTabButton = nil
-local allTabButtons = {}
-local allPages = {}
-
-local function CreateTab(title)
-    local tabIndex = #allTabButtons + 1
-    
-    local TabBtn = Instance.new("TextButton")
-    TabBtn.Size = UDim2.new(1, 0, 0, 32)
-    TabBtn.BackgroundColor3 = CurrentTheme.TopBar
-    TabBtn.Text = "  " .. title
-    TabBtn.TextColor3 = CurrentTheme.TextDim
-    TabBtn.TextSize = 11
-    TabBtn.Font = Enum.Font.GothamSemibold
-    TabBtn.TextXAlignment = Enum.TextXAlignment.Left
-    TabBtn.ZIndex = 103
-    TabBtn.Parent = Sidebar
-    
-    local TabCorner = Instance.new("UICorner", TabBtn)
-    TabCorner.CornerRadius = UDim.new(0, 6)
-
-    local Page = Instance.new("ScrollingFrame")
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.BorderSizePixel = 0
-    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    Page.ScrollBarThickness = 3
-    Page.Visible = false
-    Page.ZIndex = 103
-    Page.Parent = PagesContainer
-
-    local PageLayout = Instance.new("UIListLayout", Page)
-    PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    PageLayout.Padding = UDim.new(0, 6)
-
-    PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        Page.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 10)
-    end)
-
-    table.insert(allTabButtons, {Button = TabBtn, Page = Page})
-    table.insert(allPages, Page)
-
-    TabBtn.MouseButton1Click:Connect(function()
-        PlayClick()
-        for _, p in ipairs(allPages) do p.Visible = false end
-        for _, t in ipairs(allTabButtons) do 
-            t.Button.BackgroundColor3 = CurrentTheme.TopBar
-            t.Button.TextColor3 = CurrentTheme.TextDim
-        end
-        Page.Visible = true
-        TabBtn.BackgroundColor3 = Color3.fromRGB(114, 137, 218)
-        TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        activeTabButton = TabBtn
-    end)
-
-    if tabIndex == 1 then
-        Page.Visible = true
-        TabBtn.BackgroundColor3 = Color3.fromRGB(114, 137, 218)
-        TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        activeTabButton = TabBtn
-    end
-
-    return Page
-end
-
-local allElementButtons = {}
-local function AddButtonToPage(page, name, callback)
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -4, 0, 34)
-    Btn.BackgroundColor3 = CurrentTheme.ElementBg
-    Btn.Text = "  " .. name
-    Btn.TextColor3 = CurrentTheme.TextMain
-    Btn.TextSize = 11
-    Btn.Font = Enum.Font.GothamSemibold
-    Btn.TextXAlignment = Enum.TextXAlignment.Left
-    Btn.ZIndex = 104
-    Btn.Parent = page
-
-    local Corner = Instance.new("UICorner", Btn)
-    Corner.CornerRadius = UDim.new(0, 6)
-
-    local Stroke = Instance.new("UIStroke", Btn)
-    Stroke.Color = Color3.fromRGB(45, 45, 60)
-    Stroke.Thickness = 1
-
-    table.insert(allElementButtons, {Btn = Btn, Stroke = Stroke})
-    Btn.MouseButton1Click:Connect(function()
-        PlayClick()
-        callback()
-    end)
-end
-
-local function ApplyTheme(themeName)
-    CurrentTheme = Themes[themeName]
-    MainFrame.BackgroundColor3 = CurrentTheme.MainBg
-    TopBar.BackgroundColor3 = CurrentTheme.TopBar
-    CoverFix.BackgroundColor3 = CurrentTheme.TopBar
-
-    for _, t in ipairs(allTabButtons) do
-        if t.Button == activeTabButton then
-            t.Button.BackgroundColor3 = Color3.fromRGB(114, 137, 218)
-            t.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        else
-            t.Button.BackgroundColor3 = CurrentTheme.TopBar
-            t.Button.TextColor3 = CurrentTheme.TextDim
-        end
-    end
-
-    for _, el in ipairs(allElementButtons) do
-        el.Btn.BackgroundColor3 = CurrentTheme.ElementBg
-        el.Btn.TextColor3 = CurrentTheme.TextMain
-    end
-end
-
-local MainTab = CreateTab("Main")
-AddButtonToPage(MainTab, "💡 Feature 1 (Fullbright)", function()
-    pcall(function()
-        Lighting.Brightness = Lighting.Brightness == 1 and 2 or 1
-        Lighting.GlobalShadows = not Lighting.GlobalShadows
-    end)
+UIS.InputChanged:Connect(function(input)
+if not DRG then return end
+if input.UserInputType~=Enum.UserInputType.MouseMovement and input.UserInputType~=Enum.UserInputType.Touch then return end
+local d=input.Position-DS
+MF.Position=UDim2.new(SP.X.Scale,SP.X.Offset+d.X,SP.Y.Scale,SP.Y.Offset+d.Y)
 end)
-AddButtonToPage(MainTab, "🔄 Rejoin Server", function()
-    pcall(function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+UIS.InputEnded:Connect(function(input)
+if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then DRG=false end
 end)
-
-local ScriptsList = {
-    {Name = "ON Hub", Link = "https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua"},
-    {Name = "Horizon", Link = "https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"},
-    {Name = "Nisi Hub", Link = ""},
-    {Name = "Lennon", Link = "https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"},
-    {Name = "Miranda", Link = "https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"},
-    {Name = "Lkz", Link = ""},
-    {Name = "Zeroin", Link = ""},
-    {Name = "Decode", Link = ""},
-    {Name = "Blyko Hub", Link = ""},
-    {Name = "Hoshi Hub", Link = ""}, 
-    {Name = "Script 12", Link = ""},
-    {Name = "Script 13", Link = ""},
-    {Name = "Script 14", Link = ""},
-    {Name = "Script 15", Link = ""},
-    {Name = "Script 16", Link = ""},
-    {Name = "Script 17", Link = ""},
-    {Name = "Script 18", Link = ""},
-    {Name = "Script 19", Link = ""},
-    {Name = "Script 20", Link = ""},
-    {Name = "Script 21", Link = ""},
-    {Name = "Script 22", Link = ""},
-    {Name = "Script 23", Link = ""},
-    {Name = "Script 24", Link = ""},
-    {Name = "Script 25", Link = ""}
+local FC, LU=0,tick()
+RS.RenderStepped:Connect(function()
+FC=FC+1
+if tick()-LU>=1 then
+local f=FC
+FC=0
+LU=tick()
+local pg=0
+pcall(function()pg=math.floor(ST.Network.ServerStatsItem["Data Ping"]:GetValue())end)
+ML.Text=string.format("FPS %d | %dms",f,pg)
+if pg<80 and f>45 then ML.TextColor3=ACG elseif pg<150 and f>25 then ML.TextColor3=ACY else ML.TextColor3=ACR end
+end
+end)
+local IO=true
+local function sB(t)TS:Create(BL,TweenInfo.new(0.4,Enum.EasingStyle.Quart),{Size=t}):Play()end
+local function TW()
+pC()
+IO=not IO
+MF.Visible=IO
+sB(IO and 8 or 0)
+end
+TB.MouseButton1Click:Connect(TW)
+CB.MouseButton1Click:Connect(TW)
+MB.MouseButton1Click:Connect(function()
+pC()
+local co=MF.Size.Y.Offset<=60
+TS:Create(MF,TweenInfo.new(0.3,Enum.EasingStyle.Quart),{Size=co and UDim2.new(0,380,0,270) or UDim2.new(0,380,0,42)}):Play()
+end)
+UIS.InputBegan:Connect(function(input,gp)if gp then return end if input.KeyCode==Enum.KeyCode.RightShift then TW()end end)
+local SB=Instance.new("ScrollingFrame",MF)
+SB.Size=UDim2.new(0,110,1,-56)
+SB.Position=UDim2.new(0,12,0,52)
+SB.BackgroundTransparency=1
+SB.BorderSizePixel=0
+SB.CanvasSize=UDim2.new(0,0,0,800)
+SB.ScrollBarThickness=2
+SB.ScrollBarImageColor3=ACC
+SB.ScrollBarImageTransparency=0.7
+SB.ZIndex=102
+local SBL=Instance.new("UIListLayout",SB)
+SBL.SortOrder=Enum.SortOrder.LayoutOrder
+SBL.Padding=UDim.new(0,3)
+local PC2=Instance.new("Frame",MF)
+PC2.Size=UDim2.new(1,-135,1,-56)
+PC2.Position=UDim2.new(0,127,0,52)
+PC2.BackgroundTransparency=1
+PC2.ZIndex=102
+local ATB={}
+local AP={}
+local CE={}
+local function CreateTab(title,icon)
+local ti=#ATB+1
+local T=Instance.new("TextButton",SB)
+T.Size=UDim2.new(1,-6,0,32)
+T.BackgroundColor3=Themes[Config.Theme].Element
+T.BackgroundTransparency=0.5
+T.Text=""
+T.AutoButtonColor=false
+T.ZIndex=103
+cor(T,7)
+local I=Instance.new("Frame",T)
+I.Size=UDim2.new(0,3,0,0)
+I.Position=UDim2.new(0,-1,0.5,0)
+I.AnchorPoint=Vector2.new(0,0.5)
+I.BackgroundColor3=ACC
+I.BorderSizePixel=0
+I.BackgroundTransparency=1
+I.ZIndex=104
+cor(I,2)
+local IF=Instance.new("Frame",T)
+IF.Size=UDim2.new(0,18,0,18)
+IF.Position=UDim2.new(0,6,0.5,-9)
+IF.BackgroundColor3=Themes[Config.Theme].TopBar
+IF.BackgroundTransparency=0.3
+IF.ZIndex=104
+cor(IF,5)
+local IL=Instance.new("TextLabel",IF)
+IL.Size=UDim2.new(1,0,1,0)
+IL.BackgroundTransparency=1
+IL.Text=icon or "•"
+IL.TextColor3=Themes[Config.Theme].TextDim
+IL.TextSize=10
+IL.Font=Enum.Font.GothamBold
+IL.ZIndex=105
+local X=Instance.new("TextLabel",T)
+X.Size=UDim2.new(1,-30,1,0)
+X.Position=UDim2.new(0,28,0,0)
+X.BackgroundTransparency=1
+X.Text=title
+X.TextColor3=Themes[Config.Theme].TextDim
+X.TextSize=10
+X.Font=Enum.Font.GothamMedium
+X.TextXAlignment=Enum.TextXAlignment.Left
+X.TextTruncate=Enum.TextTruncate.AtEnd
+X.ZIndex=105
+T.MouseEnter:Connect(function()if not T:GetAttribute("Active")then TS:Create(T,TweenInfo.new(0.15),{BackgroundTransparency=0.15}):Play()end end)
+T.MouseLeave:Connect(function()if not T:GetAttribute("Active")then TS:Create(T,TweenInfo.new(0.15),{BackgroundTransparency=0.5}):Play()end end)
+local PG2=Instance.new("ScrollingFrame",PC2)
+PG2.Size=UDim2.new(1,0,1,0)
+PG2.BackgroundTransparency=1
+PG2.BorderSizePixel=0
+PG2.CanvasSize=UDim2.new(0,0,0,0)
+PG2.ScrollBarThickness=3
+PG2.ScrollBarImageColor3=ACC
+PG2.ScrollBarImageTransparency=0.6
+PG2.Visible=false
+PG2.ZIndex=103
+local PL=Instance.new("UIListLayout",PG2)
+PL.SortOrder=Enum.SortOrder.LayoutOrder
+PL.Padding=UDim.new(0,7)
+PL:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+PG2.CanvasSize=UDim2.new(0,0,0,PL.AbsoluteContentSize.Y+10)
+end)
+table.insert(ATB,{Button=T,Page=PG2,Indicator=I,IconFrame=IF,IconLabel=IL,TextLabel=X})
+table.insert(AP,PG2)
+T.MouseButton1Click:Connect(function()
+pC()
+for _,v in ipairs(ATB)do
+v.Button:SetAttribute("Active",false)
+v.Button.BackgroundTransparency=0.5
+v.Indicator.BackgroundTransparency=1
+v.IconFrame.BackgroundColor3=Themes[Config.Theme].TopBar
+v.IconLabel.TextColor3=Themes[Config.Theme].TextDim
+v.TextLabel.TextColor3=Themes[Config.Theme].TextDim
+v.Page.Visible=false
+end
+PG2.Visible=true
+T:SetAttribute("Active",true)
+T.BackgroundTransparency=0
+I.BackgroundTransparency=0
+IF.BackgroundColor3=ACC
+IL.TextColor3=Color3.fromRGB(20,20,30)
+X.TextColor3=Themes[Config.Theme].Text
+TS:Create(I,TweenInfo.new(0.25),{Size=UDim2.new(0,3,1,-8)}):Play()
+end)
+if ti==1 then
+PG2.Visible=true
+T:SetAttribute("Active",true)
+T.BackgroundTransparency=0
+I.BackgroundTransparency=0
+I.Size=UDim2.new(0,3,1,-8)
+IF.BackgroundColor3=ACC
+IL.TextColor3=Color3.fromRGB(20,20,30)
+X.TextColor3=Themes[Config.Theme].Text
+end
+return PG2
+end
+local function AddButtonToPage(page,name,cb,op)
+op=op or {}
+local isT=op.toggle or false
+local sE=op.exec or false
+local k=op.key
+local ic=op.icon
+local st=false
+local B=Instance.new("TextButton",page)
+B.Size=UDim2.new(1,-8,0,36)
+B.BackgroundColor3=Themes[Config.Theme].Element
+B.BackgroundTransparency=0.15
+B.Text=""
+B.AutoButtonColor=false
+B.ZIndex=104
+table.insert(CE,B)
+cor(B,8)
+local BS2=str(B,Themes[Config.Theme].Border,1,0.4)
+local BR=Instance.new("Frame",B)
+BR.Size=UDim2.new(0,3,1,-12)
+BR.Position=UDim2.new(0,7,0.5,-0.5)
+BR.AnchorPoint=Vector2.new(0,0.5)
+BR.BackgroundColor3=ACC
+BR.BorderSizePixel=0
+BR.BackgroundTransparency=1
+BR.ZIndex=105
+cor(BR,2)
+if ic then
+local IB=Instance.new("Frame",B)
+IB.Size=UDim2.new(0,20,0,20)
+IB.Position=UDim2.new(0,14,0.5,-10)
+IB.BackgroundColor3=Themes[Config.Theme].TopBar
+IB.BackgroundTransparency=0.3
+IB.ZIndex=105
+cor(IB,6)
+local II=Instance.new("TextLabel",IB)
+II.Size=UDim2.new(1,0,1,0)
+II.BackgroundTransparency=1
+II.Text=ic
+II.TextColor3=ACC
+II.TextSize=10
+II.Font=Enum.Font.GothamBold
+II.ZIndex=106
+end
+local lP=ic and 42 or 18
+local NL=Instance.new("TextLabel",B)
+NL.Size=UDim2.new(1,(sE and 80 or 0)+(isT and 55 or 0)+(-lP),1,0)
+NL.Position=UDim2.new(0,lP,0,0)
+NL.BackgroundTransparency=1
+NL.Text=name
+NL.TextColor3=Themes[Config.Theme].Text
+NL.TextSize=11
+NL.Font=Enum.Font.GothamMedium
+NL.TextXAlignment=Enum.TextXAlignment.Left
+NL.TextTruncate=Enum.TextTruncate.AtEnd
+NL.ZIndex=105
+if sE and not isT then
+local ET=Instance.new("TextLabel",B)
+ET.Size=UDim2.new(0,70,1,0)
+ET.Position=UDim2.new(1,-78,0,0)
+ET.BackgroundTransparency=1
+ET.Text="RUN  ›"
+ET.TextColor3=ACC
+ET.TextSize=10
+ET.Font=Enum.Font.GothamBold
+ET.TextXAlignment=Enum.TextXAlignment.Right
+ET.ZIndex=105
+end
+if isT then
+local Pi=Instance.new("Frame",B)
+Pi.Size=UDim2.new(0,34,0,18)
+Pi.Position=UDim2.new(1,-44,0.5,-9)
+Pi.BackgroundColor3=Themes[Config.Theme].TopBar
+Pi.BorderSizePixel=0
+Pi.ZIndex=105
+cor(Pi,999)
+local K=Instance.new("Frame",Pi)
+K.Size=UDim2.new(0,14,0,14)
+K.Position=UDim2.new(0,2,0.5,-7)
+K.BackgroundColor3=Themes[Config.Theme].TextDim
+K.BorderSizePixel=0
+K.ZIndex=106
+cor(K,999)
+local function sV(on)
+TS:Create(Pi,TweenInfo.new(0.22),{BackgroundColor3=on and ACC or Themes[Config.Theme].TopBar}):Play()
+TS:Create(K,TweenInfo.new(0.25),{Position=on and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7),BackgroundColor3=on and Color3.fromRGB(255,255,255) or Themes[Config.Theme].TextDim}):Play()
+TS:Create(BS2,TweenInfo.new(0.2),{Color=on and ACC or Themes[Config.Theme].Border,Transparency=on and 0.2 or 0.4}):Play()
+TS:Create(BR,TweenInfo.new(0.2),{BackgroundTransparency=on and 0 or 1}):Play()
+end
+if k and Config.Toggles[k]then st=true sV(true)end
+B.MouseButton1Click:Connect(function()
+pC()
+st=not st
+sV(st)
+if k then Config.Toggles[k]=st svC(Config)end
+local ok,er=pcall(cb,st)
+if not ok then warn("[Latina] "..tostring(er))end
+end)
+B.MouseEnter:Connect(function()TS:Create(B,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].ElementHover,BackgroundTransparency=0}):Play()end)
+B.MouseLeave:Connect(function()TS:Create(B,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element,BackgroundTransparency=0.15}):Play()end)
+else
+B.MouseButton1Click:Connect(function()
+pC()
+if sE then pE()end
+local ok,er=pcall(cb)
+if not ok then warn("[Latina] "..tostring(er))end
+end)
+B.MouseEnter:Connect(function()
+TS:Create(B,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].ElementHover,BackgroundTransparency=0}):Play()
+TS:Create(BS2,TweenInfo.new(0.15),{Color=ACC,Transparency=0.3}):Play()
+TS:Create(BR,TweenInfo.new(0.15),{BackgroundTransparency=0.4}):Play()
+end)
+B.MouseLeave:Connect(function()
+TS:Create(B,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element,BackgroundTransparency=0.15}):Play()
+TS:Create(BS2,TweenInfo.new(0.15),{Color=Themes[Config.Theme].Border,Transparency=0.4}):Play()
+TS:Create(BR,TweenInfo.new(0.15),{BackgroundTransparency=1}):Play()
+end)
+end
+end
+local function addSection(page,text)
+local H=Instance.new("TextLabel",page)
+H.Size=UDim2.new(1,-10,0,16)
+H.BackgroundTransparency=1
+H.Text=string.upper(text)
+H.TextColor3=Themes[Config.Theme].TextDim
+H.TextSize=9
+H.Font=Enum.Font.GothamBold
+H.TextXAlignment=Enum.TextXAlignment.Left
+H.ZIndex=105
+return H
+end
+local function createCollapsible(parent,title,sub,icon,defOpen,ac)
+local C=Instance.new("Frame",parent)
+C.Size=UDim2.new(1,-8,0,40)
+C.BackgroundColor3=Themes[Config.Theme].Element
+C.BackgroundTransparency=0.1
+C.ZIndex=104
+cor(C,8)
+str(C,ac or ACC,1.2,0.4)
+gr(C,Themes[Config.Theme].Element,Themes[Config.Theme].TopBar)
+local HD=Instance.new("TextButton",C)
+HD.Size=UDim2.new(1,0,0,40)
+HD.BackgroundTransparency=1
+HD.Text=""
+HD.AutoButtonColor=false
+HD.ZIndex=105
+local IB2=Instance.new("Frame",HD)
+IB2.Size=UDim2.new(0,24,0,24)
+IB2.Position=UDim2.new(0,10,0,8)
+IB2.BackgroundColor3=ac or ACC
+IB2.BackgroundTransparency=0.75
+IB2.ZIndex=106
+cor(IB2,6)
+local IL2=Instance.new("TextLabel",IB2)
+IL2.Size=UDim2.new(1,0,1,0)
+IL2.BackgroundTransparency=1
+IL2.Text=icon or "📁"
+IL2.TextSize=12
+IL2.ZIndex=107
+local T1=Instance.new("TextLabel",HD)
+T1.Size=UDim2.new(1,-90,0,14)
+T1.Position=UDim2.new(0,42,0,6)
+T1.BackgroundTransparency=1
+T1.Text=title
+T1.TextColor3=Themes[Config.Theme].Text
+T1.TextSize=11
+T1.Font=Enum.Font.GothamBold
+T1.TextXAlignment=Enum.TextXAlignment.Left
+T1.ZIndex=106
+local S1=Instance.new("TextLabel",HD)
+S1.Size=UDim2.new(1,-90,0,12)
+S1.Position=UDim2.new(0,42,0,21)
+S1.BackgroundTransparency=1
+S1.Text=sub or ""
+S1.TextColor3=Themes[Config.Theme].TextDim
+S1.TextSize=8
+S1.Font=Enum.Font.Gotham
+S1.TextXAlignment=Enum.TextXAlignment.Left
+S1.ZIndex=106
+local AR=Instance.new("TextLabel",HD)
+AR.Size=UDim2.new(0,20,0,20)
+AR.Position=UDim2.new(1,-30,0,10)
+AR.BackgroundTransparency=1
+AR.Text=defOpen and "▲" or "▼"
+AR.TextColor3=ac or ACC
+AR.TextSize=11
+AR.Font=Enum.Font.GothamBold
+AR.ZIndex=106
+local CT=Instance.new("Frame",C)
+CT.Size=UDim2.new(1,0,0,0)
+CT.Position=UDim2.new(0,0,0,40)
+CT.BackgroundTransparency=1
+CT.ClipsDescendants=true
+CT.ZIndex=104
+local CL=Instance.new("UIListLayout",CT)
+CL.SortOrder=Enum.SortOrder.LayoutOrder
+CL.Padding=UDim.new(0,5)
+local PD=Instance.new("UIPadding",CT)
+PD.PaddingTop=UDim.new(0,5)
+PD.PaddingBottom=UDim.new(0,7)
+PD.PaddingLeft=UDim.new(0,4)
+PD.PaddingRight=UDim.new(0,4)
+local isO=defOpen or false
+local function US()
+if isO then
+local h=CL.AbsoluteContentSize.Y+12
+C.Size=UDim2.new(1,-8,0,40+h)
+CT.Size=UDim2.new(1,0,0,h)
+else
+C.Size=UDim2.new(1,-8,0,40)
+CT.Size=UDim2.new(1,0,0,0)
+end
+end
+CL:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(US)
+task.spawn(function()task.wait(0.1)US()end)
+HD.MouseButton1Click:Connect(function()
+pC()
+isO=not isO
+AR.Text=isO and "▲" or "▼"
+US()
+end)
+HD.MouseEnter:Connect(function()TS:Create(C,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].ElementHover,BackgroundTransparency=0}):Play()end)
+HD.MouseLeave:Connect(function()TS:Create(C,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element,BackgroundTransparency=0.1}):Play()end)
+return CT
+end
+local function ApplyTheme(td,tn)
+ACC=td.Accent
+MF.BackgroundColor3=td.MainBg
+MG.Color=ColorSequence.new(td.MainBg,td.MainBg2)
+MS.Color=td.Border
+TBAR.BackgroundColor3=td.TopBar
+TF.BackgroundColor3=td.TopBar
+TG2.Color=ColorSequence.new(td.TopBar,td.MainBg)
+AL.BackgroundColor3=td.Accent
+BS.BackgroundColor3=td.Accent
+TBS.Color=td.Accent
+DH.TextColor3=td.TextDim
+for _,v in ipairs(ATB)do
+v.Button.BackgroundColor3=td.Element
+v.Indicator.BackgroundColor3=td.Accent
+if not v.Button:GetAttribute("Active")then
+v.IconFrame.BackgroundColor3=td.TopBar
+v.IconLabel.TextColor3=td.TextDim
+v.TextLabel.TextColor3=td.TextDim
+end
+end
+for _,e in ipairs(CE)do e.BackgroundColor3=td.Element end
+if tn then Config.Theme=tn svC(Config)end
+                end
+local ET=CreateTab("Steal Egg","🥚")
+local SFR=Instance.new("Frame",ET)
+SFR.Size=UDim2.new(1,-8,0,32)
+SFR.BackgroundColor3=Themes[Config.Theme].Element
+SFR.BackgroundTransparency=0.15
+SFR.ZIndex=104
+cor(SFR,8)
+str(SFR,Themes[Config.Theme].Border,1,0.4)
+local SI=Instance.new("TextLabel",SFR)
+SI.Size=UDim2.new(0,28,1,0)
+SI.Position=UDim2.new(0,4,0,0)
+SI.BackgroundTransparency=1
+SI.Text="🔍"
+SI.TextSize=11
+SI.ZIndex=105
+local SBX=Instance.new("TextBox",SFR)
+SBX.Size=UDim2.new(1,-36,1,0)
+SBX.Position=UDim2.new(0,28,0,0)
+SBX.BackgroundTransparency=1
+SBX.PlaceholderText="Search hubs..."
+SBX.PlaceholderColor3=Themes[Config.Theme].TextDim
+SBX.Text=""
+SBX.TextColor3=Themes[Config.Theme].Text
+SBX.TextSize=10
+SBX.Font=Enum.Font.GothamMedium
+SBX.TextXAlignment=Enum.TextXAlignment.Left
+SBX.ClearTextOnFocus=false
+SBX.ZIndex=105
+local KL=createCollapsible(ET,"KEYLESS HUBS","17 hubs","🔓",true,ACG)
+local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","8 hubs","🔑",false,ACR)
+local KeylessScripts={
+{Name="DECODE HUB",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/ItzYumi/Decode/refs/heads/main/DE%3ACODE.lua", true))()'},
+{Name="FOXNAME HUB",Icon="🦊",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()'},
+{Name="CRZHUB",Icon="🔥",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/3c4e87ed34813171b0f8d53a108a7d88.lua"))()'},
+{Name="DARKNESS HUB",Icon="🌑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Darkness-KingScripts/Steal-a-egg/refs/heads/main/Darknesshub"))()'},
+{Name="LKZ HUB",Icon="⚡",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/65bf3459d87ba3ac46350e154b640929.lua"))()'},
+{Name="UNIVERSE HUB",Icon="🌌",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Uranus197/-Univers-Hub-Graphics-Script-/refs/heads/main/UniversHub"))()'},
+{Name="KURDMADE",Icon="🔒",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/elampo092/psychic-carnival/refs/heads/main/Kurdmade-hub"))()'},
+{Name="SIMEPLE SHADER",Icon="🎨",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxscripts2026/simple-shader/refs/heads/main/lua"))()'},
+{Name="RENE HUB",Icon="🎯",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()'},
+{Name="VOIDSHELL",Icon="💀",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidShell-null/VoidShell-Hub/refs/heads/main/Scripts/StealAnEgg.luau"))()'},
+{Name="TSUO HUB",Icon="🌟",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()'},
+{Name="SOURCE HUB",Icon="📦",Link='loadstring(game:HttpGet("https://pastebin.com/raw/d0zBUM6r"))()'},
+{Name="SERVER FINDER",Icon="🔍",Link='loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()'},
+{Name="VINCITORE",Icon="👑",Link='script_key="KEYLESS"; loadstring(game:HttpGet("https://raw.githubusercontent.com/tutorkah104-rgb/Steal-an-Egg/refs/heads/main/Vincitore.luau"))()'},
+{Name="LENNON",Icon="🎵",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()'},
+{Name="MIRANDA",Icon="⚡",Link="https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"},
+{Name="ON HUB",Icon="🔷",Link="https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua"}
 }
-
-local EggTab = CreateTab("Steal an Egg")
-for _, scriptData in ipairs(ScriptsList) do
-    AddButtonToPage(EggTab, "🥚 " .. scriptData.Name, function()
-        pcall(function()
-            if scriptData.Link ~= "" then
-                loadstring(game:HttpGet(scriptData.Link))()
-            else
-                ShowNotification("No link set for " .. scriptData.Name)
-            end
-        end)
-    end)
+local KeyReqScripts={
+{Name="OMG HUB",Icon="💎",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()'},
+{Name="FLOW HUB",Icon="🌊",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/29f4f4b924aff467652814456286bb05.lua"))()'},
+{Name="FYY COMMUNITY",Icon="🎭",Link='loadstring(game:HttpGet("https://FyyCommunity.com"))()'},
+{Name="CLOVER HUB",Icon="🍀",Link='loadstring(game:HttpGet("https://cloverhub.app/clover.lua"))()'},
+{Name="ZEROIN HUB",Icon="0️⃣",Link='loadstring(game:HttpGet("https://zeroinhub.com/api/script"))()'},
+{Name="BIGFROOT",Icon="🌱",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()'},
+{Name="AJJANS",Icon="🎪",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()'},
+{Name="HORIZON",Icon="🌅",Link='script_key="Trial"; loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()'}
+}
+local SBTN={}
+local function makeBtn(container,sd,badge)
+local H=Instance.new("Frame",container)
+H.Size=UDim2.new(1,-4,0,36)
+H.BackgroundTransparency=1
+H.ZIndex=105
+AddButtonToPage(H,sd.Name,function()
+if sd.Link:find("http") and not sd.Link:find("loadstring")then loadstring(game:HttpGet(sd.Link))()else loadstring(sd.Link)()end
+pS()
+showN(sd.Name.." executed","success")
+end,{exec=true,icon=sd.Icon})
+local b=H:FindFirstChildWhichIsA("TextButton")
+b.Size=UDim2.new(1,0,1,0)
+if badge then
+local BD2=Instance.new("TextLabel",b)
+BD2.Size=UDim2.new(0,54,0,12)
+BD2.Position=UDim2.new(1,-64,0,3)
+BD2.BackgroundColor3=ACC
+BD2.BackgroundTransparency=0.75
+BD2.Text=badge
+BD2.TextColor3=ACC
+BD2.TextSize=7
+BD2.Font=Enum.Font.GothamBold
+BD2.ZIndex=107
+cor(BD2,3)
+task.spawn(function()
+local h=math.random()
+while BD2 and BD2.Parent do
+h=(h+0.008)%1
+local c=Color3.fromHSV(h,1,1)
+BD2.TextColor3=c
+BD2.BackgroundColor3=c
+task.wait(0.03)
 end
-
-local FpsTab = CreateTab("FPS Boost")
-AddButtonToPage(FpsTab, "⚡ Low Graphics / Boost FPS", function()
-    pcall(function()
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.Material = Enum.Material.SmoothPlastic
-                v.Reflectance = 0
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v.Transparency = 1
-            end
-        end
-        Lighting.GlobalShadows = false
-        Lighting.FogEnd = 9e9
-    end)
 end)
-AddButtonToPage(FpsTab, "🌫️ Remove Fog & Shadows", function()
-    pcall(function()
-        Lighting.GlobalShadows = false
-        Lighting.FogEnd = 9e9
-        for _, v in pairs(Lighting:GetChildren()) do
-            if v:IsA("PostEffect") then v.Enabled = false end
-        end
-    end)
+end
+table.insert(SBTN,{holder=H,name=sd.Name})
+end
+for _,sd in ipairs(KeylessScripts)do makeBtn(KL,sd,"KEYLESS")end
+for _,sd in ipairs(KeyReqScripts)do makeBtn(KQ,sd,"KEY")end
+SBX:GetPropertyChangedSignal("Text"):Connect(function()
+local q=SBX.Text:lower()
+for _,e in ipairs(SBTN)do e.holder.Visible=(q=="" or e.name:lower():find(q,1,true)~=nil)end
 end)
-
-local ThemeTab = CreateTab("Themes")
-AddButtonToPage(ThemeTab, "🎨 Dark Purple (Default)", function() ApplyTheme("Dark Purple") end)
-AddButtonToPage(ThemeTab, "🎨 Midnight Blue", function() ApplyTheme("Midnight Blue") end)
-AddButtonToPage(ThemeTab, "🎨 Crimson Red", function() ApplyTheme("Crimson Red") end)
-AddButtonToPage(ThemeTab, "🎨 Emerald Green", function() ApplyTheme("Emerald Green") end)
-AddButtonToPage(ThemeTab, "🎨 Sunset Orange", function() ApplyTheme("Sunset Orange") end)
-AddButtonToPage(ThemeTab, "🎨 Neon Cyberpunk", function() ApplyTheme("Neon Cyberpunk") end)
-AddButtonToPage(ThemeTab, "🎨 Rose Pink", function() ApplyTheme("Rose Pink") end)
-AddButtonToPage(ThemeTab, "🎨 Toxic Lime", function() ApplyTheme("Toxic Lime") end)
-AddButtonToPage(ThemeTab, "🎨 Matrix Code", function() ApplyTheme("Matrix Code") end)
-AddButtonToPage(ThemeTab, "🎨 Golden Luxury", function() ApplyTheme("Golden Luxury") end)
-
-local SettingsTab = CreateTab("Settings")
-AddButtonToPage(SettingsTab, "⚙️ Toggle Keybind Info", function()
-    ShowNotification("Press Right Shift to Hide/Show Hub")
+local PT=CreateTab("Player","👤")
+addSection(PT,"Movement")
+local IJc
+AddButtonToPage(PT,"Infinite Jump",function(s)
+if s then
+IJc=UIS.JumpRequest:Connect(function()
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h then h:ChangeState("Jumping")end
 end)
-
-local DiscordTab = CreateTab("Discord")
-AddButtonToPage(DiscordTab, "📋 Copy Discord Invite", function()
-    pcall(function()
-        if setclipboard then setclipboard("https://discord.gg/yourinvite") end
-    end)
+showN("Infinite Jump ON","success")
+else
+if IJc then IJc:Disconnect()IJc=nil end
+showN("Infinite Jump OFF","info")
+end
+end,{toggle=true,key="infJump",icon="⚡"})
+local NC
+AddButtonToPage(PT,"Noclip",function(s)
+if s then
+NC=RS.Stepped:Connect(function()
+if LP.Character then for _,p in ipairs(LP.Character:GetDescendants())do if p:IsA("BasePart")then p.CanCollide=false end end end
 end)
-
-local OwnerTab = CreateTab("Owner")
-AddButtonToPage(OwnerTab, "👑 Owner: ANONYMOUS", function() end)
-
-PlayIntro(function()
-    MainFrame.Visible = true
-    MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    MainFrame.BackgroundTransparency = 1
-    
-    TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 480, 0, 320),
-        Position = UDim2.new(0.5, -240, 0.5, -160),
-        BackgroundTransparency = 0
-    }):Play()
-    ShowNotification("LATINA SUCCESSFULLY LOADED")
+showN("Noclip ON","success")
+else if NC then NC:Disconnect()NC=nil end showN("Noclip OFF","info")end
+end,{toggle=true,key="noclip",icon="👻"})
+local SC
+AddButtonToPage(PT,"Speed Boost",function(s)
+if s then
+SC=RS.Heartbeat:Connect(function()
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h and h.WalkSpeed<32 then h.WalkSpeed=32 end
+end)
+showN("Speed ON","success")
+else if SC then SC:Disconnect()SC=nil end
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h then h.WalkSpeed=16 end
+showN("Speed OFF","info")end
+end,{toggle=true,key="speed",icon="💨"})
+addSection(PT,"Performance")
+local FB={active=false,saved={},particles={}}
+local function enFB()
+FB.saved.Lighting={GlobalShadows=LT.GlobalShadows,FogEnd=LT.FogEnd,Brightness=LT.Brightness,ShadowSoftness=LT.ShadowSoftness,EnvironmentDiffuseScale=LT.EnvironmentDiffuseScale,EnvironmentSpecularScale=LT.EnvironmentSpecularScale}
+LT.GlobalShadows=false
+LT.FogEnd=100
+LT.Brightness=1
+pcall(function()LT.ShadowSoftness=0 LT.EnvironmentDiffuseScale=0 LT.EnvironmentSpecularScale=0 end)
+FB.saved.Effects={}
+for _,fx in ipairs(LT:GetChildren())do
+if fx.Name~="LatinaBlur" then
+if fx:IsA("BloomEffect")or fx:IsA("DepthOfFieldEffect")or fx:IsA("SunRaysEffect")or fx:IsA("ColorCorrectionEffect")or fx:IsA("BlurEffect")then
+FB.saved.Effects[fx]=fx.Enabled
+fx.Enabled=false
+elseif fx:IsA("Atmosphere")then
+FB.saved.Effects[fx]=fx.Density
+fx.Density=0
+end
+end
+end
+FB.particles={}
+for _,o in ipairs(workspace:GetDescendants())do
+if o:IsA("ParticleEmitter")or o:IsA("Smoke")or o:IsA("Fire")or o:IsA("Sparkles")or o:IsA("Trail")or o:IsA("Beam")then
+if o.Enabled then o.Enabled=false table.insert(FB.particles,o)end
+end
+end
+FB.active=true
+end
+local function dsFB()
+if FB.saved.Lighting then for k,v in pairs(FB.saved.Lighting)do LT[k]=v end end
+if FB.saved.Effects then
+for fx,st in pairs(FB.saved.Effects)do if fx and fx.Parent then if fx:IsA("Atmosphere")then fx.Density=st else fx.Enabled=st end end end
+end
+if FB.particles then for _,o in ipairs(FB.particles)do if o and o.Parent then o.Enabled=true end end end
+FB.active=false
+end
+AddButtonToPage(PT,"FPS Boost MAX",function(s)if s then enFB()showN("FPS Boost ON","success")else dsFB()showN("FPS Boost OFF","info")end end,{toggle=true,key="fpsBoost",icon="🚀"})
+local VT=CreateTab("Visuals","👁️")
+addSection(VT,"Players")
+local ES={Names=false,Eggs=false}
+local EC={Names={}}
+local EL
+local BW={"Bounds","Spot","Point","Bottom","Nest","Hitbox","Base","Sound","Touch","Trigger","Zone"}
+local function iRE(o)
+local n=o.Name
+if not(n:find("Egg")or n:find("Forest")or n:find("Desert")or n:find("Volcano")or n:find("Ice")or n:find("Crystal")or n:find("Cyber")or n:find("Void"))then return false end
+for _,b in ipairs(BW)do if n:find(b)then return false end end
+return true
+end
+local function gTP(o)
+if o:IsA("Model")then return o.PrimaryPart or o:FindFirstChildWhichIsA("BasePart")elseif o:IsA("BasePart")then return o end
+end
+local function fN(n)
+n=tonumber(n)
+if not n then return "?" end
+if n>=1e15 then return string.format("%.2fQa",n/1e15)end
+if n>=1e12 then return string.format("%.2fT",n/1e12)end
+if n>=1e9 then return string.format("%.2fB",n/1e9)end
+if n>=1e6 then return string.format("%.2fM",n/1e6)end
+if n>=1e3 then return string.format("%.2fK",n/1e3)end
+return tostring(math.floor(n))
+end
+local function gEI(o)
+local p,ps
+for _,a in ipairs({"Pet","Brainrot","Contents","Name","Content","Item","Type","Rarity"})do
+local v=o:GetAttribute(a)
+if v and type(v)=="string" and #v>1 then p=v break end
+end
+for _,a in ipairs({"PerSecond","CashPerSecond","Income","CashPerSec","Value","Cash","IncomePerSec"})do
+local v=o:GetAttribute(a)
+if v and tonumber(v)then ps=tonumber(v)break end
+end
+for _,d in ipairs(o:GetDescendants())do
+local ln=d.Name:lower()
+if not p then
+if d:IsA("StringValue")and(ln:find("pet")or ln:find("brainrot")or ln:find("content")or ln:find("name")or ln:find("type"))then
+if d.Value and #d.Value>1 then p=d.Value end
+elseif d:IsA("ObjectValue")and(ln:find("pet")or ln:find("brainrot"))then
+if d.Value then p=d.Value.Name end
+end
+end
+if not ps then
+if d:IsA("NumberValue")and(ln:find("cash")or ln:find("income")or ln:find("per")or ln:find("second")or ln:find("value"))then ps=d.Value end
+end
+if p and ps then break end
+end
+if not p or not ps then
+for _,d in ipairs(o:GetDescendants())do
+if d:IsA("TextLabel")and d.Text and #d.Text>0 then
+local t=d.Text
+local m=t:match("[Pp]et[:%s]*([%w%s%-]+)")
+if m and not p then p=m:gsub("[%s$]+$","")end
+if not ps then
+local vl,sf=t:match("%$?([%d%.]+)([BbMmKkTtQq][Aa]?)")
+if vl then
+local n=tonumber(vl)
+sf=sf:upper()
+if sf:find("Q")then n=n*1e15 elseif sf:find("T")then n=n*1e12 elseif sf:find("B")then n=n*1e9 elseif sf:find("M")then n=n*1e6 elseif sf:find("K")then n=n*1e3 end
+ps=n
+end
+end
+end
+end
+end
+if not p then
+for _,d in ipairs(o:GetChildren())do
+if d:IsA("Model")and #d.Name>2 and not d.Name:lower():find("egg")then p=d.Name break end
+end
+end
+return p,ps
+end
+local function aNE(pl)
+if pl==LP then return end
+local hd=pl.Character and pl.Character:FindFirstChild("Head")
+if not hd or hd:FindFirstChild("LatinaNameESP")then return end
+local bb=Instance.new("BillboardGui",hd)
+bb.Name="LatinaNameESP"
+bb.Size=UDim2.new(0,140,0,26)
+bb.StudsOffset=Vector3.new(0,4.5,0)
+bb.AlwaysOnTop=true
+local t=Instance.new("TextLabel",bb)
+t.Size=UDim2.new(1,0,1,0)
+t.Text=pl.Name
+t.BackgroundTransparency=1
+t.Font=Enum.Font.GothamBold
+t.TextSize=12
+t.TextColor3=ACC
+t.TextStrokeTransparency=0.5
+t.TextStrokeColor3=Color3.new(0,0,0)
+end
+AddButtonToPage(VT,"Player Name ESP",function(s)
+if s then
+for _,pl in ipairs(P:GetPlayers())do aNE(pl)end
+table.insert(EC.Names,P.PlayerAdded:Connect(aNE))
+for _,pl in ipairs(P:GetPlayers())do
+table.insert(EC.Names,pl.CharacterAdded:Connect(function()task.wait(1)aNE(pl)end))
+end
+showN("Name ESP ON","success")
+else
+for _,c in ipairs(EC.Names)do c:Disconnect()end
+EC.Names={}
+for _,pl in ipairs(P:GetPlayers())do
+local hd=pl.Character and pl.Character:FindFirstChild("Head")
+local o=hd and hd:FindFirstChild("LatinaNameESP")
+if o then o:Destroy()end
+end
+showN("Name ESP OFF","info")
+end
+end,{toggle=true,key="nameESP",icon="🌈"})
+addSection(VT,"Eggs")
+local function clEE()
+for _,o in ipairs(workspace:GetDescendants())do
+local bb=o:FindFirstChild("LatinaEggESP")
+if bb then bb:Destroy()end
+end
+end
+local function scE()
+local c=0
+for _,o in ipairs(workspace:GetDescendants())do
+if iRE(o)then
+local tp=gTP(o)
+if tp and not tp:FindFirstChild("LatinaEggESP")then
+c=c+1
+local p,ps=gEI(o)
+local bb=Instance.new("BillboardGui",tp)
+bb.Name="LatinaEggESP"
+bb.Size=UDim2.new(0,200,0,46)
+bb.StudsOffset=Vector3.new(0,5.5,0)
+bb.AlwaysOnTop=true
+local pl=Instance.new("TextLabel",bb)
+pl.Size=UDim2.new(1,0,0.5,0)
+pl.BackgroundTransparency=1
+pl.Text="Pet: "..(p or "???")
+pl.Font=Enum.Font.GothamBold
+pl.TextSize=12
+pl.TextColor3=ACC
+pl.TextStrokeTransparency=0.3
+pl.TextStrokeColor3=Color3.new(0,0,0)
+local sl=Instance.new("TextLabel",bb)
+sl.Size=UDim2.new(1,0,0.5,0)
+sl.Position=UDim2.new(0,0,0.5,0)
+sl.BackgroundTransparency=1
+sl.Text="Per sec: "..(ps and fN(ps)or "???")
+sl.Font=Enum.Font.GothamBold
+sl.TextSize=11
+sl.TextColor3=Color3.fromRGB(230,230,250)
+sl.TextStrokeTransparency=0.4
+sl.TextStrokeColor3=Color3.new(0,0,0)
+task.spawn(function()
+while bb and bb.Parent do
+task.wait(1.5)
+if not bb.Parent then break end
+local p2,s2=gEI(o)
+pl.Text="Pet: "..(p2 or "???")
+sl.Text="Per sec: "..(s2 and fN(s2)or "???")
+end
+end)
+end
+end
+end
+return c
+end
+AddButtonToPage(VT,"Egg ESP + Pet Info",function(s)
+if s then
+ES.Eggs=true
+local n=scE()
+showN("Marked "..n.." eggs","success")
+EL=task.spawn(function()
+while ES.Eggs do
+task.wait(3)
+if ES.Eggs then scE()end
+end
+end)
+else
+ES.Eggs=false
+if EL then task.cancel(EL)EL=nil end
+clEE()
+showN("Egg ESP OFF","info")
+end
+end,{toggle=true,key="eggESP",icon="🥚"})
+local QT=CreateTab("Quick","⚡")
+addSection(QT,"Movement")
+local CT=false
+AddButtonToPage(QT,"Click Teleport",function(s)
+CT=s
+if s then showN("Click TP ON","success")else showN("Click TP OFF","info")end
+end,{toggle=true,key="clickTP",icon="📍"})
+UIS.InputBegan:Connect(function(input,gp)
+if gp then return end
+if not CT then return end
+if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end
+local ch=LP.Character
+local h=ch and ch:FindFirstChild("HumanoidRootPart")
+if not h then return end
+local m=LP:GetMouse()
+if m and m.Hit then pcall(function()h.CFrame=CFrame.new(m.Hit.Position+Vector3.new(0,3,0))end)end
+end)
+AddButtonToPage(QT,"Invisible",function(s)
+local ch=LP.Character
+if not ch then return end
+for _,p in ipairs(ch:GetDescendants())do
+if p:IsA("BasePart")then
+if s then
+p.Transparency=1
+if p.Name=="Head"then for _,d in ipairs(p:GetChildren())do if d:IsA("Decal")or d:IsA("Texture")then d.Transparency=1 end end end
+else
+if p.Name~="HumanoidRootPart"then p.Transparency=0 end
+if p.Name=="Head"then for _,d in ipairs(p:GetChildren())do if d:IsA("Decal")or d:IsA("Texture")then d.Transparency=0 end end end
+end
+end
+end
+showN("Invisible "..(s and "ON"or "OFF"),s and "success"or "info")
+end,{toggle=true,key="invisible",icon="👤"})
+local XT=CreateTab("Extras","✨")
+addSection(XT,"Visual")
+local CG,CL
+AddButtonToPage(XT,"Clock Overlay",function(s)
+if s then
+CG=Instance.new("ScreenGui",PG)
+CG.IgnoreGuiInset=true
+CG.ResetOnSpawn=false
+local f=Instance.new("Frame",CG)
+f.Size=UDim2.new(0,90,0,22)
+f.Position=UDim2.new(1,-100,0,140)
+f.BackgroundColor3=Themes[Config.Theme].TopBar
+f.BackgroundTransparency=0.2
+cor(f,6)
+str(f,ACC,1,0.5)
+CL=Instance.new("TextLabel",f)
+CL.Size=UDim2.new(1,0,1,0)
+CL.BackgroundTransparency=1
+CL.Text="00:00:00"
+CL.TextColor3=ACC
+CL.TextSize=11
+CL.Font=Enum.Font.GothamBold
+task.spawn(function()
+while CG and CG.Parent do
+task.wait(1)
+local t=os.date("*t")
+CL.Text=string.format("%02d:%02d:%02d",t.hour,t.min,t.sec)
+end
+end)
+showN("Clock ON","success")
+else if CG then CG:Destroy()CG=nil end showN("Clock OFF","info")end
+end,{toggle=true,key="clock",icon="🕐"})
+local CG2,CL2
+AddButtonToPage(XT,"Coordinates",function(s)
+if s then
+CG2=Instance.new("ScreenGui",PG)
+CG2.IgnoreGuiInset=true
+CG2.ResetOnSpawn=false
+local f=Instance.new("Frame",CG2)
+f.Size=UDim2.new(0,180,0,22)
+f.Position=UDim2.new(1,-190,0,168)
+f.BackgroundColor3=Themes[Config.Theme].TopBar
+f.BackgroundTransparency=0.2
+cor(f,6)
+str(f,ACC,1,0.5)
+CL2=Instance.new("TextLabel",f)
+CL2.Size=UDim2.new(1,0,1,0)
+CL2.BackgroundTransparency=1
+CL2.Text="X: --  Y: --  Z: --"
+CL2.TextColor3=ACC
+CL2.TextSize=10
+CL2.Font=Enum.Font.GothamBold
+task.spawn(function()
+while CG2 and CG2.Parent do
+local ch=LP.Character
+local h=ch and ch:FindFirstChild("HumanoidRootPart")
+if h then CL2.Text=string.format("X: %.0f  Y: %.0f  Z: %.0f",h.Position.X,h.Position.Y,h.Position.Z)end
+task.wait(0.2)
+end
+end)
+showN("Coords ON","success")
+else if CG2 then CG2:Destroy()CG2=nil end showN("Coords OFF","info")end
+end,{toggle=true,key="coords",icon="📍"})
+local RC
+AddButtonToPage(XT,"Rainbow Character",function(s)
+if s then
+RC=RS.Heartbeat:Connect(function()
+local ch=LP.Character
+if not ch then return end
+local h=(tick()*0.3)%1
+for _,p in ipairs(ch:GetDescendants())do if p:IsA("BasePart")then pcall(function()p.Color=Color3.fromHSV(h,0.8,1)end)end end
+end)
+showN("Rainbow ON","success")
+else if RC then RC:Disconnect()RC=nil end showN("Rainbow OFF","info")end
+end,{toggle=true,key="rainbowChar",icon="🌈"})
+addSection(XT,"Utility")
+AddButtonToPage(XT,"Server Region",function()
+local r="Unknown"
+pcall(function()
+local d=HS:JSONDecode(game:HttpGet("https://ipinfo.io/json"))
+r=(d.city or "?")..", "..(d.country or "?")
+end)
+showN("Region: "..r,"info")
+end,{icon="🌍"})
+local EG,EL2
+AddButtonToPage(XT,"Entity Counter",function(s)
+if s then
+EG=Instance.new("ScreenGui",PG)
+EG.IgnoreGuiInset=true
+EG.ResetOnSpawn=false
+local f=Instance.new("Frame",EG)
+f.Size=UDim2.new(0,150,0,50)
+f.Position=UDim2.new(1,-160,0,196)
+f.BackgroundColor3=Themes[Config.Theme].TopBar
+f.BackgroundTransparency=0.2
+cor(f,6)
+str(f,ACC,1,0.5)
+EL2=Instance.new("TextLabel",f)
+EL2.Size=UDim2.new(1,0,1,0)
+EL2.BackgroundTransparency=1
+EL2.Text="..."
+EL2.TextColor3=ACC
+EL2.TextSize=10
+EL2.Font=Enum.Font.GothamBold
+task.spawn(function()
+while EG and EG.Parent do
+task.wait(2)
+local c=0
+for _ in ipairs(workspace:GetDescendants())do c=c+1 end
+EL2.Text=string.format("👥 %d players\n📦 %d objects",#P:GetPlayers(),c)
+end
+end)
+showN("Entity ON","success")
+else if EG then EG:Destroy()EG=nil end showN("Entity OFF","info")end
+end,{toggle=true,key="entCount",icon="📊"})
+local NTF=Instance.new("Frame",XT)
+NTF.Size=UDim2.new(1,-8,0,90)
+NTF.BackgroundColor3=Themes[Config.Theme].Element
+NTF.BackgroundTransparency=0.15
+NTF.ZIndex=104
+cor(NTF,8)
+str(NTF,Themes[Config.Theme].Border,1,0.4)
+local NTT=Instance.new("TextLabel",NTF)
+NTT.Size=UDim2.new(1,-20,0,16)
+NTT.Position=UDim2.new(0,12,0,4)
+NTT.BackgroundTransparency=1
+NTT.Text="📝 QUICK NOTE"
+NTT.TextColor3=ACC
+NTT.TextSize=9
+NTT.Font=Enum.Font.GothamBold
+NTT.TextXAlignment=Enum.TextXAlignment.Left
+NTT.ZIndex=105
+local NTB=Instance.new("TextBox",NTF)
+NTB.Size=UDim2.new(1,-24,1,-28)
+NTB.Position=UDim2.new(0,12,0,24)
+NTB.BackgroundColor3=Themes[Config.Theme].TopBar
+NTB.BorderSizePixel=0
+NTB.Text=""
+NTB.PlaceholderText="Type notes here..."
+NTB.PlaceholderColor3=Themes[Config.Theme].TextDim
+NTB.TextColor3=Themes[Config.Theme].Text
+NTB.TextSize=10
+NTB.Font=Enum.Font.Gotham
+NTB.TextXAlignment=Enum.TextXAlignment.Left
+NTB.TextYAlignment=Enum.TextYAlignment.Top
+NTB.TextWrapped=true
+NTB.MultiLine=true
+NTB.ClearTextOnFocus=false
+NTB.ZIndex=105
+cor(NTB,6)
+str(NTB,Themes[Config.Theme].Border,1,0.4)
+NTB:GetPropertyChangedSignal("Text"):Connect(function()
+if writefile then pcall(function()writefile("latina_note.txt",NTB.Text)end)end
+end)
+pcall(function()
+if readfile and isfile and isfile("latina_note.txt")then NTB.Text=readfile("latina_note.txt")end
+end)
+addSection(XT,"Fun")
+AddButtonToPage(XT,"Screen Shake",function()
+task.spawn(function()
+local cm=workspace.CurrentCamera
+local og=cm.CFrame
+for i=1,20 do
+local off=Vector3.new(math.random(-5,5)/10,math.random(-5,5)/10,math.random(-5,5)/10)
+cm.CFrame=og*CFrame.new(off)
+task.wait(0.03)
+end
+cm.CFrame=og
+end)
+showN("Screen shake!","info")
+end,{icon="🌋"})
+AddButtonToPage(XT,"Emoji Rain",function()
+local RG=Instance.new("ScreenGui",PG)
+RG.IgnoreGuiInset=true
+RG.ResetOnSpawn=false
+local em={"🌟","✨","⭐","💫","🌙","☄️"}
+task.spawn(function()
+for i=1,30 do
+local e=Instance.new("TextLabel",RG)
+e.Size=UDim2.new(0,30,0,30)
+e.Position=UDim2.new(math.random(),0,-0.05,0)
+e.BackgroundTransparency=1
+e.Text=em[math.random(1,#em)]
+e.TextSize=math.random(18,30)
+e.ZIndex=99999
+TS:Create(e,TweenInfo.new(math.random(20,35)/10,Enum.EasingStyle.Linear),{Position=UDim2.new(e.Position.X.Scale,0,1.05,0)}):Play()
+task.spawn(function()task.wait(4)e:Destroy()end)
+end
+task.wait(5)
+RG:Destroy()
+end)
+showN("Emoji rain!","success")
+end,{icon="🌧"})
+addSection(XT,"Emotes")
+local EL3={
+{Name="Wave",Icon="👋",ID="507770239"},
+{Name="Dance",Icon="💃",ID="507771019"},
+{Name="Dance 2",Icon="🕺",ID="507777826"},
+{Name="Brazilian Dance",Icon="🇧🇷",ID="88211179137169"},
+{Name="Laugh",Icon="😂",ID="507770818"},
+{Name="Cheer",Icon="🎉",ID="507770677"},
+{Name="Point",Icon="👉",ID="507770453"},
+{Name="Salute",Icon="🫡",ID="6899082783"},
+{Name="Facepalm",Icon="🤦",ID="6899093391"},
+{Name="Shrug",Icon="🤷",ID="6899088466"},
+{Name="Kick",Icon="🦵",ID="6899085906"}
+}
+local AET={}
+local function pCE(aid)
+local ch=LP.Character
+if not ch then return end
+local h=ch:FindFirstChildOfClass("Humanoid")
+if not h then return end
+local LA=h:FindFirstChild("LatinaLocalAnimator")
+if not LA then LA=Instance.new("Animator")LA.Name="LatinaLocalAnimator"LA.Parent=h end
+for _,t in ipairs(AET)do pcall(function()t:Stop(0.2)end)end
+AET={}
+local an=Instance.new("Animation")
+an.AnimationId="rbxassetid://"..aid
+local tr=LA:LoadAnimation(an)
+tr.Priority=Enum.AnimationPriority.Action
+tr.Looped=false
+pcall(function()tr:Play(0.1)end)
+table.insert(AET,tr)
+end
+AddButtonToPage(XT,"❌ Stop Emote",function()
+for _,t in ipairs(AET)do pcall(function()t:Stop(0.2)end)end
+AET={}
+showN("Emote stopped","info")
+end,{icon="⏹"})
+for _,em in ipairs(EL3)do
+AddButtonToPage(XT,em.Name,function()
+pCE(em.ID)
+showN("Emote: "..em.Name,"success")
+end,{icon=em.Icon})
+end
+local UT=CreateTab("Utility","⚙️")
+addSection(UT,"Display")
+local CHG
+AddButtonToPage(UT,"Crosshair",function(s)
+if s then
+CHG=Instance.new("ScreenGui",PG)
+CHG.IgnoreGuiInset=true
+CHG.ResetOnSpawn=false
+local d=Instance.new("Frame",CHG)
+d.Size=UDim2.new(0,4,0,4)d.Position=UDim2.new(0.5,-2,0.5,-2)
+d.BackgroundColor3=ACC d.BorderSizePixel=0 cor(d,2)
+local c1=Instance.new("Frame",CHG)
+c1.Size=UDim2.new(0,16,0,1)c1.Position=UDim2.new(0.5,-8,0.5,-0.5)
+c1.BackgroundColor3=ACC c1.BorderSizePixel=0
+local c2=Instance.new("Frame",CHG)
+c2.Size=UDim2.new(0,1,0,16)c2.Position=UDim2.new(0.5,-0.5,0.5,-8)
+c2.BackgroundColor3=ACC c2.BorderSizePixel=0
+showN("Crosshair ON","success")
+else if CHG then CHG:Destroy()CHG=nil end showN("Crosshair OFF","info")end
+end,{toggle=true,key="crosshair",icon="🎯"})
+local SST=tick()
+local SG2,SL2
+AddButtonToPage(UT,"Session Timer",function(s)
+if s then
+SST=tick()
+SG2=Instance.new("ScreenGui",PG)
+SG2.IgnoreGuiInset=true
+SG2.ResetOnSpawn=false
+local f=Instance.new("Frame",SG2)
+f.Size=UDim2.new(0,130,0,24)
+f.Position=UDim2.new(1,-140,0,8)
+f.BackgroundColor3=Themes[Config.Theme].TopBar
+f.BackgroundTransparency=0.15
+cor(f,6)
+str(f,ACC,1,0.4)
+SL2=Instance.new("TextLabel",f)
+SL2.Size=UDim2.new(1,0,1,0)
+SL2.BackgroundTransparency=1
+SL2.Text="⏱ 00:00:00"
+SL2.TextColor3=ACC
+SL2.TextSize=11
+SL2.Font=Enum.Font.GothamBold
+task.spawn(function()
+while SG2 and SG2.Parent do
+task.wait(1)
+local el=math.floor(tick()-SST)
+local h=math.floor(el/3600)
+local m=math.floor((el%3600)/60)
+local s=el%60
+SL2.Text=string.format("⏱ %02d:%02d:%02d",h,m,s)
+end
+end)
+showN("Session Timer ON","success")
+else if SG2 then SG2:Destroy()SG2=nil end showN("Session Timer OFF","info")end
+end,{toggle=true,key="sessionTimer",icon="⏱"})
+addSection(UT,"Server")
+local PJ1,PJ2
+AddButtonToPage(UT,"Join/Leave Notifs",function(s)
+if s then
+PJ1=P.PlayerAdded:Connect(function(pl)showN("✅ "..pl.Name.." joined","success")end)
+PJ2=P.PlayerRemoving:Connect(function(pl)showN("❌ "..pl.Name.." left","error")end)
+showN("Join/Leave ON","success")
+else
+if PJ1 then PJ1:Disconnect()end
+if PJ2 then PJ2:Disconnect()end
+showN("Join/Leave OFF","info")
+end
+end,{toggle=true,key="pjn",icon="🔔"})
+AddButtonToPage(UT,"Copy Player List",function()
+local n={}
+for _,pl in ipairs(P:GetPlayers())do table.insert(n,pl.Name..(pl==LP and " (you)"or ""))end
+pcall(function()
+setclipboard(table.concat(n,"\n"))
+showN("Copied "..#n.." names","success")
+end)
+end,{icon="📋"})
+local PTB=CreateTab("Players","👥")
+addSection(PTB,"Live Player List")
+local PLF=Instance.new("ScrollingFrame",PTB)
+PLF.Size=UDim2.new(1,-8,0,180)
+PLF.BackgroundColor3=Themes[Config.Theme].Element
+PLF.BackgroundTransparency=0.15
+PLF.BorderSizePixel=0
+PLF.CanvasSize=UDim2.new(0,0,0,0)
+PLF.ScrollBarThickness=3
+PLF.ScrollBarImageColor3=ACC
+PLF.ZIndex=104
+cor(PLF,8)
+str(PLF,Themes[Config.Theme].Border,1,0.4)
+local PLL=Instance.new("UIListLayout",PLF)
+PLL.Padding=UDim.new(0,4)
+PLL.SortOrder=Enum.SortOrder.LayoutOrder
+local function rPL()
+for _,c in ipairs(PLF:GetChildren())do if c:IsA("TextLabel")or c:IsA("Frame")then c:Destroy()end end
+local pls=P:GetPlayers()
+table.sort(pls,function(a,b)return a.Name<b.Name end)
+for _,pl in ipairs(pls)do
+local r=Instance.new("Frame",PLF)
+r.Size=UDim2.new(1,-8,0,28)
+r.BackgroundColor3=Themes[Config.Theme].TopBar
+r.BackgroundTransparency=0.3
+r.BorderSizePixel=0
+r.ZIndex=105
+cor(r,6)
+local iL=pl==LP
+local nL=Instance.new("TextLabel",r)
+nL.Size=UDim2.new(1,-90,1,0)
+nL.Position=UDim2.new(0,10,0,0)
+nL.BackgroundTransparency=1
+nL.Text=(iL and "⭐ "or "👤 ")..pl.Name
+nL.TextColor3=iL and ACC or Themes[Config.Theme].Text
+nL.TextSize=11
+nL.Font=Enum.Font.GothamBold
+nL.TextXAlignment=Enum.TextXAlignment.Left
+nL.TextTruncate=Enum.TextTruncate.AtEnd
+nL.ZIndex=106
+local iL2=Instance.new("TextLabel",r)
+iL2.Size=UDim2.new(0,80,1,0)
+iL2.Position=UDim2.new(1,-85,0,0)
+iL2.BackgroundTransparency=1
+local hp="?"
+if pl.Character then
+local h=pl.Character:FindFirstChildOfClass("Humanoid")
+if h then hp=math.floor(h.Health)end
+end
+iL2.Text="HP: "..hp
+iL2.TextColor3=Themes[Config.Theme].TextDim
+iL2.TextSize=9
+iL2.Font=Enum.Font.Gotham
+iL2.TextXAlignment=Enum.TextXAlignment.Right
+iL2.ZIndex=106
+end
+PLF.CanvasSize=UDim2.new(0,0,0,PLL.AbsoluteContentSize.Y+8)
+end
+task.spawn(function()while PLF and PLF.Parent do rPL()task.wait(2)end end)
+AddButtonToPage(PTB,"Refresh Now",function()rPL()showN("Refreshed","success")end,{icon="🔄"})
+local STB=CreateTab("Sounds","🎵")
+addSection(STB,"Custom Music")
+local CSnd=nil
+local AF=Instance.new("Frame",STB)
+AF.Size=UDim2.new(1,-8,0,90)
+AF.BackgroundColor3=Themes[Config.Theme].Element
+AF.BackgroundTransparency=0.15
+AF.ZIndex=104
+cor(AF,8)
+str(AF,Themes[Config.Theme].Border,1,0.4)
+local SI2=Instance.new("TextBox",AF)
+SI2.Size=UDim2.new(1,-24,0,26)
+SI2.Position=UDim2.new(0,12,0,26)
+SI2.BackgroundColor3=Themes[Config.Theme].TopBar
+SI2.BorderSizePixel=0
+SI2.Text=""
+SI2.PlaceholderText="Roblox audio ID"
+SI2.PlaceholderColor3=Themes[Config.Theme].TextDim
+SI2.TextColor3=Themes[Config.Theme].Text
+SI2.TextSize=10
+SI2.Font=Enum.Font.Gotham
+SI2.ClearTextOnFocus=false
+SI2.ZIndex=105
+cor(SI2,6)
+str(SI2,Themes[Config.Theme].Border,1,0.4)
+addSection(STB,"Controls")
+AddButtonToPage(STB,"Play",function()
+local id=SI2.Text:gsub("%D","")
+if id==""then showN("Walang ID","error")return end
+pcall(function()
+if CSnd then CSnd:Destroy()end
+CSnd=Instance.new("Sound",SG)
+CSnd.SoundId="rbxassetid://"..id
+CSnd.Volume=0.5
+CSnd.Looped=true
+CSnd:Play()
+showN("Playing: "..id,"success")
+end)
+end,{icon="▶️"})
+AddButtonToPage(STB,"Stop",function()
+if CSnd then CSnd:Stop()CSnd:Destroy()CSnd=nil showN("Stopped","info")end
+end,{icon="⏹"})
+local SVT=CreateTab("Server","🌐")
+addSection(SVT,"Server Actions")
+AddButtonToPage(SVT,"Rejoin Current",function()
+TPS:Teleport(game.PlaceId,LP)
+end,{exec=true,icon="🔄"})
+AddButtonToPage(SVT,"Hop New Server",function()
+local ok=pcall(function()
+local api="https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+local list=HS:JSONDecode(game:HttpGet(api))
+if list and list.data then
+for _,s in ipairs(list.data)do
+if s.playing~=s.maxPlayers and s.id~=game.JobId then
+TPS:TeleportToPlaceInstance(game.PlaceId,s.id,LP)
+return
+end
+end
+end
+end)
+if not ok then showN("Hop failed","error")end
+end,{exec=true,icon="🔀"})
+local THT=CreateTab("Themes","🎨")
+addSection(THT,"Color Themes")
+for tn,td in pairs(Themes)do
+AddButtonToPage(THT,tn,function()
+ApplyTheme(td,tn)
+showN("Theme: "..tn,"success")
+end,{icon="🎨"})
+end
+local DCT=CreateTab("Discord","💬")
+addSection(DCT,"Community Links")
+local DLs={
+{Name="Main Discord",Link="https://discord.gg/qdCycSk4K",Icon="💬"},
+{Name="Backup Discord",Link="https://discord.gg/SyXbWjemT",Icon="🔗"}
+}
+for _,dl in ipairs(DLs)do
+AddButtonToPage(DCT,"Copy "..dl.Name,function()
+pcall(function()
+setclipboard(dl.Link)
+showN(dl.Name.." copied!","success")
+end)
+end,{icon=dl.Icon})
+end
+local OT=CreateTab("Owner","👑")
+addSection(OT,"About")
+local OC=Instance.new("Frame",OT)
+OC.Size=UDim2.new(1,-8,0,80)
+OC.BackgroundColor3=Themes[Config.Theme].Element
+OC.BackgroundTransparency=0.15
+OC.ZIndex=104
+cor(OC,9)
+str(OC,ACC,1.5,0.4)
+gr(OC,Themes[Config.Theme].Element,Themes[Config.Theme].TopBar)
+local CR=Instance.new("TextLabel",OC)
+CR.Size=UDim2.new(0,36,0,36)
+CR.Position=UDim2.new(0,12,0,12)
+CR.BackgroundColor3=ACC
+CR.BackgroundTransparency=0.85
+CR.Text="👑"
+CR.TextSize=18
+CR.ZIndex=105
+cor(CR,9)
+local OT2=Instance.new("TextLabel",OC)
+OT2.Size=UDim2.new(1,-60,0,18)
+OT2.Position=UDim2.new(0,56,0,18)
+OT2.BackgroundTransparency=1
+OT2.Text="OWNER"
+OT2.TextColor3=Themes[Config.Theme].TextDim
+OT2.TextSize=10
+OT2.Font=Enum.Font.GothamBold
+OT2.TextXAlignment=Enum.TextXAlignment.Left
+OT2.ZIndex=105
+local ON2=Instance.new("TextLabel",OC)
+ON2.Size=UDim2.new(1,-60,0,22)
+ON2.Position=UDim2.new(0,56,0,34)
+ON2.BackgroundTransparency=1
+ON2.Text="ANONYMOUS"
+ON2.TextColor3=Themes[Config.Theme].Text
+ON2.TextSize=15
+ON2.Font=Enum.Font.GothamBold
+ON2.TextXAlignment=Enum.TextXAlignment.Left
+ON2.ZIndex=105
+local TG3=Instance.new("TextLabel",OC)
+TG3.Size=UDim2.new(1,-20,0,14)
+TG3.Position=UDim2.new(0,12,1,-18)
+TG3.BackgroundTransparency=1
+TG3.Text="LATINA HUB  ·  V1 NEW RELEASE"
+TG3.TextColor3=Themes[Config.Theme].TextDim
+TG3.TextSize=9
+TG3.Font=Enum.Font.GothamMedium
+TG3.TextXAlignment=Enum.TextXAlignment.Left
+TG3.ZIndex=105
+if Themes[Config.Theme]then ApplyTheme(Themes[Config.Theme],nil)end
+task.spawn(function()
+pcall(function()
+IS:Play()
+local BD=Instance.new("Frame",SG)
+BD.Size=UDim2.new(1,0,1,0)
+BD.BackgroundColor3=Color3.new(0,0,0)
+BD.BackgroundTransparency=1
+BD.ZIndex=5000
+local CN=Instance.new("Frame",SG)
+CN.AnchorPoint=Vector2.new(0.5,0.5)
+CN.Position=UDim2.new(0.5,0,0.5,0)
+CN.Size=UDim2.new(0,160,0,160)
+CN.BackgroundTransparency=1
+CN.ZIndex=5001
+local IM=Instance.new("ImageLabel",CN)
+IM.Size=UDim2.new(1,0,1,0)
+IM.BackgroundTransparency=1
+IM.ImageTransparency=1
+IM.Image="rbxassetid://100104680190424"
+IM.ZIndex=5002
+cor(IM,36)
+local ST2=str(IM,ACC,3,1)
+local TT=Instance.new("TextLabel",CN)
+TT.Size=UDim2.new(1,0,0,30)
+TT.Position=UDim2.new(0,0,1,12)
+TT.BackgroundTransparency=1
+TT.Text="LATINA HUB"
+TT.TextColor3=Themes[Config.Theme].Text
+TT.TextSize=20
+TT.Font=Enum.Font.GothamBold
+TT.TextTransparency=1
+TT.ZIndex=5002
+local SU=Instance.new("TextLabel",CN)
+SU.Size=UDim2.new(1,0,0,20)
+SU.Position=UDim2.new(0,0,1,40)
+SU.BackgroundTransparency=1
+SU.Text="V1 NEW RELEASE"
+SU.TextColor3=ACC
+SU.TextSize=11
+SU.Font=Enum.Font.GothamMedium
+SU.TextTransparency=1
+SU.ZIndex=5002
+TS:Create(BD,TweenInfo.new(0.5),{BackgroundTransparency=0.4}):Play()
+TS:Create(IM,TweenInfo.new(0.9),{ImageTransparency=0}):Play()
+TS:Create(ST2,TweenInfo.new(0.9),{Transparency=0}):Play()
+TS:Create(CN,TweenInfo.new(1.0),{Size=UDim2.new(0,240,0,240)}):Play()
+task.wait(0.35)
+TS:Create(TT,TweenInfo.new(0.5),{TextTransparency=0}):Play()
+task.wait(0.15)
+TS:Create(SU,TweenInfo.new(0.5),{TextTransparency=0}):Play()
+task.wait(1.5)
+local out=TS:Create(CN,TweenInfo.new(0.7,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Size=UDim2.new(0,280,0,280)})
+TS:Create(IM,TweenInfo.new(0.7),{ImageTransparency=1}):Play()
+TS:Create(ST2,TweenInfo.new(0.7),{Transparency=1}):Play()
+TS:Create(TT,TweenInfo.new(0.4),{TextTransparency=1}):Play()
+TS:Create(SU,TweenInfo.new(0.4),{TextTransparency=1}):Play()
+TS:Create(BD,TweenInfo.new(0.6),{BackgroundTransparency=1}):Play()
+out:Play()
+out.Completed:Wait()
+BD:Destroy()
+CN:Destroy()
+if IS then IS:Destroy()IS=nil end
+MF.Visible=true
+sB(8)
+showN("LATINA HUB V1 — Ready","success")
+end)
 end)
