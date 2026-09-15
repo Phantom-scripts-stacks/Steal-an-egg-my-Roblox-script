@@ -30,7 +30,7 @@ ScreenGui.Parent = PlayerGui
 
 local ClickSound = Instance.new("Sound")
 ClickSound.Name = "ClickSoundEffect"
-ClickSound.SoundId = "rbxassetid://906107293" -- Standard clean UI click sound
+ClickSound.SoundId = "rbxassetid://906107293"
 ClickSound.Volume = 0.7
 ClickSound.Parent = ScreenGui
 
@@ -68,14 +68,12 @@ local function ShowNotification(text)
             NotifText.Font = Enum.Font.GothamBold
             NotifText.ZIndex = 100000
 
-            -- Slide down animation
             TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0.5, -130, 0, 20)
             }):Play()
 
             task.wait(3)
 
-            -- Slide up and destroy
             local fadeOut = TweenService:Create(NotifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
                 Position = UDim2.new(0.5, -130, 0, -60)
             })
@@ -258,7 +256,6 @@ MainFrame.Parent = ScreenGui
 local MainCorner = Instance.new("UICorner", MainFrame)
 MainCorner.CornerRadius = UDim.new(0, 10)
 
--- Rainbow Stroke sa Kilid-kilid (Borders)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Thickness = 2
 task.spawn(function()
@@ -270,7 +267,6 @@ task.spawn(function()
     end
 end)
 
--- Top Bar Header
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 36)
 TopBar.BackgroundColor3 = CurrentTheme.TopBar
@@ -288,7 +284,6 @@ CoverFix.BorderSizePixel = 0
 CoverFix.ZIndex = 101
 CoverFix.Parent = TopBar
 
--- Rayfield Style X Button
 local CloseXBtn = Instance.new("TextButton")
 CloseXBtn.Size = UDim2.new(0, 26, 0, 26)
 CloseXBtn.Position = UDim2.new(1, -32, 0.5, -13)
@@ -303,7 +298,6 @@ CloseXBtn.Parent = TopBar
 local CloseXCorner = Instance.new("UICorner", CloseXBtn)
 CloseXCorner.CornerRadius = UDim.new(0, 6)
 
--- Rainbow Title Label
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0.55, 0, 1, 0)
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
@@ -325,7 +319,6 @@ task.spawn(function()
     end
 end)
 
--- FPS & MS Counter
 local StatsLabel = Instance.new("TextLabel")
 StatsLabel.Size = UDim2.new(0, 120, 1, 0)
 StatsLabel.Position = UDim2.new(1, -158, 0, 0)
@@ -352,7 +345,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ==========================================
--- [ 4. RAYFIELD STYLE CONFIRMATION PROMPT ]
+-- [ 4. CONFIRMATION PROMPT ]
 -- ==========================================
 local ConfirmOverlay = Instance.new("Frame")
 ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -417,7 +410,6 @@ CloseWindowBtn.Parent = ConfirmBox
 local CloseWindowCorner = Instance.new("UICorner", CloseWindowBtn)
 CloseWindowCorner.CornerRadius = UDim.new(0, 6)
 
--- Smooth Opening & Closing Animation
 local isOpen = true
 local function ToggleWindow()
     PlayClick()
@@ -451,7 +443,6 @@ CloseXBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visibl
 CancelBtn.MouseButton1Click:Connect(function() PlayClick() ConfirmOverlay.Visible = false end)
 CloseWindowBtn.MouseButton1Click:Connect(function() PlayClick() ScreenGui:Destroy() end)
 
--- [ HOTKEY (RIGHT SHIFT) ]
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed then
         if input.KeyCode == Enum.KeyCode.RightShift then
@@ -570,6 +561,9 @@ local function AddButtonToPage(page, name, callback)
     local Corner = Instance.new("UICorner", Btn)
     Corner.CornerRadius = UDim.new(0, 6)
 
+    local Corner = Instance.new("UICorner", Btn)
+    Corner.CornerRadius = UDim.new(0, 6)
+
     local Stroke = Instance.new("UIStroke", Btn)
     Stroke.Color = Color3.fromRGB(45, 45, 60)
     Stroke.Thickness = 1
@@ -581,7 +575,6 @@ local function AddButtonToPage(page, name, callback)
     end)
 end
 
--- Function para ma-update ang hitsura kung ilisan ang theme
 local function ApplyTheme(themeName)
     CurrentTheme = Themes[themeName]
     MainFrame.BackgroundColor3 = CurrentTheme.MainBg
@@ -619,12 +612,43 @@ AddButtonToPage(MainTab, "🔄 Rejoin Server", function()
     pcall(function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 end)
 
+-- LISTAHAN SA IMONG MGA SCRIPT LINKS SA STEAL AN EGG
+local ScriptsList = {
+    {Name = "RENE BATERBONIA", Link = "loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()"},
+    {Name = "Horizon", Link = "script_key = "Trial"loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()"},
+    {Name = "Nisi Hub", Link = ""},
+    {Name = "Lennon", Link = ""},
+    {Name = "Miranda", Link = ""},
+    {Name = "Lkz", Link = ""},
+    {Name = "Zeroin", Link = ""},
+    {Name = "Decode", Link = ""},
+    {Name = "Blyko Hub", Link = ""},
+    {Name = "Hoshi Hub", Link = ""},
+    {Name = "Script 12", Link = ""},
+    {Name = "Script 13", Link = ""},
+    {Name = "Script 14", Link = ""},
+    {Name = "Script 15", Link = ""},
+    {Name = "Script 16", Link = ""},
+    {Name = "Script 17", Link = ""},
+    {Name = "Script 18", Link = ""},
+    {Name = "Script 19", Link = ""},
+    {Name = "Script 20", Link = ""},
+    {Name = "Script 21", Link = ""},
+    {Name = "Script 22", Link = ""},
+    {Name = "Script 23", Link = ""},
+    {Name = "Script 24", Link = ""},
+    {Name = "Script 25", Link = ""}
+}
+
 local EggTab = CreateTab("Steal an Egg")
-for i = 1, 20 do
-    AddButtonToPage(EggTab, "🥚 Egg Script " .. i, function()
+for _, scriptData in ipairs(ScriptsList) do
+    AddButtonToPage(EggTab, "🥚 " .. scriptData.Name, function()
         pcall(function()
-            -- ILISAN NI NIMO SA IMONG LINK O SCRIPT CODE
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/ imong-link-diri"))()
+            if scriptData.Link ~= "" then
+                loadstring(game:HttpGet(scriptData.Link))()
+            else
+                ShowNotification("No link set for " .. scriptData.Name)
+            end
         end)
     end)
 end
@@ -654,7 +678,6 @@ AddButtonToPage(FpsTab, "🌫️ Remove Fog & Shadows", function()
     end)
 end)
 
--- Gihimoan na nako og kaugalingong Tab ang Themes diri:
 local ThemeTab = CreateTab("Themes")
 AddButtonToPage(ThemeTab, "🎨 Dark Purple (Default)", function() ApplyTheme("Dark Purple") end)
 AddButtonToPage(ThemeTab, "🎨 Midnight Blue", function() ApplyTheme("Midnight Blue") end)
@@ -697,6 +720,5 @@ PlayIntro(function()
         BackgroundTransparency = 0
     }):Play()
 
-    -- I-notify ang user nga nahuman na ug load ang Latina Hub
     ShowNotification("LATINA SUCCESSFULLY LOADED")
 end)
