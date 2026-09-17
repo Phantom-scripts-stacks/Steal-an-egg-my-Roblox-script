@@ -1624,3 +1624,733 @@ sB(8)
 showN("LATINA HUB V1 — Ready","success")
 end)
 end)
+task.wait(0.5)
+
+local MegaState = {
+    AntiRag = false, AntiKnockback = false, AntiTrap = false,
+    GodMode = false, SpeedSlider = false, SpeedVal = 32,
+    JumpPower = false, JumpPowerVal = 50,
+    Gravity = false, GravityVal = 196.2,
+    FunTrail = false, FunAura = false, Rainbow = false,
+    WebhookOn = false, WebhookURL = "",
+    ConfirmClose = true,
+    Connections = {}, Threads = {},
+    SavedGravity = workspace.Gravity,
+}
+
+local function killThread(t) if t then pcall(function() task.cancel(t) end) end end
+local function disconnectAll()
+    for _, c in ipairs(MegaState.Connections) do pcall(function() c:Disconnect() end) end
+    MegaState.Connections = {}
+end
+local function trackConn(c) table.insert(MegaState.Connections, c) end
+local function trackThread(t) table.insert(MegaState.Threads, t) end
+
+local function resetAll()
+    MegaState.AntiRag = false
+    MegaState.AntiKnockback = false
+    MegaState.AntiTrap = false
+    MegaState.GodMode = false
+    MegaState.SpeedSlider = false
+    MegaState.JumpPower = false
+    MegaState.Gravity = false
+    MegaState.FunTrail = false
+    MegaState.FunAura = false
+    MegaState.Rainbow = false
+    workspace.Gravity = MegaState.SavedGravity
+    for _, t in ipairs(MegaState.Threads) do killThread(t) end
+    MegaState.Threads = {}
+    disconnectAll()
+    local ch = LP.Character
+    if ch then
+        local hrp = ch:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            for _, v in ipairs(hrp:GetChildren()) do
+                if v.Name == "MegaTrail" or v.Name == "MegaAura" or v.Name:find("MegaTrail") then
+                    v:Destroy()
+                end
+            end
+        end
+        local h = ch:FindFirstChildOfClass("Humanoid")
+        if h then h.WalkSpeed = 16 h.JumpPower = 50 end
+    end
+end
+
+local function fireWebhook(msg)
+    if not MegaState.WebhookOn or MegaState.WebhookURL == "" then return end
+    task.spawn(function()
+        pcall(function()
+            HS:PostAsync(MegaState.WebhookURL, HS:JSONEncode({
+                content = "Latina Hub | " .. msg,
+                username = "Latina Notifier",
+            }), Enum.HttpContentType.ApplicationJson)
+        end)
+    end)
+end
+
+local PlayerPage, ExtrasPage, ConfigPage, MainPage
+if ATB and AP then
+    for i, v in ipairs(ATB) do
+        if v.TextLabel then
+            local t = v.TextLabel.Text
+            if t == "Player" then PlayerPage = AP[i] end
+            if t == "Extras" then ExtrasPage = AP[i] end
+            if t == "Config" then ConfigPage = AP[i] end
+            if t == "Main" then MainPage = AP[i] end
+        end
+    end
+end
+
+if PlayerPage then
+    addSection(PlayerPage, "Speed Control (1-1000)")
+
+    local speedFrame = Instance.new("Frame", PlayerPage)
+    speedFrame.Size = UDim2.new(1, -8, 0, 80)
+    speedFrame.BackgroundColor3 = Themes[Config.Theme].Element
+    speedFrame.BackgroundTransparency = 0.15
+    speedFrame.ZIndex = 104
+    cor(speedFrame, 8)
+    str(speedFrame, Themes[Config.Theme].Border, 1, 0.4)
+
+    local speedLbl = Instance.new("TextLabel", speedFrame)
+    speedLbl.Size = UDim2.new(1, -16, 0, 20)
+    speedLbl.Position = UDim2.new(0, 8, 0, 4)
+    speedLbl.BackgroundTransparency = 1
+    speedLbl.Text = "Speed: 32"
+    speedLbl.TextColor3 = Themes[Config.Theme].Text
+    speedLbl.TextSize = 12
+    speedLbl.Font = Enum.Font.GothamBold
+    speedLbl.TextXAlignment = Enum.TextXAlignment.Left
+    speedLbl.ZIndex = 105
+
+    local speedBar = Instance.new("TextButton", speedFrame)
+    speedBar.Size = UDim2.new(1, -16, 0, 24)
+    speedBar.Position = UDim2.new(0, 8, 0, 30)
+    speedBar.BackgroundColor3 = Themes[Config.Theme].TopBar
+    speedBar.Text = ""
+    speedBar.AutoButtonColor = false
+    speedBar.ZIndex = 105
+    cor(speedBar, 4)
+
+    local speedFill = Instance.new("Frame", speedBar)
+    speedFill.Size = UDim2.new(0.031, 0, 1, 0)
+    speedFill.BackgroundColor3 = ACC
+    speedFill.BorderSizePixel = 0
+    speedFill.ZIndex = 106
+    cor(speedFill, 4)
+
+    local speedHint = Instance.new("TextLabel", speedFrame)
+    speedHint.Size = UDim2.new(1, -16, 0, 12)
+    speedHint.Position = UDim2.new(0, 8, 0, 58)
+    speedHint.BackgroundTransparency = 1
+    speedHint.Text = "Drag: min 1 / max 1000"
+    speedHint.TextColor3 = Themes[Config.Theme].TextDim
+    speedHint.TextSize = 8
+    speedHint.Font = Enum.Font.Gotham
+    speedHint.TextXAlignment = Enum.TextXAlignment.Left
+    speedHint.ZIndex = 105
+
+    local speedDragging = false
+    local function updateSpeed(input)
+        local rel = input.Position.X - speedBar.AbsolutePosition.X
+        local pct = math.clamp(rel / math.max(speedBar.AbsoluteSize.X, 1), 0, 1)
+        MegaState.SpeedVal = math.floor(1 + pct * 999)
+        speedFill.Size = UDim2.new(pct, 0, 1, 0)
+        speedLbl.Text = "Speed: " .. MegaState.SpeedVal
+    end
+    speedBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then
+            speedDragging = true updateSpeed(input)
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if speedDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+           or input.UserInputType == Enum.UserInputType.Touch) then updateSpeed(input) end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then speedDragging = false end
+    end)
+
+    AddButtonToPage(PlayerPage, "Custom Speed Slider", function(s)
+        MegaState.SpeedSlider = s
+        if s then
+            local t = task.spawn(function()
+                while MegaState.SpeedSlider do
+                    task.wait(0.1)
+                    if not MegaState.SpeedSlider then break end
+                    local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+                    if h and h.WalkSpeed ~= MegaState.SpeedVal then h.WalkSpeed = MegaState.SpeedVal end
+                end
+            end)
+            trackThread(t)
+            showN("Speed ON: " .. MegaState.SpeedVal, "success")
+        else
+            local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+            if h then h.WalkSpeed = 16 end
+            showN("Speed OFF", "info")
+        end
+    end, {toggle = true, key = "megaSpeed", icon = "⚡"})
+
+    addSection(PlayerPage, "Jump Power (1-500)")
+
+    local jpFrame = Instance.new("Frame", PlayerPage)
+    jpFrame.Size = UDim2.new(1, -8, 0, 60)
+    jpFrame.BackgroundColor3 = Themes[Config.Theme].Element
+    jpFrame.BackgroundTransparency = 0.15
+    jpFrame.ZIndex = 104
+    cor(jpFrame, 8)
+    str(jpFrame, Themes[Config.Theme].Border, 1, 0.4)
+
+    local jpLbl = Instance.new("TextLabel", jpFrame)
+    jpLbl.Size = UDim2.new(1, -16, 0, 20)
+    jpLbl.Position = UDim2.new(0, 8, 0, 4)
+    jpLbl.BackgroundTransparency = 1
+    jpLbl.Text = "Jump: 50"
+    jpLbl.TextColor3 = Themes[Config.Theme].Text
+    jpLbl.TextSize = 12
+    jpLbl.Font = Enum.Font.GothamBold
+    jpLbl.TextXAlignment = Enum.TextXAlignment.Left
+    jpLbl.ZIndex = 105
+
+    local jpBar = Instance.new("TextButton", jpFrame)
+    jpBar.Size = UDim2.new(1, -16, 0, 24)
+    jpBar.Position = UDim2.new(0, 8, 0, 30)
+    jpBar.BackgroundColor3 = Themes[Config.Theme].TopBar
+    jpBar.Text = ""
+    jpBar.AutoButtonColor = false
+    jpBar.ZIndex = 105
+    cor(jpBar, 4)
+
+    local jpFill = Instance.new("Frame", jpBar)
+    jpFill.Size = UDim2.new(0.1, 0, 1, 0)
+    jpFill.BackgroundColor3 = ACC
+    jpFill.BorderSizePixel = 0
+    jpFill.ZIndex = 106
+    cor(jpFill, 4)
+
+    local jpDragging = false
+    local function updateJP(input)
+        local rel = input.Position.X - jpBar.AbsolutePosition.X
+        local pct = math.clamp(rel / math.max(jpBar.AbsoluteSize.X, 1), 0, 1)
+        MegaState.JumpPowerVal = math.floor(1 + pct * 499)
+        jpFill.Size = UDim2.new(pct, 0, 1, 0)
+        jpLbl.Text = "Jump: " .. MegaState.JumpPowerVal
+    end
+    jpBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then jpDragging = true updateJP(input) end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if jpDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+           or input.UserInputType == Enum.UserInputType.Touch) then updateJP(input) end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then jpDragging = false end
+    end)
+
+    AddButtonToPage(PlayerPage, "Custom Jump Power", function(s)
+        MegaState.JumpPower = s
+        if s then
+            local t = task.spawn(function()
+                while MegaState.JumpPower do
+                    task.wait(0.1)
+                    if not MegaState.JumpPower then break end
+                    local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+                    if h then h.UseJumpPower = true h.JumpPower = MegaState.JumpPowerVal end
+                end
+            end)
+            trackThread(t)
+            showN("Jump ON: " .. MegaState.JumpPowerVal, "success")
+        else
+            local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+            if h then h.JumpPower = 50 end
+            showN("Jump OFF", "info")
+        end
+    end, {toggle = true, key = "megaJP", icon = "🦘"})
+        end
+        if PlayerPage then
+    addSection(PlayerPage, "Protection")
+
+    AddButtonToPage(PlayerPage, "Anti-Ragdoll / Anti-Stun", function(s)
+        MegaState.AntiRag = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local h = ch:FindFirstChildOfClass("Humanoid")
+                if not h then return end
+                if h.PlatformStand then h.PlatformStand = false end
+                if h.Sit then h.Sit = false end
+                local st = h:GetState()
+                if st == Enum.HumanoidStateType.Ragdoll
+                   or st == Enum.HumanoidStateType.FallingDown
+                   or st == Enum.HumanoidStateType.Physics then
+                    h:ChangeState(Enum.HumanoidStateType.Running)
+                end
+                local root = ch:FindFirstChild("HumanoidRootPart")
+                if root then
+                    for _, v in ipairs(root:GetChildren()) do
+                        if v:IsA("BallSocketConstraint") or v:IsA("RagdollConstraint") then v:Destroy() end
+                    end
+                end
+            end)
+            trackConn(c)
+            showN("Anti-Ragdoll ON", "success")
+        else showN("Anti-Ragdoll OFF", "info") end
+    end, {toggle = true, key = "megaAntiRag", icon = "🛡"})
+
+    AddButtonToPage(PlayerPage, "Anti-Knockback", function(s)
+        MegaState.AntiKnockback = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                local vel = hrp.AssemblyLinearVelocity
+                hrp.AssemblyLinearVelocity = Vector3.new(0, vel.Y, 0)
+                hrp.AssemblyAngularVelocity = Vector3.zero
+                for _, v in ipairs(hrp:GetChildren()) do
+                    if v:IsA("BodyVelocity") or v:IsA("BodyForce") or v:IsA("BodyThrust") then v:Destroy() end
+                end
+            end)
+            trackConn(c)
+            showN("Anti-Knockback ON", "success")
+        else showN("Anti-Knockback OFF", "info") end
+    end, {toggle = true, key = "megaAntiKB", icon = "🚫"})
+
+    AddButtonToPage(PlayerPage, "Anti-Trap", function(s)
+        MegaState.AntiTrap = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                for _, o in ipairs(workspace:GetDescendants()) do
+                    if o:IsA("BasePart") and not o:IsDescendantOf(ch) then
+                        local d = (o.Position - hrp.Position).Magnitude
+                        if d < 6 and o.Anchored and o.CanCollide then
+                            local s = o.Size
+                            if s.X < 20 and s.Y < 20 and s.Z < 20 then o.CanCollide = false end
+                        end
+                    end
+                end
+                for _, cc in ipairs(hrp:GetChildren()) do
+                    if cc:IsA("WeldConstraint") then
+                        if (cc.Part0 and not cc.Part0:IsDescendantOf(ch))
+                           or (cc.Part1 and not cc.Part1:IsDescendantOf(ch)) then cc:Destroy() end
+                    end
+                end
+            end)
+            trackConn(c)
+            showN("Anti-Trap ON", "success")
+        else showN("Anti-Trap OFF", "info") end
+    end, {toggle = true, key = "megaAntiTrap", icon = "🕸"})
+
+    AddButtonToPage(PlayerPage, "God Mode (client)", function(s)
+        MegaState.GodMode = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local h = ch:FindFirstChildOfClass("Humanoid")
+                if not h then return end
+                if h.Health < h.MaxHealth then h.Health = h.MaxHealth end
+                h.BreakJointsOnDeath = false
+                if not ch:FindFirstChildOfClass("ForceField") then
+                    local ff = Instance.new("ForceField", ch)
+                    ff.Visible = false
+                end
+            end)
+            trackConn(c)
+            showN("God Mode ON", "success")
+        else showN("God Mode OFF", "info") end
+    end, {toggle = true, key = "megaGod", icon = "👼"})
+
+    addSection(PlayerPage, "Gravity (0-1000)")
+
+    local gvFrame = Instance.new("Frame", PlayerPage)
+    gvFrame.Size = UDim2.new(1, -8, 0, 60)
+    gvFrame.BackgroundColor3 = Themes[Config.Theme].Element
+    gvFrame.BackgroundTransparency = 0.15
+    gvFrame.ZIndex = 104
+    cor(gvFrame, 8)
+    str(gvFrame, Themes[Config.Theme].Border, 1, 0.4)
+
+    local gvLbl = Instance.new("TextLabel", gvFrame)
+    gvLbl.Size = UDim2.new(1, -16, 0, 20)
+    gvLbl.Position = UDim2.new(0, 8, 0, 4)
+    gvLbl.BackgroundTransparency = 1
+    gvLbl.Text = "Gravity: 196"
+    gvLbl.TextColor3 = Themes[Config.Theme].Text
+    gvLbl.TextSize = 12
+    gvLbl.Font = Enum.Font.GothamBold
+    gvLbl.TextXAlignment = Enum.TextXAlignment.Left
+    gvLbl.ZIndex = 105
+
+    local gvBar = Instance.new("TextButton", gvFrame)
+    gvBar.Size = UDim2.new(1, -16, 0, 24)
+    gvBar.Position = UDim2.new(0, 8, 0, 30)
+    gvBar.BackgroundColor3 = Themes[Config.Theme].TopBar
+    gvBar.Text = ""
+    gvBar.AutoButtonColor = false
+    gvBar.ZIndex = 105
+    cor(gvBar, 4)
+
+    local gvFill = Instance.new("Frame", gvBar)
+    gvFill.Size = UDim2.new(0.196, 0, 1, 0)
+    gvFill.BackgroundColor3 = ACC
+    gvFill.BorderSizePixel = 0
+    gvFill.ZIndex = 106
+    cor(gvFill, 4)
+
+    local gvDragging = false
+    local function updateGV(input)
+        local rel = input.Position.X - gvBar.AbsolutePosition.X
+        local pct = math.clamp(rel / math.max(gvBar.AbsoluteSize.X, 1), 0, 1)
+        MegaState.GravityVal = math.floor(pct * 1000)
+        gvFill.Size = UDim2.new(pct, 0, 1, 0)
+        gvLbl.Text = "Gravity: " .. MegaState.GravityVal
+    end
+    gvBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then gvDragging = true updateGV(input) end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if gvDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+           or input.UserInputType == Enum.UserInputType.Touch) then updateGV(input) end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then gvDragging = false end
+    end)
+
+    AddButtonToPage(PlayerPage, "Custom Gravity", function(s)
+        MegaState.Gravity = s
+        if s then
+            MegaState.SavedGravity = workspace.Gravity
+            local c = RS.Heartbeat:Connect(function()
+                workspace.Gravity = MegaState.GravityVal
+            end)
+            trackConn(c)
+            showN("Gravity ON: " .. MegaState.GravityVal, "success")
+        else
+            workspace.Gravity = MegaState.SavedGravity
+            showN("Gravity OFF", "info")
+        end
+    end, {toggle = true, key = "megaGravity", icon = "🌍"})
+        end
+        if ExtrasPage then
+    addSection(ExtrasPage, "Mega Fun")
+
+    AddButtonToPage(ExtrasPage, "Rainbow Trail", function(s)
+        MegaState.FunTrail = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                local trail = hrp:FindFirstChild("MegaTrail")
+                if not trail then
+                    trail = Instance.new("Trail", hrp)
+                    trail.Name = "MegaTrail"
+                    trail.Lifetime = 1
+                    trail.Transparency = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 0),
+                        NumberSequenceKeypoint.new(1, 1),
+                    })
+                    trail.WidthScale = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 1),
+                        NumberSequenceKeypoint.new(1, 0),
+                    })
+                    local a0 = Instance.new("Attachment", hrp)
+                    a0.Name = "MegaTrail0"
+                    a0.Position = Vector3.new(0, -1.5, 0)
+                    local a1 = Instance.new("Attachment", hrp)
+                    a1.Name = "MegaTrail1"
+                    a1.Position = Vector3.new(0, 1.5, 0)
+                    trail.Attachment0 = a0
+                    trail.Attachment1 = a1
+                end
+                local hue = (tick() * 0.5) % 1
+                trail.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1))
+            end)
+            trackConn(c)
+            showN("Rainbow Trail ON", "success")
+        else
+            local ch = LP.Character
+            if ch then
+                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local t = hrp:FindFirstChild("MegaTrail")
+                    if t then t:Destroy() end
+                    for _, a in ipairs(hrp:GetChildren()) do
+                        if a.Name:find("MegaTrail") then a:Destroy() end
+                    end
+                end
+            end
+            showN("Rainbow Trail OFF", "info")
+        end
+    end, {toggle = true, key = "megaTrail", icon = "🌈"})
+
+    AddButtonToPage(ExtrasPage, "Particle Aura", function(s)
+        MegaState.FunAura = s
+        if s then
+            local t = task.spawn(function()
+                while MegaState.FunAura do
+                    task.wait(0.5)
+                    if not MegaState.FunAura then break end
+                    local ch = LP.Character
+                    if not ch then continue end
+                    local hrp = ch:FindFirstChild("HumanoidRootPart")
+                    if not hrp then continue end
+                    local emitter = hrp:FindFirstChild("MegaAura")
+                    if not emitter then
+                        emitter = Instance.new("ParticleEmitter", hrp)
+                        emitter.Name = "MegaAura"
+                        emitter.Rate = 30
+                        emitter.Lifetime = NumberRange.new(1, 2)
+                        emitter.Speed = NumberRange.new(2, 5)
+                        emitter.SpreadAngle = Vector2.new(180, 180)
+                        emitter.Size = NumberSequence.new({
+                            NumberSequenceKeypoint.new(0, 0.5),
+                            NumberSequenceKeypoint.new(1, 0),
+                        })
+                        emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+                        emitter.LightEmission = 1
+                    end
+                    local hue = (tick() * 0.7) % 1
+                    emitter.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1))
+                end
+            end)
+            trackThread(t)
+            showN("Particle Aura ON", "success")
+        else
+            local ch = LP.Character
+            if ch then
+                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local e = hrp:FindFirstChild("MegaAura")
+                    if e then e:Destroy() end
+                end
+            end
+            showN("Particle Aura OFF", "info")
+        end
+    end, {toggle = true, key = "megaAura", icon = "✨"})
+
+    AddButtonToPage(ExtrasPage, "Rainbow Character", function(s)
+        MegaState.Rainbow = s
+        if s then
+            local c = RS.Heartbeat:Connect(function()
+                local ch = LP.Character
+                if not ch then return end
+                local hue = (tick() * 0.3) % 1
+                for _, p in ipairs(ch:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        pcall(function() p.Color = Color3.fromHSV(hue, 0.8, 1) end)
+                    end
+                end
+            end)
+            trackConn(c)
+            showN("Rainbow ON", "success")
+        else showN("Rainbow OFF", "info") end
+    end, {toggle = true, key = "megaRainbow", icon = "🌈"})
+end
+
+if ConfigPage then
+    addSection(ConfigPage, "Discord Webhook")
+
+    local whFrame = Instance.new("Frame", ConfigPage)
+    whFrame.Size = UDim2.new(1, -8, 0, 60)
+    whFrame.BackgroundColor3 = Themes[Config.Theme].Element
+    whFrame.BackgroundTransparency = 0.15
+    whFrame.ZIndex = 104
+    cor(whFrame, 8)
+    str(whFrame, Themes[Config.Theme].Border, 1, 0.4)
+
+    local whBox = Instance.new("TextBox", whFrame)
+    whBox.Size = UDim2.new(1, -16, 0, 26)
+    whBox.Position = UDim2.new(0, 8, 0, 8)
+    whBox.BackgroundColor3 = Themes[Config.Theme].TopBar
+    whBox.Text = ""
+    whBox.PlaceholderText = "Paste Discord webhook URL"
+    whBox.PlaceholderColor3 = Themes[Config.Theme].TextDim
+    whBox.TextColor3 = Themes[Config.Theme].Text
+    whBox.TextSize = 10
+    whBox.Font = Enum.Font.Gotham
+    whBox.ClearTextOnFocus = false
+    whBox.ZIndex = 105
+    cor(whBox, 4)
+    str(whBox, Themes[Config.Theme].Border, 1, 0.4)
+    whBox:GetPropertyChangedSignal("Text"):Connect(function() MegaState.WebhookURL = whBox.Text end)
+
+    local hint = Instance.new("TextLabel", whFrame)
+    hint.Size = UDim2.new(1, -16, 0, 16)
+    hint.Position = UDim2.new(0, 8, 0, 38)
+    hint.BackgroundTransparency = 1
+    hint.Text = "Sends: session start, close, steals"
+    hint.TextColor3 = Themes[Config.Theme].TextDim
+    hint.TextSize = 9
+    hint.Font = Enum.Font.Gotham
+    hint.TextXAlignment = Enum.TextXAlignment.Left
+    hint.ZIndex = 105
+
+    AddButtonToPage(ConfigPage, "Enable Webhook", function(s)
+        MegaState.WebhookOn = s
+        if s then
+            if MegaState.WebhookURL == "" then showN("Paste URL first", "error") return end
+            fireWebhook("Latina Hub connected")
+            showN("Webhook ON", "success")
+        else showN("Webhook OFF", "info") end
+    end, {toggle = true, key = "megaWebhook", icon = "💬"})
+
+    AddButtonToPage(ConfigPage, "Test Webhook", function()
+        if not MegaState.WebhookOn then showN("Enable first", "error") return end
+        fireWebhook("Test")
+        showN("Sent", "success")
+    end, {icon = "📤"})
+
+    addSection(ConfigPage, "UI Settings")
+
+    AddButtonToPage(ConfigPage, "Confirm Before Close", function(s)
+        MegaState.ConfirmClose = s
+        showN("Confirm " .. (s and "ON" or "OFF"), s and "success" or "info")
+    end, {toggle = true, key = "megaConfirmClose", icon = "❓"})
+
+    AddButtonToPage(ConfigPage, "Reset All Toggles", function()
+        resetAll()
+        showN("All toggles reset", "info")
+    end, {icon = "🔄"})
+end
+
+if CB and MF and TW then
+    CB.Text = "✕"
+    CB.MouseButton1Click:Connect(function()
+        if not MegaState.ConfirmClose then
+            resetAll() fireWebhook("Session closed") TW() return
+        end
+        local cg = Instance.new("ScreenGui", PG)
+        cg.Name = "LatinaConfirm"
+        cg.ResetOnSpawn = false
+        cg.IgnoreGuiInset = true
+        cg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        local bd = Instance.new("Frame", cg)
+        bd.Size = UDim2.new(1, 0, 1, 0)
+        bd.BackgroundColor3 = Color3.new(0, 0, 0)
+        bd.BackgroundTransparency = 0.5
+        bd.BorderSizePixel = 0
+        bd.ZIndex = 1000
+
+        local dlg = Instance.new("Frame", cg)
+        dlg.Size = UDim2.new(0, 260, 0, 150)
+        dlg.Position = UDim2.new(0.5, -130, 0.5, -75)
+        dlg.BackgroundColor3 = Themes[Config.Theme].MainBg
+        dlg.BorderSizePixel = 0
+        dlg.ZIndex = 1001
+        cor(dlg, 10)
+        str(dlg, Themes[Config.Theme].Border, 1.5, 0.3)
+
+        local ttl = Instance.new("TextLabel", dlg)
+        ttl.Size = UDim2.new(1, 0, 0, 36)
+        ttl.BackgroundColor3 = Themes[Config.Theme].TopBar
+        ttl.Text = "  Confirm Close"
+        ttl.TextColor3 = Themes[Config.Theme].Text
+        ttl.TextSize = 13
+        ttl.Font = Enum.Font.GothamBold
+        ttl.TextXAlignment = Enum.TextXAlignment.Left
+        ttl.ZIndex = 1002
+        cor(ttl, 10)
+
+        local msgl = Instance.new("TextLabel", dlg)
+        msgl.Size = UDim2.new(1, -20, 0, 55)
+        msgl.Position = UDim2.new(0, 10, 0, 44)
+        msgl.BackgroundTransparency = 1
+        msgl.Text = "Are you sure you want to close this window?"
+        msgl.TextColor3 = Themes[Config.Theme].Text
+        msgl.TextSize = 12
+        msgl.Font = Enum.Font.GothamMedium
+        msgl.TextWrapped = true
+        msgl.TextXAlignment = Enum.TextXAlignment.Center
+        msgl.ZIndex = 1002
+
+        local yb = Instance.new("TextButton", dlg)
+        yb.Size = UDim2.new(0.45, -10, 0, 34)
+        yb.Position = UDim2.new(0, 10, 1, -44)
+        yb.BackgroundColor3 = ACR
+        yb.Text = "YES"
+        yb.TextColor3 = Color3.fromRGB(255, 255, 255)
+        yb.TextSize = 12
+        yb.Font = Enum.Font.GothamBold
+        yb.ZIndex = 1002
+        cor(yb, 6)
+
+        local nb = Instance.new("TextButton", dlg)
+        nb.Size = UDim2.new(0.45, -10, 0, 34)
+        nb.Position = UDim2.new(0.55, 0, 1, -44)
+        nb.BackgroundColor3 = Themes[Config.Theme].Element
+        nb.Text = "NO"
+        nb.TextColor3 = Themes[Config.Theme].Text
+        nb.TextSize = 12
+        nb.Font = Enum.Font.GothamBold
+        nb.ZIndex = 1002
+        cor(nb, 6)
+
+        yb.MouseButton1Click:Connect(function()
+            cg:Destroy() resetAll() fireWebhook("Session closed") TW()
+        end)
+        nb.MouseButton1Click:Connect(function() cg:Destroy() end)
+    end)
+end
+
+if ML then
+    ML.Position = UDim2.new(1, -180, 0, 4)
+    ML.Size = UDim2.new(0, 130, 0, 12)
+end
+
+if MF then
+    local rh = Instance.new("TextButton", MF)
+    rh.Size = UDim2.new(0, 20, 0, 20)
+    rh.Position = UDim2.new(1, -20, 1, -20)
+    rh.BackgroundColor3 = Themes[Config.Theme].Element
+    rh.BackgroundTransparency = 0.3
+    rh.Text = "◢"
+    rh.TextColor3 = ACC
+    rh.TextSize = 14
+    rh.Font = Enum.Font.GothamBold
+    rh.AutoButtonColor = false
+    rh.ZIndex = 999
+    cor(rh, 4)
+    str(rh, ACC, 1, 0.5)
+    local resizing = false
+    local startPos, startSize
+    rh.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then
+            resizing = true startPos = input.Position startSize = MF.Size
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if not resizing then return end
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+           or input.UserInputType == Enum.UserInputType.Touch then
+            local d = input.Position - startPos
+            MF.Size = UDim2.new(0, math.max(280, startSize.X.Offset + d.X),
+                                0, math.max(200, startSize.Y.Offset + d.Y))
+        end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+           or input.UserInputType == Enum.UserInputType.Touch then resizing = false end
+    end)
+end
+
+game:BindToClose(function() resetAll() end)
+LP.OnTeleport:Connect(function() resetAll() end)
+
+showN("Latina add-ons loaded", "success")
