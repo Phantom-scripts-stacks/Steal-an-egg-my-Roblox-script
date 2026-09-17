@@ -895,16 +895,6 @@ if ATB and AP then
         end, {icon = "🔄"})
     end
 end
-game:BindToClose(function()
-    pcall(function()
-        local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
-        if h then h.WalkSpeed = 16 h.JumpPower = 50 end
-        workspace.Gravity = 196.2
-        if SG then SG:Destroy() end
-        if BL then BL:Destroy() end
-    end)
-end)
-
 LP.OnTeleport:Connect(function()
     pcall(function()
         local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
