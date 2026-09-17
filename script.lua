@@ -895,7 +895,8 @@ if ATB and AP then
         end, {icon = "🔄"})
     end
 end
-LP.OnTeleport:Connect(function()
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
     pcall(function()
         local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
         if h then h.WalkSpeed = 16 h.JumpPower = 50 end
