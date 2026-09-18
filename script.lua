@@ -2366,3 +2366,185 @@ if h then h.WalkSpeed = 16 h.JumpPower = 50 end
 workspace.Gravity = 196.2
 end)
 end)
+
+        task.wait(2)
+
+if not MF or not TBAR or not CB or not SG or not PG then
+    warn("[Fix] Required variables not found")
+    return
+end
+
+if MB and MB.Parent then
+    MB:Destroy()
+end
+
+CB.Position = UDim2.new(1, -34, 0.5, -13)
+
+for _, conn in ipairs(getconnections and getconnections(TBAR.InputBegan) or {}) do
+    pcall(function() conn:Disconnect() end)
+end
+
+TBAR.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+       or input.UserInputType == Enum.UserInputType.Touch then
+        local t = input.Target
+        if t and (t:IsA("TextButton") or t:IsA("ImageButton") or t:IsA("TextBox")) then return end
+        local dragging = true
+        local dragStart = input.Position
+        local startPos = MF.Position
+
+        local moveConn
+        local endConn
+
+        moveConn = UIS.InputChanged:Connect(function(inp)
+            if not dragging then return end
+            if inp.UserInputType == Enum.UserInputType.MouseMovement
+               or inp.UserInputType == Enum.UserInputType.Touch then
+                local delta = inp.Position - dragStart
+                MF.Position = UDim2.new(
+                    startPos.X.Scale, startPos.X.Offset + delta.X,
+                    startPos.Y.Scale, startPos.Y.Offset + delta.Y
+                )
+            end
+        end)
+
+        endConn = UIS.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1
+               or inp.UserInputType == Enum.UserInputType.Touch then
+                dragging = false
+                if moveConn then moveConn:Disconnect() end
+                if endConn then endConn:Disconnect() end
+            end
+        end)
+    end
+end)
+
+local MainTabNew = CreateTab("Main", "🏠")
+local ConfigTabNew = CreateTab("Config", "⚙")
+
+addSection(MainTabNew, "User Info")
+
+local card = Instance.new("Frame", MainTabNew)
+card.Size = UDim2.new(1, -8, 0, 90)
+card.BackgroundColor3 = Themes[Config.Theme].Element
+card.BackgroundTransparency = 0.15
+card.ZIndex = 104
+cor(card, 8)
+str(card, Themes[Config.Theme].Border, 1, 0.4)
+
+local av = Instance.new("ImageLabel", card)
+av.Size = UDim2.new(0, 60, 0, 60)
+av.Position = UDim2.new(0, 12, 0, 15)
+av.BackgroundColor3 = Themes[Config.Theme].TopBar
+av.BackgroundTransparency = 0.3
+av.ZIndex = 105
+cor(av, 8)
+
+local nameLbl = Instance.new("TextLabel", card)
+nameLbl.Size = UDim2.new(1, -90, 0, 22)
+nameLbl.Position = UDim2.new(0, 82, 0, 15)
+nameLbl.BackgroundTransparency = 1
+nameLbl.Text = LP.DisplayName or LP.Name
+nameLbl.TextColor3 = Themes[Config.Theme].Text
+nameLbl.TextSize = 15
+nameLbl.Font = Enum.Font.GothamBold
+nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+nameLbl.TextTruncate = Enum.TextTruncate.AtEnd
+nameLbl.ZIndex = 105
+
+local userLbl = Instance.new("TextLabel", card)
+userLbl.Size = UDim2.new(1, -90, 0, 18)
+userLbl.Position = UDim2.new(0, 82, 0, 40)
+userLbl.BackgroundTransparency = 1
+userLbl.Text = "@" .. LP.Name
+userLbl.TextColor3 = ACC
+userLbl.TextSize = 13
+userLbl.Font = Enum.Font.GothamBold
+userLbl.TextXAlignment = Enum.TextXAlignment.Left
+userLbl.TextTruncate = Enum.TextTruncate.AtEnd
+userLbl.ZIndex = 105
+
+local idLbl = Instance.new("TextLabel", card)
+idLbl.Size = UDim2.new(1, -90, 0, 16)
+idLbl.Position = UDim2.new(0, 82, 0, 60)
+idLbl.BackgroundTransparency = 1
+idLbl.Text = "ID: " .. tostring(LP.UserId)
+idLbl.TextColor3 = Themes[Config.Theme].TextDim
+idLbl.TextSize = 10
+idLbl.Font = Enum.Font.Gotham
+idLbl.TextXAlignment = Enum.TextXAlignment.Left
+idLbl.ZIndex = 105
+
+task.spawn(function()
+    pcall(function()
+        local thumb = game:GetService("Players"):GetUserThumbnailAsync(
+            LP.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+        if thumb and av then av.Image = thumb end
+    end)
+end)
+
+addSection(MainTabNew, "Live Stats")
+
+local statCard = Instance.new("Frame", MainTabNew)
+statCard.Size = UDim2.new(1, -8, 0, 60)
+statCard.BackgroundColor3 = Themes[Config.Theme].Element
+statCard.BackgroundTransparency = 0.15
+statCard.ZIndex = 104
+cor(statCard, 8)
+str(statCard, Themes[Config.Theme].Border, 1, 0.4)
+
+local fpsM = Instance.new("TextLabel", statCard)
+fpsM.Size = UDim2.new(0.5, -12, 0, 20)
+fpsM.Position = UDim2.new(0, 12, 0, 10)
+fpsM.BackgroundTransparency = 1
+fpsM.Text = "FPS: --"
+fpsM.TextSize = 12
+fpsM.Font = Enum.Font.GothamBold
+fpsM.TextXAlignment = Enum.TextXAlignment.Left
+fpsM.ZIndex = 105
+
+local pingM = Instance.new("TextLabel", statCard)
+pingM.Size = UDim2.new(0.5, -12, 0, 20)
+pingM.Position = UDim2.new(0.5, 0, 0, 10)
+pingM.BackgroundTransparency = 1
+pingM.Text = "PING: --"
+pingM.TextSize = 12
+pingM.Font = Enum.Font.GothamBold
+pingM.TextXAlignment = Enum.TextXAlignment.Right
+pingM.ZIndex = 105
+
+local timeM = Instance.new("TextLabel", statCard)
+timeM.Size = UDim2.new(1, -24, 0, 20)
+timeM.Position = UDim2.new(0, 12, 0, 34)
+timeM.BackgroundTransparency = 1
+timeM.Text = "Session: 00:00:00"
+timeM.TextSize = 11
+timeM.Font = Enum.Font.GothamBold
+timeM.TextXAlignment = Enum.TextXAlignment.Left
+timeM.ZIndex = 105
+
+local sStart = tick()
+local fc = 0
+local fl = tick()
+task.spawn(function()
+    while statCard and statCard.Parent do
+        fc = fc + 1
+        if tick() - fl >= 1 then
+            fpsM.Text = "FPS: " .. fc
+            fc = 0
+            fl = tick()
+            local p = 0
+            pcall(function() p = math.floor(ST.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
+            pingM.Text = "PING: " .. p .. "ms"
+            local hue = (tick() * 0.3) % 1
+            local rc = Color3.fromHSV(hue, 1, 1)
+            fpsM.TextColor3 = rc
+            pingM.TextColor3 = rc
+            timeM.TextColor3 = rc
+            local el = math.floor(tick() - sStart)
+            timeM.Text = string.format("Session: %02d:%02d:%02d",
+                math.floor(el / 3600), math.floor((el % 3600) / 60), el % 60)
+        end
+        task.wait(0.1)
+    end
+end)
