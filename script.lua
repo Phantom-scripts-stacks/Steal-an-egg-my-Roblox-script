@@ -237,19 +237,14 @@ cor(b,8)
 str(b,Themes[Config.Theme].Border,1,0.5)
 return b
 end
-local MB=iB(TBAR,"–",Themes[Config.Theme].TextDim,-64)
 local CB=iB(TBAR,"✕",ACR,-34)
 CB.MouseEnter:Connect(function()TS:Create(CB,TweenInfo.new(0.15),{BackgroundColor3=ACR}):Play()CB.TextColor3=Color3.fromRGB(20,20,30)end)
 CB.MouseLeave:Connect(function()TS:Create(CB,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element}):Play()CB.TextColor3=ACR end)
-MB.MouseEnter:Connect(function()TS:Create(MB,TweenInfo.new(0.15),{BackgroundColor3=ACC}):Play()MB.TextColor3=Color3.fromRGB(20,20,30)end)
-MB.MouseLeave:Connect(function()TS:Create(MB,TweenInfo.new(0.15),{BackgroundColor3=Themes[Config.Theme].Element}):Play()MB.TextColor3=Themes[Config.Theme].TextDim end)
 local DRG=false
 local DS=nil
 local SP=nil
 TBAR.InputBegan:Connect(function(input)
 if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end
-local t=input.Target
-if t and (t:IsA("TextButton") or t:IsA("ImageButton") or t:IsA("TextBox")) then return end
 DRG=true
 DS=input.Position
 SP=MF.Position
@@ -286,11 +281,6 @@ sB(IO and 8 or 0)
 end
 TB.MouseButton1Click:Connect(TW)
 CB.MouseButton1Click:Connect(TW)
-MB.MouseButton1Click:Connect(function()
-pC()
-local co=MF.Size.Y.Offset<=60
-TS:Create(MF,TweenInfo.new(0.3,Enum.EasingStyle.Quart),{Size=co and UDim2.new(0,380,0,270) or UDim2.new(0,380,0,42)}):Play()
-end)
 UIS.InputBegan:Connect(function(input,gp)if gp then return end if input.KeyCode==Enum.KeyCode.RightShift then TW()end end)
 local SB=Instance.new("ScrollingFrame",MF)
 SB.Size=UDim2.new(0,110,1,-56)
@@ -409,8 +399,8 @@ IL.TextColor3=Color3.fromRGB(20,20,30)
 X.TextColor3=Themes[Config.Theme].Text
 end
 return PG2
-                end
-                local function AddButtonToPage(page,name,cb,op)
+        end
+        local function AddButtonToPage(page,name,cb,op)
 op=op or {}
 local isT=op.toggle or false
 local sE=op.exec or false
@@ -657,8 +647,184 @@ end
 end
 for _,e in ipairs(CE)do e.BackgroundColor3=td.Element end
 if tn then Config.Theme=tn svC(Config)end
-                end
-                local ET=CreateTab("Steal Egg","🥚")
+end
+local MainTab=CreateTab("Main","🏠")
+addSection(MainTab,"User Info")
+local card=Instance.new("Frame",MainTab)
+card.Size=UDim2.new(1,-8,0,90)
+card.BackgroundColor3=Themes[Config.Theme].Element
+card.BackgroundTransparency=0.15
+card.ZIndex=104
+cor(card,8)
+str(card,Themes[Config.Theme].Border,1,0.4)
+local av=Instance.new("ImageLabel",card)
+av.Size=UDim2.new(0,60,0,60)
+av.Position=UDim2.new(0,12,0,15)
+av.BackgroundColor3=Themes[Config.Theme].TopBar
+av.BackgroundTransparency=0.3
+av.ZIndex=105
+cor(av,8)
+local nameLbl=Instance.new("TextLabel",card)
+nameLbl.Size=UDim2.new(1,-90,0,22)
+nameLbl.Position=UDim2.new(0,82,0,15)
+nameLbl.BackgroundTransparency=1
+nameLbl.Text=LP.DisplayName or LP.Name
+nameLbl.TextColor3=Themes[Config.Theme].Text
+nameLbl.TextSize=15
+nameLbl.Font=Enum.Font.GothamBold
+nameLbl.TextXAlignment=Enum.TextXAlignment.Left
+nameLbl.TextTruncate=Enum.TextTruncate.AtEnd
+nameLbl.ZIndex=105
+local userLbl=Instance.new("TextLabel",card)
+userLbl.Size=UDim2.new(1,-90,0,18)
+userLbl.Position=UDim2.new(0,82,0,40)
+userLbl.BackgroundTransparency=1
+userLbl.Text="@"..LP.Name
+userLbl.TextColor3=ACC
+userLbl.TextSize=13
+userLbl.Font=Enum.Font.GothamBold
+userLbl.TextXAlignment=Enum.TextXAlignment.Left
+userLbl.TextTruncate=Enum.TextTruncate.AtEnd
+userLbl.ZIndex=105
+local idLbl=Instance.new("TextLabel",card)
+idLbl.Size=UDim2.new(1,-90,0,16)
+idLbl.Position=UDim2.new(0,82,0,60)
+idLbl.BackgroundTransparency=1
+idLbl.Text="ID: "..tostring(LP.UserId)
+idLbl.TextColor3=Themes[Config.Theme].TextDim
+idLbl.TextSize=10
+idLbl.Font=Enum.Font.Gotham
+idLbl.TextXAlignment=Enum.TextXAlignment.Left
+idLbl.ZIndex=105
+task.spawn(function()
+pcall(function()
+local thumb=game:GetService("Players"):GetUserThumbnailAsync(LP.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100)
+if thumb and av then av.Image=thumb end
+end)
+end)
+addSection(MainTab,"Live Stats")
+local statCard=Instance.new("Frame",MainTab)
+statCard.Size=UDim2.new(1,-8,0,60)
+statCard.BackgroundColor3=Themes[Config.Theme].Element
+statCard.BackgroundTransparency=0.15
+statCard.ZIndex=104
+cor(statCard,8)
+str(statCard,Themes[Config.Theme].Border,1,0.4)
+local fpsM=Instance.new("TextLabel",statCard)
+fpsM.Size=UDim2.new(0.5,-12,0,20)
+fpsM.Position=UDim2.new(0,12,0,10)
+fpsM.BackgroundTransparency=1
+fpsM.Text="FPS: --"
+fpsM.TextSize=12
+fpsM.Font=Enum.Font.GothamBold
+fpsM.TextXAlignment=Enum.TextXAlignment.Left
+fpsM.ZIndex=105
+local pingM=Instance.new("TextLabel",statCard)
+pingM.Size=UDim2.new(0.5,-12,0,20)
+pingM.Position=UDim2.new(0.5,0,0,10)
+pingM.BackgroundTransparency=1
+pingM.Text="PING: --"
+pingM.TextSize=12
+pingM.Font=Enum.Font.GothamBold
+pingM.TextXAlignment=Enum.TextXAlignment.Right
+pingM.ZIndex=105
+local timeM=Instance.new("TextLabel",statCard)
+timeM.Size=UDim2.new(1,-24,0,20)
+timeM.Position=UDim2.new(0,12,0,34)
+timeM.BackgroundTransparency=1
+timeM.Text="Session: 00:00:00"
+timeM.TextSize=11
+timeM.Font=Enum.Font.GothamBold
+timeM.TextXAlignment=Enum.TextXAlignment.Left
+timeM.ZIndex=105
+local sStart=tick()
+task.spawn(function()
+while statCard and statCard.Parent do
+task.wait(1)
+local fps=0
+pcall(function()fps=math.floor(1/(RS.RenderStepped:Wait()or 1))end)
+if ML and ML.Text then
+local fp,pg=ML.Text:match("FPS (%d+) | (%d+)ms")
+if fp then fpsM.Text="FPS: "..fp end
+if pg then pingM.Text="PING: "..pg.."ms" end
+end
+local hue=(tick()*0.3)%1
+local rc=Color3.fromHSV(hue,1,1)
+fpsM.TextColor3=rc
+pingM.TextColor3=rc
+timeM.TextColor3=rc
+local el=math.floor(tick()-sStart)
+timeM.Text=string.format("Session: %02d:%02d:%02d",math.floor(el/3600),math.floor((el%3600)/60),el%60)
+end
+end)
+local ConfigTab=CreateTab("Config","⚙")
+addSection(ConfigTab,"Discord Webhook")
+local webhookOn=false
+local webhookURL=""
+local whFrame=Instance.new("Frame",ConfigTab)
+whFrame.Size=UDim2.new(1,-8,0,60)
+whFrame.BackgroundColor3=Themes[Config.Theme].Element
+whFrame.BackgroundTransparency=0.15
+whFrame.ZIndex=104
+cor(whFrame,8)
+str(whFrame,Themes[Config.Theme].Border,1,0.4)
+local whBox=Instance.new("TextBox",whFrame)
+whBox.Size=UDim2.new(1,-16,0,26)
+whBox.Position=UDim2.new(0,8,0,8)
+whBox.BackgroundColor3=Themes[Config.Theme].TopBar
+whBox.Text=""
+whBox.PlaceholderText="Paste Discord webhook URL"
+whBox.PlaceholderColor3=Themes[Config.Theme].TextDim
+whBox.TextColor3=Themes[Config.Theme].Text
+whBox.TextSize=10
+whBox.Font=Enum.Font.Gotham
+whBox.ClearTextOnFocus=false
+whBox.ZIndex=105
+cor(whBox,4)
+str(whBox,Themes[Config.Theme].Border,1,0.4)
+whBox:GetPropertyChangedSignal("Text"):Connect(function()webhookURL=whBox.Text end)
+local hint=Instance.new("TextLabel",whFrame)
+hint.Size=UDim2.new(1,-16,0,16)
+hint.Position=UDim2.new(0,8,0,38)
+hint.BackgroundTransparency=1
+hint.Text="Sends: session start, close"
+hint.TextColor3=Themes[Config.Theme].TextDim
+hint.TextSize=9
+hint.Font=Enum.Font.Gotham
+hint.TextXAlignment=Enum.TextXAlignment.Left
+hint.ZIndex=105
+local function fireWebhook(msg)
+if not webhookOn or webhookURL==""then return end
+task.spawn(function()
+pcall(function()
+HS:PostAsync(webhookURL,HS:JSONEncode({content="Latina Hub | "..msg,username="Latina Notifier"}),Enum.HttpContentType.ApplicationJson)
+end)
+end)
+end
+AddButtonToPage(ConfigTab,"Enable Webhook",function(s)
+webhookOn=s
+if s then
+if webhookURL==""then showN("Paste URL first","error") webhookOn=false return end
+fireWebhook("Latina Hub connected")
+showN("Webhook ON","success")
+else showN("Webhook OFF","info") end
+end,{toggle=true,key="megaWebhook",icon="💬"})
+AddButtonToPage(ConfigTab,"Test Webhook",function()
+if not webhookOn then showN("Enable first","error") return end
+fireWebhook("Test message")
+showN("Sent","success")
+end,{icon="📤"})
+addSection(ConfigTab,"UI Settings")
+AddButtonToPage(ConfigTab,"Reset All Toggles",function()
+local allToggles={"megaSpeed","megaJP","megaAntiRag","megaAntiKB","megaAntiTrap","megaGod","megaGravity","megaTrail","megaAura","megaRainbow"}
+for _,k in ipairs(allToggles)do Config.Toggles[k]=false end
+svC(Config)
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h then h.WalkSpeed=16 h.JumpPower=50 end
+workspace.Gravity=196.2
+showN("All toggles reset","info")
+end,{icon="🔄"})
+        local ET=CreateTab("Steal Egg","🥚")
 local SFR=Instance.new("Frame",ET)
 SFR.Size=UDim2.new(1,-8,0,32)
 SFR.BackgroundColor3=Themes[Config.Theme].Element
@@ -949,30 +1115,37 @@ end
 end,{toggle=true,key="nameESP",icon="🌈"})
 addSection(VT,"Eggs")
 local function clEE()
-for _,o in ipairs(workspace:GetDescendants())do
+for _,o in ipairs(workspace:GetChildren())do
 local bb=o:FindFirstChild("LatinaEggESP")
 if bb then bb:Destroy()end
+if o:IsA("Model")then
+for _,c in ipairs(o:GetChildren())do
+local bb2=c:FindFirstChild("LatinaEggESP")
+if bb2 then bb2:Destroy()end
+end
+end
 end
 end
 local function scE()
 local c=0
-for _,o in ipairs(workspace:GetDescendants())do
-if iRE(o)then
+for _,o in ipairs(workspace:GetChildren())do
+if (o:IsA("BasePart")or o:IsA("Model"))and string.find(string.lower(o.Name),"egg")then
+if not string.find(string.lower(o.Name),"spawn")and not string.find(string.lower(o.Name),"base")then
 local tp=gTP(o)
 if tp and not tp:FindFirstChild("LatinaEggESP")then
 c=c+1
 local p,ps=gEI(o)
 local bb=Instance.new("BillboardGui",tp)
 bb.Name="LatinaEggESP"
-bb.Size=UDim2.new(0,200,0,46)
-bb.StudsOffset=Vector3.new(0,5.5,0)
+bb.Size=UDim2.new(0,180,0,36)
+bb.StudsOffset=Vector3.new(0,5,0)
 bb.AlwaysOnTop=true
 local pl=Instance.new("TextLabel",bb)
 pl.Size=UDim2.new(1,0,0.5,0)
 pl.BackgroundTransparency=1
 pl.Text="Pet: "..(p or "???")
 pl.Font=Enum.Font.GothamBold
-pl.TextSize=12
+pl.TextSize=11
 pl.TextColor3=ACC
 pl.TextStrokeTransparency=0.3
 pl.TextStrokeColor3=Color3.new(0,0,0)
@@ -980,21 +1153,21 @@ local sl=Instance.new("TextLabel",bb)
 sl.Size=UDim2.new(1,0,0.5,0)
 sl.Position=UDim2.new(0,0,0.5,0)
 sl.BackgroundTransparency=1
-sl.Text="Per sec: "..(ps and fN(ps)or "???")
+sl.Text="$: "..(ps and fN(ps)or "???")
 sl.Font=Enum.Font.GothamBold
-sl.TextSize=11
-sl.TextColor3=Color3.fromRGB(230,230,250)
+sl.TextSize=10
+sl.TextColor3=ACG
 sl.TextStrokeTransparency=0.4
 sl.TextStrokeColor3=Color3.new(0,0,0)
 task.spawn(function()
 while bb and bb.Parent do
-task.wait(1.5)
-if not bb.Parent then break end
+task.wait(2)
 local p2,s2=gEI(o)
 pl.Text="Pet: "..(p2 or "???")
-sl.Text="Per sec: "..(s2 and fN(s2)or "???")
+sl.Text="$: "..(s2 and fN(s2)or "???")
 end
 end)
+end
 end
 end
 end
@@ -1007,7 +1180,7 @@ local n=scE()
 showN("Marked "..n.." eggs","success")
 EL=task.spawn(function()
 while ES.Eggs do
-task.wait(3)
+task.wait(4)
 if ES.Eggs then scE()end
 end
 end)
@@ -1018,7 +1191,7 @@ clEE()
 showN("Egg ESP OFF","info")
 end
 end,{toggle=true,key="eggESP",icon="🥚"})
-                local QT=CreateTab("Quick","⚡")
+        local QT=CreateTab("Quick","⚡")
 addSection(QT,"Movement")
 local CT=false
 AddButtonToPage(QT,"Click Teleport",function(s)
@@ -1556,8 +1729,7 @@ TG3.TextSize=9
 TG3.Font=Enum.Font.GothamMedium
 TG3.TextXAlignment=Enum.TextXAlignment.Left
 TG3.ZIndex=105
-                if Themes[Config.Theme]then ApplyTheme(Themes[Config.Theme],nil)end
-
+if Themes[Config.Theme]then ApplyTheme(Themes[Config.Theme],nil)end
 task.spawn(function()
 pcall(function()
 IS:Play()
@@ -1625,8 +1797,7 @@ sB(8)
 showN("LATINA HUB V1 — Ready","success")
 end)
 end)
-
-task.wait(0.5)
+        task.wait(0.5)
 
 local MegaState = {
     AntiRag = false, AntiKnockback = false, AntiTrap = false,
@@ -1690,21 +1861,9 @@ local function fireWebhook(msg)
     end)
 end
 
-local PlayerPage, ExtrasPage, ConfigPage, MainPage
-if ATB and AP then
-    for i, v in ipairs(ATB) do
-        if v.TextLabel then
-            local t = v.TextLabel.Text
-            if t == "Player" then PlayerPage = AP[i] end
-            if t == "Extras" then ExtrasPage = AP[i] end
-            if t == "Config" then ConfigPage = AP[i] end
-            if t == "Main" then MainPage = AP[i] end
-        end
-    end
-                end
-                if PlayerPage then
-addSection(PlayerPage, "Speed Control (1-1000)")
-local speedFrame = Instance.new("Frame", PlayerPage)
+if PT then
+addSection(PT, "Speed Control (1-1000)")
+local speedFrame = Instance.new("Frame", PT)
 speedFrame.Size = UDim2.new(1, -8, 0, 80)
 speedFrame.BackgroundColor3 = Themes[Config.Theme].Element
 speedFrame.BackgroundTransparency = 0.15
@@ -1771,7 +1930,7 @@ speedDragging = false
 end
 end)
 local speedThread
-AddButtonToPage(PlayerPage, "Custom Speed Slider", function(s)
+AddButtonToPage(PT, "Custom Speed Slider", function(s)
 if s then
 if speedThread then task.cancel(speedThread) end
 speedThread = task.spawn(function()
@@ -1789,8 +1948,8 @@ if h then h.WalkSpeed = 16 end
 showN("Speed OFF", "info")
 end
 end, {toggle = true, key = "megaSpeed", icon = "⚡"})
-addSection(PlayerPage, "Jump Power (1-500)")
-local jpFrame = Instance.new("Frame", PlayerPage)
+addSection(PT, "Jump Power (1-500)")
+local jpFrame = Instance.new("Frame", PT)
 jpFrame.Size = UDim2.new(1, -8, 0, 60)
 jpFrame.BackgroundColor3 = Themes[Config.Theme].Element
 jpFrame.BackgroundTransparency = 0.15
@@ -1847,7 +2006,7 @@ jpDragging = false
 end
 end)
 local jpThread
-AddButtonToPage(PlayerPage, "Custom Jump Power", function(s)
+AddButtonToPage(PT, "Custom Jump Power", function(s)
 if s then
 if jpThread then task.cancel(jpThread) end
 jpThread = task.spawn(function()
@@ -1868,9 +2027,9 @@ if h then h.JumpPower = 50 end
 showN("Jump OFF", "info")
 end
 end, {toggle = true, key = "megaJP", icon = "🦘"})
-addSection(PlayerPage, "Protection")
+addSection(PT, "Protection")
 local antiRagConn, antiKbConn, antiTrapConn, godConn
-AddButtonToPage(PlayerPage, "Anti-Ragdoll / Anti-Stun", function(s)
+AddButtonToPage(PT, "Anti-Ragdoll / Anti-Stun", function(s)
 if s then
 if antiRagConn then antiRagConn:Disconnect() end
 antiRagConn = RS.Heartbeat:Connect(function()
@@ -1897,7 +2056,7 @@ if antiRagConn then antiRagConn:Disconnect() antiRagConn = nil end
 showN("Anti-Ragdoll OFF", "info")
 end
 end, {toggle = true, key = "megaAntiRag", icon = "🛡"})
-AddButtonToPage(PlayerPage, "Anti-Knockback", function(s)
+AddButtonToPage(PT, "Anti-Knockback", function(s)
 if s then
 if antiKbConn then antiKbConn:Disconnect() end
 antiKbConn = RS.Heartbeat:Connect(function()
@@ -1922,7 +2081,7 @@ if antiKbConn then antiKbConn:Disconnect() antiKbConn = nil end
 showN("Anti-Knockback OFF", "info")
 end
 end, {toggle = true, key = "megaAntiKB", icon = "🚫"})
-AddButtonToPage(PlayerPage, "Anti-Trap", function(s)
+AddButtonToPage(PT, "Anti-Trap", function(s)
 if s then
 if antiTrapConn then antiTrapConn:Disconnect() end
 antiTrapConn = RS.Heartbeat:Connect(function()
@@ -1930,7 +2089,7 @@ local ch = LP.Character
 if not ch then return end
 local hrp = ch:FindFirstChild("HumanoidRootPart")
 if not hrp then return end
-for _, o in ipairs(workspace:GetDescendants()) do
+for _, o in ipairs(workspace:GetChildren()) do
 if o:IsA("BasePart") and not o:IsDescendantOf(ch) then
 local d = (o.Position - hrp.Position).Magnitude
 if d < 6 and o.Anchored and o.CanCollide then
@@ -1951,7 +2110,7 @@ if antiTrapConn then antiTrapConn:Disconnect() antiTrapConn = nil end
 showN("Anti-Trap OFF", "info")
 end
 end, {toggle = true, key = "megaAntiTrap", icon = "🕸"})
-AddButtonToPage(PlayerPage, "God Mode (client)", function(s)
+AddButtonToPage(PT, "God Mode (client)", function(s)
 if s then
 if godConn then godConn:Disconnect() end
 godConn = RS.Heartbeat:Connect(function()
@@ -1972,8 +2131,8 @@ if godConn then godConn:Disconnect() godConn = nil end
 showN("God Mode OFF", "info")
 end
 end, {toggle = true, key = "megaGod", icon = "👼"})
-addSection(PlayerPage, "Gravity (0-1000)")
-local gvFrame = Instance.new("Frame", PlayerPage)
+addSection(PT, "Gravity (0-1000)")
+local gvFrame = Instance.new("Frame", PT)
 gvFrame.Size = UDim2.new(1, -8, 0, 60)
 gvFrame.BackgroundColor3 = Themes[Config.Theme].Element
 gvFrame.BackgroundTransparency = 0.15
@@ -2031,7 +2190,7 @@ gvDragging = false
 end
 end)
 local gravConn
-AddButtonToPage(PlayerPage, "Custom Gravity", function(s)
+AddButtonToPage(PT, "Custom Gravity", function(s)
 if s then
 savedGrav = workspace.Gravity
 if gravConn then gravConn:Disconnect() end
@@ -2045,11 +2204,11 @@ if gravConn then gravConn:Disconnect() gravConn = nil end
 showN("Gravity OFF", "info")
 end
 end, {toggle = true, key = "megaGravity", icon = "🌍"})
-                end
-                if ExtrasPage then
-addSection(ExtrasPage, "Mega Fun")
+        end
+        if XT then
+addSection(XT, "Mega Fun")
 local trailConn
-AddButtonToPage(ExtrasPage, "Rainbow Trail", function(s)
+AddButtonToPage(XT, "Rainbow Trail", function(s)
 if s then
 if trailConn then trailConn:Disconnect() end
 trailConn = RS.Heartbeat:Connect(function()
@@ -2100,7 +2259,7 @@ showN("Rainbow Trail OFF", "info")
 end
 end, {toggle = true, key = "megaTrail", icon = "🌈"})
 local auraThread
-AddButtonToPage(ExtrasPage, "Particle Aura", function(s)
+AddButtonToPage(XT, "Particle Aura", function(s)
 if s then
 if auraThread then task.cancel(auraThread) end
 auraThread = task.spawn(function()
@@ -2146,7 +2305,7 @@ showN("Particle Aura OFF", "info")
 end
 end, {toggle = true, key = "megaAura", icon = "✨"})
 local rainbowConn
-AddButtonToPage(ExtrasPage, "Rainbow Character", function(s)
+AddButtonToPage(XT, "Rainbow Character (Mega)", function(s)
 if s then
 if rainbowConn then rainbowConn:Disconnect() end
 rainbowConn = RS.Heartbeat:Connect(function()
@@ -2165,75 +2324,10 @@ if rainbowConn then rainbowConn:Disconnect() rainbowConn = nil end
 showN("Rainbow OFF", "info")
 end
 end, {toggle = true, key = "megaRainbow", icon = "🌈"})
-                end
-                if ConfigPage then
-addSection(ConfigPage, "Discord Webhook")
-local webhookOn = false
-local webhookURL = ""
-local whFrame = Instance.new("Frame", ConfigPage)
-whFrame.Size = UDim2.new(1, -8, 0, 60)
-whFrame.BackgroundColor3 = Themes[Config.Theme].Element
-whFrame.BackgroundTransparency = 0.15
-whFrame.ZIndex = 104
-cor(whFrame, 8)
-str(whFrame, Themes[Config.Theme].Border, 1, 0.4)
-local whBox = Instance.new("TextBox", whFrame)
-whBox.Size = UDim2.new(1, -16, 0, 26)
-whBox.Position = UDim2.new(0, 8, 0, 8)
-whBox.BackgroundColor3 = Themes[Config.Theme].TopBar
-whBox.Text = ""
-whBox.PlaceholderText = "Paste Discord webhook URL"
-whBox.PlaceholderColor3 = Themes[Config.Theme].TextDim
-whBox.TextColor3 = Themes[Config.Theme].Text
-whBox.TextSize = 10
-whBox.Font = Enum.Font.Gotham
-whBox.ClearTextOnFocus = false
-whBox.ZIndex = 105
-cor(whBox, 4)
-str(whBox, Themes[Config.Theme].Border, 1, 0.4)
-whBox:GetPropertyChangedSignal("Text"):Connect(function() webhookURL = whBox.Text end)
-local hint = Instance.new("TextLabel", whFrame)
-hint.Size = UDim2.new(1, -16, 0, 16)
-hint.Position = UDim2.new(0, 8, 0, 38)
-hint.BackgroundTransparency = 1
-hint.Text = "Sends: session start, close"
-hint.TextColor3 = Themes[Config.Theme].TextDim
-hint.TextSize = 9
-hint.Font = Enum.Font.Gotham
-hint.TextXAlignment = Enum.TextXAlignment.Left
-hint.ZIndex = 105
-local function fireWebhook2(msg)
-if not webhookOn or webhookURL == "" then return end
-task.spawn(function()
-pcall(function()
-HS:PostAsync(webhookURL, HS:JSONEncode({
-content = "Latina Hub | " .. msg,
-username = "Latina Notifier",
-}), Enum.HttpContentType.ApplicationJson)
-end)
-end)
 end
-AddButtonToPage(ConfigPage, "Enable Webhook", function(s)
-webhookOn = s
-if s then
-if webhookURL == "" then
-showN("Paste URL first", "error")
-webhookOn = false
-return
-end
-fireWebhook2("Latina Hub connected")
-showN("Webhook ON", "success")
-else
-showN("Webhook OFF", "info")
-end
-end, {toggle = true, key = "megaWebhook", icon = "💬"})
-AddButtonToPage(ConfigPage, "Test Webhook", function()
-if not webhookOn then showN("Enable first", "error") return end
-fireWebhook2("Test message")
-showN("Sent", "success")
-end, {icon = "📤"})
-addSection(ConfigPage, "UI Settings")
-AddButtonToPage(ConfigPage, "Reset All Toggles", function()
+if ConfigTab then
+addSection(ConfigTab, "UI Settings")
+AddButtonToPage(ConfigTab, "Reset All Toggles", function()
 local allToggles = {"megaSpeed","megaJP","megaAntiRag","megaAntiKB","megaAntiTrap","megaGod","megaGravity","megaTrail","megaAura","megaRainbow"}
 for _, k in ipairs(allToggles) do
 Config.Toggles[k] = false
@@ -2358,6 +2452,33 @@ resizing = false
 end
 end)
 end
+if ATB and AP then
+for i, v in ipairs(ATB) do
+if v.TextLabel and v.TextLabel.Text == "Main" then
+local tab = table.remove(ATB, i)
+table.insert(ATB, 1, tab)
+local page = table.remove(AP, i)
+table.insert(AP, 1, page)
+tab.Button.LayoutOrder = -100
+break
+end
+end
+for i, v in ipairs(ATB) do
+if v.TextLabel and v.TextLabel.Text == "Config" then
+local tab = table.remove(ATB, i)
+table.insert(ATB, 2, tab)
+local page = table.remove(AP, i)
+table.insert(AP, 2, page)
+tab.Button.LayoutOrder = -99
+break
+end
+end
+for i, v in ipairs(ATB) do
+if v.Button and (v.Button.LayoutOrder == 0 or v.Button.LayoutOrder == nil) then
+v.Button.LayoutOrder = i
+end
+end
+end
 LP.CharacterAdded:Connect(function()
 task.wait(1)
 pcall(function()
@@ -2366,357 +2487,4 @@ if h then h.WalkSpeed = 16 h.JumpPower = 50 end
 workspace.Gravity = 196.2
 end)
 end)
-
-        task.wait(2)
-
-if not MF or not TBAR or not CB or not SG or not PG then
-    warn("[Fix] Required variables not found")
-    return
-end
-
-if MB and MB.Parent then
-    MB:Destroy()
-end
-
-CB.Position = UDim2.new(1, -34, 0.5, -13)
-
-for _, conn in ipairs(getconnections and getconnections(TBAR.InputBegan) or {}) do
-    pcall(function() conn:Disconnect() end)
-end
-
-TBAR.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-       or input.UserInputType == Enum.UserInputType.Touch then
-        local t = input.Target
-        if t and (t:IsA("TextButton") or t:IsA("ImageButton") or t:IsA("TextBox")) then return end
-        local dragging = true
-        local dragStart = input.Position
-        local startPos = MF.Position
-
-        local moveConn
-        local endConn
-
-        moveConn = UIS.InputChanged:Connect(function(inp)
-            if not dragging then return end
-            if inp.UserInputType == Enum.UserInputType.MouseMovement
-               or inp.UserInputType == Enum.UserInputType.Touch then
-                local delta = inp.Position - dragStart
-                MF.Position = UDim2.new(
-                    startPos.X.Scale, startPos.X.Offset + delta.X,
-                    startPos.Y.Scale, startPos.Y.Offset + delta.Y
-                )
-            end
-        end)
-
-        endConn = UIS.InputEnded:Connect(function(inp)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1
-               or inp.UserInputType == Enum.UserInputType.Touch then
-                dragging = false
-                if moveConn then moveConn:Disconnect() end
-                if endConn then endConn:Disconnect() end
-            end
-        end)
-    end
-end)
-
-local MainTabNew = CreateTab("Main", "🏠")
-local ConfigTabNew = CreateTab("Config", "⚙")
-
-addSection(MainTabNew, "User Info")
-
-local card = Instance.new("Frame", MainTabNew)
-card.Size = UDim2.new(1, -8, 0, 90)
-card.BackgroundColor3 = Themes[Config.Theme].Element
-card.BackgroundTransparency = 0.15
-card.ZIndex = 104
-cor(card, 8)
-str(card, Themes[Config.Theme].Border, 1, 0.4)
-
-local av = Instance.new("ImageLabel", card)
-av.Size = UDim2.new(0, 60, 0, 60)
-av.Position = UDim2.new(0, 12, 0, 15)
-av.BackgroundColor3 = Themes[Config.Theme].TopBar
-av.BackgroundTransparency = 0.3
-av.ZIndex = 105
-cor(av, 8)
-
-local nameLbl = Instance.new("TextLabel", card)
-nameLbl.Size = UDim2.new(1, -90, 0, 22)
-nameLbl.Position = UDim2.new(0, 82, 0, 15)
-nameLbl.BackgroundTransparency = 1
-nameLbl.Text = LP.DisplayName or LP.Name
-nameLbl.TextColor3 = Themes[Config.Theme].Text
-nameLbl.TextSize = 15
-nameLbl.Font = Enum.Font.GothamBold
-nameLbl.TextXAlignment = Enum.TextXAlignment.Left
-nameLbl.TextTruncate = Enum.TextTruncate.AtEnd
-nameLbl.ZIndex = 105
-
-local userLbl = Instance.new("TextLabel", card)
-userLbl.Size = UDim2.new(1, -90, 0, 18)
-userLbl.Position = UDim2.new(0, 82, 0, 40)
-userLbl.BackgroundTransparency = 1
-userLbl.Text = "@" .. LP.Name
-userLbl.TextColor3 = ACC
-userLbl.TextSize = 13
-userLbl.Font = Enum.Font.GothamBold
-userLbl.TextXAlignment = Enum.TextXAlignment.Left
-userLbl.TextTruncate = Enum.TextTruncate.AtEnd
-userLbl.ZIndex = 105
-
-local idLbl = Instance.new("TextLabel", card)
-idLbl.Size = UDim2.new(1, -90, 0, 16)
-idLbl.Position = UDim2.new(0, 82, 0, 60)
-idLbl.BackgroundTransparency = 1
-idLbl.Text = "ID: " .. tostring(LP.UserId)
-idLbl.TextColor3 = Themes[Config.Theme].TextDim
-idLbl.TextSize = 10
-idLbl.Font = Enum.Font.Gotham
-idLbl.TextXAlignment = Enum.TextXAlignment.Left
-idLbl.ZIndex = 105
-
-task.spawn(function()
-    pcall(function()
-        local thumb = game:GetService("Players"):GetUserThumbnailAsync(
-            LP.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-        if thumb and av then av.Image = thumb end
-    end)
-end)
-
-addSection(MainTabNew, "Live Stats")
-
-local statCard = Instance.new("Frame", MainTabNew)
-statCard.Size = UDim2.new(1, -8, 0, 60)
-statCard.BackgroundColor3 = Themes[Config.Theme].Element
-statCard.BackgroundTransparency = 0.15
-statCard.ZIndex = 104
-cor(statCard, 8)
-str(statCard, Themes[Config.Theme].Border, 1, 0.4)
-
-local fpsM = Instance.new("TextLabel", statCard)
-fpsM.Size = UDim2.new(0.5, -12, 0, 20)
-fpsM.Position = UDim2.new(0, 12, 0, 10)
-fpsM.BackgroundTransparency = 1
-fpsM.Text = "FPS: --"
-fpsM.TextSize = 12
-fpsM.Font = Enum.Font.GothamBold
-fpsM.TextXAlignment = Enum.TextXAlignment.Left
-fpsM.ZIndex = 105
-
-local pingM = Instance.new("TextLabel", statCard)
-pingM.Size = UDim2.new(0.5, -12, 0, 20)
-pingM.Position = UDim2.new(0.5, 0, 0, 10)
-pingM.BackgroundTransparency = 1
-pingM.Text = "PING: --"
-pingM.TextSize = 12
-pingM.Font = Enum.Font.GothamBold
-pingM.TextXAlignment = Enum.TextXAlignment.Right
-pingM.ZIndex = 105
-
-local timeM = Instance.new("TextLabel", statCard)
-timeM.Size = UDim2.new(1, -24, 0, 20)
-timeM.Position = UDim2.new(0, 12, 0, 34)
-timeM.BackgroundTransparency = 1
-timeM.Text = "Session: 00:00:00"
-timeM.TextSize = 11
-timeM.Font = Enum.Font.GothamBold
-timeM.TextXAlignment = Enum.TextXAlignment.Left
-timeM.ZIndex = 105
-
-local sStart = tick()
-local fc = 0
-local fl = tick()
-task.spawn(function()
-    while statCard and statCard.Parent do
-        fc = fc + 1
-        if tick() - fl >= 1 then
-            fpsM.Text = "FPS: " .. fc
-            fc = 0
-            fl = tick()
-            local p = 0
-            pcall(function() p = math.floor(ST.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
-            pingM.Text = "PING: " .. p .. "ms"
-            local hue = (tick() * 0.3) % 1
-            local rc = Color3.fromHSV(hue, 1, 1)
-            fpsM.TextColor3 = rc
-            pingM.TextColor3 = rc
-            timeM.TextColor3 = rc
-            local el = math.floor(tick() - sStart)
-            timeM.Text = string.format("Session: %02d:%02d:%02d",
-                math.floor(el / 3600), math.floor((el % 3600) / 60), el % 60)
-        end
-        task.wait(0.1)
-    end
-end)
-task.wait(3)
-
-if not MF or not TBAR or not CB or not SG or not PG or not SB or not ATB or not AP then
-    warn("[FinalFix] Required variables not found")
-    return
-end
-
-if MB and MB.Parent then
-    MB:Destroy()
-end
-if CB then
-    CB.Position = UDim2.new(1, -34, 0.5, -13)
-end
-
-for _, conn in ipairs(getconnections(TBAR.InputBegan)) do
-    pcall(function() conn:Disconnect() end)
-end
-for _, conn in ipairs(getconnections(TBAR.InputChanged)) do
-    pcall(function() conn:Disconnect() end)
-end
-for _, conn in ipairs(getconnections(TBAR.InputEnded)) do
-    pcall(function() conn:Disconnect() end)
-end
-for _, conn in ipairs(getconnections(TBAR.MouseButton1Down)) do
-    pcall(function() conn:Disconnect() end)
-end
-
-local dragging = false
-local dragStart = nil
-local startPos = nil
-
-TBAR.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-       or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = MF.Position
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if not dragging then return end
-    if input.UserInputType == Enum.UserInputType.MouseMovement
-       or input.UserInputType == Enum.UserInputType.Touch then
-        local delta = input.Position - dragStart
-        MF.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-       or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
-
-TBAR.Active = true
-MF.Active = true
-
-local function findTab(name)
-    for i, v in ipairs(ATB) do
-        if v.TextLabel and v.TextLabel.Text == name then
-            return i, v
-        end
-    end
-    return nil
-end
-
-local mainIdx = findTab("Main")
-if mainIdx and mainIdx > 1 then
-    local mainTab = ATB[mainIdx]
-    table.remove(ATB, mainIdx)
-    table.insert(ATB, 1, mainTab)
-    table.remove(AP, mainIdx)
-    table.insert(AP, 1, mainTab.Page)
-    mainTab.Button.LayoutOrder = -100
-end
-
-local configIdx = findTab("Config")
-if configIdx and configIdx > 2 then
-    local configTab = ATB[configIdx]
-    table.remove(ATB, configIdx)
-    table.insert(ATB, 2, configTab)
-    table.remove(AP, configIdx)
-    table.insert(AP, 2, configTab.Page)
-    configTab.Button.LayoutOrder = -99
-end
-
-for i, v in ipairs(ATB) do
-    if v.Button then
-        if v.Button.LayoutOrder == 0 or v.Button.LayoutOrder == nil then
-            v.Button.LayoutOrder = i
-        end
-    end
-end
-
-local sharedFpsCount = 0
-local sharedFpsLast = tick()
-local sharedPing = 0
-
-RS.RenderStepped:Connect(function()
-    sharedFpsCount = sharedFpsCount + 1
-    if tick() - sharedFpsLast >= 1 then
-        local fps = sharedFpsCount
-        sharedFpsCount = 0
-        sharedFpsLast = tick()
-        local p = 0
-        pcall(function() p = math.floor(ST.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
-        sharedPing = p
-        if ML then
-            ML.Text = string.format("FPS %d | %dms", fps, p)
-            if p < 80 and fps > 45 then ML.TextColor3 = ACG
-            elseif p < 150 and fps > 25 then ML.TextColor3 = ACY
-            else ML.TextColor3 = ACR end
-        end
-    end
-end)
-
-if not _G.LatinaSharedStats then
-    _G.LatinaSharedStats = {fps = 0, ping = 0}
-end
-
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if ML and ML.Text then
-            local fps, ping = ML.Text:match("FPS (%d+) | (%d+)ms")
-            if fps and ping then
-                _G.LatinaSharedStats.fps = tonumber(fps)
-                _G.LatinaSharedStats.ping = tonumber(ping)
-            end
-        end
-    end
-end)
-
-for _, v in ipairs(ATB) do
-    if v.TextLabel and v.TextLabel.Text == "Main" then
-        for _, child in ipairs(v.Page:GetDescendants()) do
-            if child:IsA("TextLabel") and child.Text and child.Text:match("^FPS:") then
-                task.spawn(function()
-                    while child and child.Parent do
-                        task.wait(0.5)
-                        if _G.LatinaSharedStats then
-                            child.Text = "FPS: " .. _G.LatinaSharedStats.fps
-                            local hue = (tick() * 0.3) % 1
-                            child.TextColor3 = Color3.fromHSV(hue, 1, 1)
-                        end
-                    end
-                end)
-            end
-            if child:IsA("TextLabel") and child.Text and child.Text:match("^PING:") then
-                task.spawn(function()
-                    while child and child.Parent do
-                        task.wait(0.5)
-                        if _G.LatinaSharedStats then
-                            child.Text = "PING: " .. _G.LatinaSharedStats.ping .. "ms"
-                            local hue = (tick() * 0.3) % 1
-                            child.TextColor3 = Color3.fromHSV(hue, 1, 1)
-                        end
-                    end
-                end)
-            end
-        end
-    end
-end
-
-warn("[FinalFix] Applied: drag, tab order, shared FPS, minimize removed")
+showN("Latina Hub loaded", "success")
