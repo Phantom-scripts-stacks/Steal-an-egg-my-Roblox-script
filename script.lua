@@ -2548,3 +2548,175 @@ task.spawn(function()
         task.wait(0.1)
     end
 end)
+task.wait(3)
+
+if not MF or not TBAR or not CB or not SG or not PG or not SB or not ATB or not AP then
+    warn("[FinalFix] Required variables not found")
+    return
+end
+
+if MB and MB.Parent then
+    MB:Destroy()
+end
+if CB then
+    CB.Position = UDim2.new(1, -34, 0.5, -13)
+end
+
+for _, conn in ipairs(getconnections(TBAR.InputBegan)) do
+    pcall(function() conn:Disconnect() end)
+end
+for _, conn in ipairs(getconnections(TBAR.InputChanged)) do
+    pcall(function() conn:Disconnect() end)
+end
+for _, conn in ipairs(getconnections(TBAR.InputEnded)) do
+    pcall(function() conn:Disconnect() end)
+end
+for _, conn in ipairs(getconnections(TBAR.MouseButton1Down)) do
+    pcall(function() conn:Disconnect() end)
+end
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+TBAR.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+       or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MF.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if not dragging then return end
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+       or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        MF.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+       or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+TBAR.Active = true
+MF.Active = true
+
+local function findTab(name)
+    for i, v in ipairs(ATB) do
+        if v.TextLabel and v.TextLabel.Text == name then
+            return i, v
+        end
+    end
+    return nil
+end
+
+local mainIdx = findTab("Main")
+if mainIdx and mainIdx > 1 then
+    local mainTab = ATB[mainIdx]
+    table.remove(ATB, mainIdx)
+    table.insert(ATB, 1, mainTab)
+    table.remove(AP, mainIdx)
+    table.insert(AP, 1, mainTab.Page)
+    mainTab.Button.LayoutOrder = -100
+end
+
+local configIdx = findTab("Config")
+if configIdx and configIdx > 2 then
+    local configTab = ATB[configIdx]
+    table.remove(ATB, configIdx)
+    table.insert(ATB, 2, configTab)
+    table.remove(AP, configIdx)
+    table.insert(AP, 2, configTab.Page)
+    configTab.Button.LayoutOrder = -99
+end
+
+for i, v in ipairs(ATB) do
+    if v.Button then
+        if v.Button.LayoutOrder == 0 or v.Button.LayoutOrder == nil then
+            v.Button.LayoutOrder = i
+        end
+    end
+end
+
+local sharedFpsCount = 0
+local sharedFpsLast = tick()
+local sharedPing = 0
+
+RS.RenderStepped:Connect(function()
+    sharedFpsCount = sharedFpsCount + 1
+    if tick() - sharedFpsLast >= 1 then
+        local fps = sharedFpsCount
+        sharedFpsCount = 0
+        sharedFpsLast = tick()
+        local p = 0
+        pcall(function() p = math.floor(ST.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
+        sharedPing = p
+        if ML then
+            ML.Text = string.format("FPS %d | %dms", fps, p)
+            if p < 80 and fps > 45 then ML.TextColor3 = ACG
+            elseif p < 150 and fps > 25 then ML.TextColor3 = ACY
+            else ML.TextColor3 = ACR end
+        end
+    end
+end)
+
+if not _G.LatinaSharedStats then
+    _G.LatinaSharedStats = {fps = 0, ping = 0}
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if ML and ML.Text then
+            local fps, ping = ML.Text:match("FPS (%d+) | (%d+)ms")
+            if fps and ping then
+                _G.LatinaSharedStats.fps = tonumber(fps)
+                _G.LatinaSharedStats.ping = tonumber(ping)
+            end
+        end
+    end
+end)
+
+for _, v in ipairs(ATB) do
+    if v.TextLabel and v.TextLabel.Text == "Main" then
+        for _, child in ipairs(v.Page:GetDescendants()) do
+            if child:IsA("TextLabel") and child.Text and child.Text:match("^FPS:") then
+                task.spawn(function()
+                    while child and child.Parent do
+                        task.wait(0.5)
+                        if _G.LatinaSharedStats then
+                            child.Text = "FPS: " .. _G.LatinaSharedStats.fps
+                            local hue = (tick() * 0.3) % 1
+                            child.TextColor3 = Color3.fromHSV(hue, 1, 1)
+                        end
+                    end
+                end)
+            end
+            if child:IsA("TextLabel") and child.Text and child.Text:match("^PING:") then
+                task.spawn(function()
+                    while child and child.Parent do
+                        task.wait(0.5)
+                        if _G.LatinaSharedStats then
+                            child.Text = "PING: " .. _G.LatinaSharedStats.ping .. "ms"
+                            local hue = (tick() * 0.3) % 1
+                            child.TextColor3 = Color3.fromHSV(hue, 1, 1)
+                        end
+                    end
+                end)
+            end
+        end
+    end
+end
+
+warn("[FinalFix] Applied: drag, tab order, shared FPS, minimize removed")
