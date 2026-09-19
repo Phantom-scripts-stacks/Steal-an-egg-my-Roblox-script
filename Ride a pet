@@ -97,6 +97,15 @@ introImage.ImageTransparency = 1
 introImage.ZIndex = 102
 introImage.Parent = square
 
+local introImage = Instance.new("ImageLabel")
+introImage.Size = UDim2.new(1, 0, 1, 0)
+introImage.BackgroundTransparency = 1
+introImage.Image = IMAGE_ID
+introImage.ScaleType = Enum.ScaleType.Crop
+introImage.ImageTransparency = 1
+introImage.ZIndex = 102
+introImage.Parent = square
+
 local introTitle = Instance.new("TextLabel")
 introTitle.AnchorPoint = Vector2.new(0.5, 0.5)
 introTitle.Size = UDim2.new(1, 0, 0, 60)
@@ -464,9 +473,6 @@ local function setBtn(b, on, color)
     b.BackgroundColor3 = on and (color or T.good) or T.panel
     b.TextColor3 = on and Color3.fromRGB(0, 0, 0) or T.text
 end
---[[
-    LATINA HUB RAP - Part 2 (FIXED)
---]]
 
 local infoFrame = Instance.new("Frame")
 infoFrame.Size = UDim2.new(1, 0, 0, 100)
@@ -788,8 +794,7 @@ end)
 
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
 local tpBaseBtn = makeButton(tpPage, "Teleport to Underground Base", 38)
-local eggToBaseBtn = makeButton(tpPage, "Send Egg to Base", 76)
-local autoTPBtn = makeButton(tpPage, "Auto Best Egg TP: OFF", 114)
+local autoTPBtn = makeButton(tpPage, "Auto Best Egg TP: OFF", 76)
 
 local function isEggTaken(egg)
     local node = egg
@@ -877,11 +882,6 @@ tpBaseBtn.MouseButton1Click:Connect(function()
 
         for i = 1, steps do
             if not teleporting then break end
-            if hasEgg() then
-                teleporting = false
-                tpBaseBtn.Text = baseName
-                break
-            end
             local cc = player.Character
             if not cc then break end
             local rr = cc:FindFirstChild("HumanoidRootPart")
@@ -915,36 +915,6 @@ task.spawn(function()
             teleporting = false
             tpBaseBtn.Text = baseName
         end
-    end
-end)
-
-eggToBaseBtn.MouseButton1Click:Connect(function()
-    local eggs = {}
-    for _, egg in ipairs(workspace:GetDescendants()) do
-        local ok = (egg:IsA("Model") or egg:IsA("BasePart")) and egg.Name:lower():match(CONFIG.EggMatch)
-        if ok and not isEggTaken(egg) then
-            local part = getEggPart(egg)
-            if part then table.insert(eggs, { obj = egg, part = part }) end
-        end
-    end
-    if #eggs == 0 then return end
-    local c = player.Character
-    if not c then return end
-    local rp = c:FindFirstChild("HumanoidRootPart")
-    if not rp then return end
-    local nearest, nd = nil, math.huge
-    for _, e in ipairs(eggs) do
-        local d = (e.part.Position - rp.Position).Magnitude
-        if d < nd then nearest, nd = e, d end
-    end
-    if nearest then
-        pcall(function()
-            if nearest.obj:IsA("BasePart") then
-                nearest.obj.CFrame = CONFIG.BaseCFrame
-            else
-                nearest.obj:PivotTo(CONFIG.BaseCFrame)
-            end
-        end)
     end
 end)
 
@@ -1037,10 +1007,25 @@ local function refreshESP()
             if part then
                 local d = (part.Position - rp.Position).Magnitude
                 if d <= CONFIG.ESPRange then
-                    createESP(part, string.format("%s [%dm]", egg.Name, math.floor(d)), eggColor
---[[
-    LATINA HUB RAP - Part 3 (FIXED)
---]]
+                    createESP(part, string.format("%s [%dm]", egg.Name, math.floor(d)), eggColor(egg.Name))
+                end
+            end
+        end
+    end
+end
+
+espBtn.MouseButton1Click:Connect(function()
+    state.espOn = not state.espOn
+    espBtn.Text = "Egg ESP: " .. (state.espOn and "ON" or "OFF")
+    setBtn(espBtn, state.espOn)
+    refreshESP()
+end)
+
+task.spawn(function()
+    while task.wait(0.7) do
+        if state.espOn then refreshESP() end
+    end
+end)
 
 local origLighting = {
     Brightness = Lighting.Brightness,
@@ -1064,7 +1049,8 @@ fbBtn.MouseButton1Click:Connect(function()
         Lighting.OutdoorAmbient = Color3.fromRGB(200, 200, 200)
         Lighting.Ambient = Color3.fromRGB(180, 180, 180)
     else
-        Lighting.Brightness = origLighting.Brightness
+
+Lighting.Brightness = origLighting.Brightness
         Lighting.ClockTime = origLighting.ClockTime
         Lighting.FogEnd = origLighting.FogEnd
         Lighting.GlobalShadows = origLighting.GlobalShadows
@@ -1272,7 +1258,8 @@ hopBtn.MouseButton1Click:Connect(function()
                 end
             end
         end
-        if #servers > 0 then
+
+if #servers > 0 then
             TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], player)
         end
     end)
