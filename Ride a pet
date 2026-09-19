@@ -1,5 +1,11 @@
 --[[
-    LATINA HUB RAP - Part 1
+    LATINA HUB RAP - FIX UPDATE
+    1. Reset FOV button
+    2. FPS Boost fix (particles + effects)
+    3. Auto-OFF teleport pag nakuha egg
+    4. Icon 60px
+    5. Speed slider 1-1000 + Enable Speed
+    6. Jump slider 1-500 + Enable Jump
 --]]
 
 local Players          = game:GetService("Players")
@@ -34,7 +40,7 @@ local EGG_PRIORITY = {
 
 local state = {
     speedOn = false, speedValue = 100,
-    jumpOn = false, jumpValue = 100,
+    jumpOn = false, jumpValue = 50,
     flySpeed = 100,
     infJump = false, flyOn = false, noclipOn = false,
     antiAFKOn = false, espOn = false, tpOn = false,
@@ -469,7 +475,7 @@ local function setBtn(b, on, color)
     b.TextColor3 = on and Color3.fromRGB(0, 0, 0) or T.text
 end
 --[[
-    LATINA HUB RAP - Part 2
+    LATINA HUB RAP - Part 2 (FIXED)
 --]]
 
 local infoFrame = Instance.new("Frame")
@@ -550,6 +556,162 @@ local function applyJump()
         end
     end)
 end
+
+local speedEnableBtn = makeButton(mainPage, "Enable Speed: OFF", 105)
+speedEnableBtn.MouseButton1Click:Connect(function()
+    state.speedOn = not state.speedOn
+    speedEnableBtn.Text = "Enable Speed: " .. (state.speedOn and "ON" or "OFF")
+    setBtn(speedEnableBtn, state.speedOn)
+    applySpeed()
+end)
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(1, 0, 0, 16)
+speedLabel.Position = UDim2.new(0, 0, 0, 141)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Text = "Speed: 100"
+speedLabel.TextColor3 = T.text
+speedLabel.Font = Enum.Font.GothamSemibold
+speedLabel.TextSize = 10
+speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+speedLabel.Parent = mainPage
+
+local speedBar = Instance.new("Frame")
+speedBar.Size = UDim2.new(1, 0, 0, 8)
+speedBar.Position = UDim2.new(0, 0, 0, 159)
+speedBar.BackgroundColor3 = T.panelHi
+speedBar.BorderSizePixel = 0
+speedBar.Parent = mainPage
+Instance.new("UICorner", speedBar).CornerRadius = UDim.new(1, 0)
+
+local speedFill = Instance.new("Frame")
+speedFill.Size = UDim2.new(0.1, 0, 1, 0)
+speedFill.BackgroundColor3 = T.accent
+speedFill.BorderSizePixel = 0
+speedFill.Parent = speedBar
+Instance.new("UICorner", speedFill).CornerRadius = UDim.new(1, 0)
+
+local speedKnob = Instance.new("TextButton")
+speedKnob.Size = UDim2.new(0, 16, 0, 16)
+speedKnob.Position = UDim2.new(0.1, -8, 0.5, -8)
+speedKnob.BackgroundColor3 = T.accent2
+speedKnob.Text = ""
+speedKnob.BorderSizePixel = 0
+speedKnob.AutoButtonColor = false
+speedKnob.Parent = speedBar
+Instance.new("UICorner", speedKnob).CornerRadius = UDim.new(1, 0)
+
+local function updateSpeed(x)
+    local ap = speedBar.AbsolutePosition
+    local as_ = speedBar.AbsoluteSize
+    local rel = math.clamp((x - ap.X) / as_.X, 0, 1)
+    local v = math.floor(1 + 999 * rel)
+    state.speedValue = v
+    speedLabel.Text = "Speed: " .. v
+    speedFill.Size = UDim2.new(rel, 0, 1, 0)
+    speedKnob.Position = UDim2.new(rel, -8, 0.5, -8)
+    if state.speedOn then applySpeed() end
+end
+
+local dragSpeed = false
+speedKnob.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragSpeed = true; updateSpeed(i.Position.X)
+    end
+end)
+speedBar.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragSpeed = true; updateSpeed(i.Position.X)
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if dragSpeed and (i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseMovement) then
+        updateSpeed(i.Position.X)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragSpeed = false
+    end
+end)
+
+local jumpEnableBtn = makeButton(mainPage, "Enable Jump: OFF", 175)
+jumpEnableBtn.MouseButton1Click:Connect(function()
+    state.jumpOn = not state.jumpOn
+    jumpEnableBtn.Text = "Enable Jump: " .. (state.jumpOn and "ON" or "OFF")
+    setBtn(jumpEnableBtn, state.jumpOn)
+    applyJump()
+end)
+
+local jumpLabel = Instance.new("TextLabel")
+jumpLabel.Size = UDim2.new(1, 0, 0, 16)
+jumpLabel.Position = UDim2.new(0, 0, 0, 211)
+jumpLabel.BackgroundTransparency = 1
+jumpLabel.Text = "Jump: 50"
+jumpLabel.TextColor3 = T.text
+jumpLabel.Font = Enum.Font.GothamSemibold
+jumpLabel.TextSize = 10
+jumpLabel.TextXAlignment = Enum.TextXAlignment.Left
+jumpLabel.Parent = mainPage
+
+local jumpBar = Instance.new("Frame")
+jumpBar.Size = UDim2.new(1, 0, 0, 8)
+jumpBar.Position = UDim2.new(0, 0, 0, 229)
+jumpBar.BackgroundColor3 = T.panelHi
+jumpBar.BorderSizePixel = 0
+jumpBar.Parent = mainPage
+Instance.new("UICorner", jumpBar).CornerRadius = UDim.new(1, 0)
+
+local jumpFill = Instance.new("Frame")
+jumpFill.Size = UDim2.new(0.1, 0, 1, 0)
+jumpFill.BackgroundColor3 = T.accent2
+jumpFill.BorderSizePixel = 0
+jumpFill.Parent = jumpBar
+Instance.new("UICorner", jumpFill).CornerRadius = UDim.new(1, 0)
+
+local jumpKnob = Instance.new("TextButton")
+jumpKnob.Size = UDim2.new(0, 16, 0, 16)
+jumpKnob.Position = UDim2.new(0.1, -8, 0.5, -8)
+jumpKnob.BackgroundColor3 = T.accent
+jumpKnob.Text = ""
+jumpKnob.BorderSizePixel = 0
+jumpKnob.AutoButtonColor = false
+jumpKnob.Parent = jumpBar
+Instance.new("UICorner", jumpKnob).CornerRadius = UDim.new(1, 0)
+
+local function updateJump(x)
+    local ap = jumpBar.AbsolutePosition
+    local as_ = jumpBar.AbsoluteSize
+    local rel = math.clamp((x - ap.X) / as_.X, 0, 1)
+    local v = math.floor(1 + 499 * rel)
+    state.jumpValue = v
+    jumpLabel.Text = "Jump: " .. v
+    jumpFill.Size = UDim2.new(rel, 0, 1, 0)
+    jumpKnob.Position = UDim2.new(rel, -8, 0.5, -8)
+    if state.jumpOn then applyJump() end
+end
+
+local dragJump = false
+jumpKnob.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragJump = true; updateJump(i.Position.X)
+    end
+end)
+jumpBar.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragJump = true; updateJump(i.Position.X)
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if dragJump and (i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseMovement) then
+        updateJump(i.Position.X)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragJump = false
+    end
+end)
 
 local moveflyBtn = makeButton(movePage, "Fly: OFF", 0)
 local flyVel, flyGyro, flyConn
@@ -687,6 +849,22 @@ end)
 local teleporting = false
 local baseName = "Teleport to Underground Base"
 
+local function hasEgg()
+    local c = player.Character
+    if c then
+        for _, item in ipairs(c:GetChildren()) do
+            if item.Name:lower():match("egg") then return true end
+        end
+    end
+    local bp = player:FindFirstChild("Backpack")
+    if bp then
+        for _, item in ipairs(bp:GetChildren()) do
+            if item.Name:lower():match("egg") then return true end
+        end
+    end
+    return false
+end
+
 tpBaseBtn.MouseButton1Click:Connect(function()
     if teleporting then
         teleporting = false
@@ -709,6 +887,11 @@ tpBaseBtn.MouseButton1Click:Connect(function()
 
         for i = 1, steps do
             if not teleporting then break end
+            if hasEgg() then
+                teleporting = false
+                tpBaseBtn.Text = baseName
+                break
+            end
             local cc = player.Character
             if not cc then break end
             local rr = cc:FindFirstChild("HumanoidRootPart")
@@ -734,6 +917,15 @@ tpBaseBtn.MouseButton1Click:Connect(function()
         teleporting = false
         tpBaseBtn.Text = baseName
     end)
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if teleporting and hasEgg() then
+            teleporting = false
+            tpBaseBtn.Text = baseName
+        end
+    end
 end)
 
 eggToBaseBtn.MouseButton1Click:Connect(function()
@@ -855,27 +1047,9 @@ local function refreshESP()
             if part then
                 local d = (part.Position - rp.Position).Magnitude
                 if d <= CONFIG.ESPRange then
-                    createESP(part, string.format("%s [%dm]", egg.Name, math.floor(d)), eggColor(egg.Name))
-                end
-            end
-        end
-    end
-end
-
-espBtn.MouseButton1Click:Connect(function()
-    state.espOn = not state.espOn
-    espBtn.Text = "Egg ESP: " .. (state.espOn and "ON" or "OFF")
-    setBtn(espBtn, state.espOn)
-    refreshESP()
-end)
-
-task.spawn(function()
-    while task.wait(0.7) do
-        if state.espOn then refreshESP() end
-    end
-end)
+                    createESP(part, string.format("%s [%dm]", egg.Name, math.floor(d)), eggColor
 --[[
-    LATINA HUB RAP - Part 3
+    LATINA HUB RAP - Part 3 (FIXED)
 --]]
 
 local origLighting = {
@@ -1054,6 +1228,13 @@ UserInputService.InputEnded:Connect(function(i)
     end
 end)
 
+local resetFovBtn = makeButton(visPage, "Reset FOV", 268)
+resetFovBtn.MouseButton1Click:Connect(function()
+    workspace.CurrentCamera.FieldOfView = 70
+    fovLabel.Text = "FOV: 70"
+    fovKnob.Position = UDim2.new(0, -7, 0.5, -7)
+end)
+
 local collectBtn = makeButton(autoPage, "Auto-Collect: OFF", 0)
 collectBtn.MouseButton1Click:Connect(function()
     state.autoCollect = not state.autoCollect
@@ -1148,18 +1329,33 @@ task.spawn(function()
 end)
 
 local fpsBoostBtn = makeButton(miscPage, "FPS Boost: OFF", 76)
+local fpsBoostCache = {}
 fpsBoostBtn.MouseButton1Click:Connect(function()
     state.fpsBoost = not state.fpsBoost
     fpsBoostBtn.Text = "FPS Boost: " .. (state.fpsBoost and "ON" or "OFF")
     setBtn(fpsBoostBtn, state.fpsBoost)
     if state.fpsBoost then
         for _, fx in ipairs(Lighting:GetChildren()) do
-            if fx:IsA("PostEffect") then fx.Enabled = false end
+            if fx:IsA("PostEffect") then
+                fpsBoostCache[fx] = fx.Enabled
+                fx.Enabled = false
+            end
+        end
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+                fpsBoostCache[obj] = obj.Enabled
+                obj.Enabled = false
+            end
         end
     else
-        for _, fx in ipairs(Lighting:GetChildren()) do
-            if fx:IsA("PostEffect") then fx.Enabled = true end
+        for obj, wasEnabled in pairs(fpsBoostCache) do
+            pcall(function()
+                if obj and obj.Parent then
+                    obj.Enabled = wasEnabled
+                end
+            end)
         end
+        fpsBoostCache = {}
     end
 end)
 
@@ -1246,8 +1442,8 @@ discordInfo.TextWrapped = true
 discordInfo.Parent = ownerPage
 
 local icon = Instance.new("TextButton")
-icon.Size = UDim2.new(0, 46, 0, 46)
-icon.Position = UDim2.new(0, 15, 0.5, -23)
+icon.Size = UDim2.new(0, 60, 0, 60)
+icon.Position = UDim2.new(0, 15, 0.5, -30)
 icon.BackgroundColor3 = T.panel
 icon.Text = ""
 icon.BorderSizePixel = 0
