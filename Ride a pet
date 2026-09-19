@@ -1,6 +1,6 @@
 --[[
     LATINA HUB RAP - v2
-    Part 1: Setup + GUI Root
+    Part 1: Setup + Config + GUI Root + Intro
 --]]
 
 local Players          = game:GetService("Players")
@@ -59,6 +59,7 @@ gui.DisplayOrder = 999
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() gui.Parent = CoreGui end)
 if not gui.Parent then gui.Parent = player:WaitForChild("PlayerGui") end
+
 -- ============ INTRO ============
 local intro = Instance.new("Frame")
 intro.Size = UDim2.new(1, 0, 1, 0)
@@ -708,6 +709,95 @@ task.spawn(function()
         if state.espOn then refreshESP() end
     end
 end)
+-- ============ ESP TAB ============
+local espBtn = makeButton(espPage, "Egg ESP: OFF", 0)
+local espFolder = Instance.new("Folder")
+espFolder.Name = "EggESP"
+espFolder.Parent = gui
+
+local function eggColor(name)
+    local n = name:lower()
+    if n:match("celestial") then return Color3.fromRGB(255, 220, 120) end
+    if n:match("cherub")    then return Color3.fromRGB(255, 150, 220) end
+    if n:match("black")     then return Color3.fromRGB(180, 0, 255) end
+    if n:match("galaxy")    then return Color3.fromRGB(140, 80, 255) end
+    if n:match("aurora")    then return Color3.fromRGB(0, 255, 200) end
+    if n:match("soul")      then return Color3.fromRGB(80, 200, 255) end
+    if n:match("sinister")  then return Color3.fromRGB(255, 60, 60) end
+    if n:match("flaming")   then return Color3.fromRGB(255, 120, 40) end
+    if n:match("dominus")   then return Color3.fromRGB(220, 180, 60) end
+    if n:match("skull")     then return Color3.fromRGB(220, 220, 220) end
+    if n:match("cracked")   then return Color3.fromRGB(200, 200, 200) end
+    if n:match("brown")     then return Color3.fromRGB(180, 120, 80) end
+    return Color3.fromRGB(240, 240, 240)
+end
+
+local function createESP(part, label, color)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Adornee = part
+    box.AlwaysOnTop = true
+    box.Size = part.Size + Vector3.new(0.5, 0.5, 0.5)
+    box.Transparency = 0.35
+    box.Color3 = color
+    box.Parent = espFolder
+
+    local bb = Instance.new("BillboardGui")
+    bb.Adornee = part
+    bb.Size = UDim2.new(0, 150, 0, 26)
+    bb.StudsOffset = Vector3.new(0, 3, 0)
+    bb.AlwaysOnTop = true
+    bb.Parent = espFolder
+
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.new(1, 0, 1, 0)
+    t.BackgroundTransparency = 1
+    t.Text = label
+    t.TextColor3 = color
+    t.TextStrokeTransparency = 0
+    t.TextStrokeColor3 = Color3.new(0,0,0)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 12
+    t.Parent = bb
+end
+
+local function clearESP()
+    for _, c in ipairs(espFolder:GetChildren()) do c:Destroy() end
+end
+
+local function refreshESP()
+    clearESP()
+    if not state.espOn then return end
+    local c = player.Character
+    if not c then return end
+    local rp = c:FindFirstChild("HumanoidRootPart")
+    if not rp then return end
+    for _, egg in ipairs(workspace:GetDescendants()) do
+        local ok = (egg:IsA("Model") or egg:IsA("BasePart")) and egg.Name:lower():match(CONFIG.EggMatch)
+        if ok and not isEggTaken(egg) then
+            local part = getEggPart(egg)
+            if part then
+                local d = (part.Position - rp.Position).Magnitude
+                if d <= CONFIG.ESPRange then
+                    createESP(part, string.format("%s [%dm]", egg.Name, math.floor(d)), eggColor(egg.Name))
+                end
+            end
+        end
+    end
+end
+
+espBtn.MouseButton1Click:Connect(function()
+    state.espOn = not state.espOn
+    espBtn.Text = "Egg ESP: " .. (state.espOn and "ON" or "OFF")
+    setBtn(espBtn, state.espOn)
+    refreshESP()
+end)
+
+task.spawn(function()
+    while task.wait(0.7) do
+        if state.espOn then refreshESP() end
+    end
+end)
+
 -- ============ VISUAL TAB (SHADERS) ============
 local origLighting = {
     Brightness = Lighting.Brightness,
