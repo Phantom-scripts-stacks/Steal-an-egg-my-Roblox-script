@@ -1,11 +1,3 @@
---[[
-    LATINA HUB RAP - FIX UPDATE
-    1. Reset FOV button
-    2. FPS Boost fix (particles + effects)
-    3. Auto-OFF teleport pag nakuha egg
-    4. Icon 60px
-    5. Speed slider 1-1000 + Enable Speed
-    6. Jump slider 1-500 + Enable Jump
 --]]
 
 local Players          = game:GetService("Players")
