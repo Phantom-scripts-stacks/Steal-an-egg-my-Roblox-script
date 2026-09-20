@@ -1492,6 +1492,212 @@ player.CharacterAdded:Connect(function(c)
     if state.jumpOn then applyJump() end
 end)
 
+-- ============================================================
+-- ADD INTO EXISTING "TP" TAB (no new tab)
+-- Paste this whole block BEFORE the line: playIntro()
+-- ============================================================
+
+-- Move existing TP buttons down to make room
+tpBestBtn.Position = UDim2.new(0, 0, 0, 152)
+tpBaseBtn.Position = UDim2.new(0, 0, 0, 190)
+eggToBaseBtn.Position = UDim2.new(0, 0, 0, 228)
+autoTPBtn.Position = UDim2.new(0, 0, 0, 266)
+
+-- Feature 1: Teleport to Biggest Egg
+local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 0)
+
+-- Feature 2: Find & Teleport by Name
+local findInput = Instance.new("TextBox")
+findInput.Size = UDim2.new(1, 0, 0, 30)
+findInput.Position = UDim2.new(0, 0, 0, 38)
+findInput.BackgroundColor3 = Color3.fromRGB(50, 30, 90)
+findInput.Text = ""
+findInput.PlaceholderText = "Type pet / egg name"
+findInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+findInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
+findInput.Font = Enum.Font.GothamSemibold
+findInput.TextSize = 11
+findInput.BorderSizePixel = 0
+findInput.ClearTextOnFocus = false
+findInput.Parent = tpPage
+Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 7)
+
+local findGoBtn = makeButton(tpPage, "Find & Teleport", 76)
+
+-- Feature 3: List Available Eggs
+local findListBtn = makeButton(tpPage, "List Available Eggs", 114)
+
+-- Log area at the bottom of TP tab
+local findScroll = Instance.new("ScrollingFrame")
+findScroll.Size = UDim2.new(1, 0, 1, -320)
+findScroll.Position = UDim2.new(0, 0, 0, 312)
+findScroll.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+findScroll.BorderSizePixel = 0
+findScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+findScroll.ScrollBarThickness = 4
+findScroll.Parent = tpPage
+Instance.new("UICorner", findScroll).CornerRadius = UDim.new(0, 7)
+
+local findLayout = Instance.new("UIListLayout")
+findLayout.Padding = UDim.new(0, 2)
+findLayout.SortOrder = Enum.SortOrder.LayoutOrder
+findLayout.Parent = findScroll
+
+local function findLog(msg)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -8, 0, 18)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = msg
+    lbl.TextColor3 = Color3.fromRGB(220, 210, 240)
+    lbl.Font = Enum.Font.Code
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = findScroll
+    findScroll.CanvasSize = UDim2.new(0, 0, 0, findLayout.AbsoluteContentSize.Y)
+end
+
+local FIND_SKIP_ROOTS = {
+    "Ground", "Decorations", "Props", "Terrain",
+    "Camera", "Lighting", "Effects", "VFX",
+}
+local FIND_REQUIRE_KW = { "egg", "spawn", "shop", "nest" }
+
+local function findIsUnderSkipRoot(obj)
+    local node = obj
+    while node and node ~= workspace do
+        for _, skip in ipairs(FIND_SKIP_ROOTS) do
+            if node.Name == skip then return true end
+        end
+        node = node.Parent
+    end
+    return false
+end
+
+local function findHasRequiredKeyword(name)
+    local n = name:lower()
+    for _, k in ipairs(FIND_REQUIRE_KW) do
+        if n:find(k, 1, true) then return true end
+    end
+    return false
+end
+
+local function findCollectEggs()
+    local list = {}
+    local seen = {}
+    local re = workspace:FindFirstChild("RenderedEggs")
+    if re then
+        for _, egg in ipairs(re:GetChildren()) do
+            if egg:IsA("Model") or egg:IsA("BasePart") then
+                local part = egg:IsA("BasePart") and egg
+                    or egg.PrimaryPart
+                    or egg:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    table.insert(list, {
+                        obj = egg, part = part, name = egg.Name,
+                        taken = isEggTaken(egg),
+                    })
+                    seen[egg] = true
+                end
+            end
+        end
+    end
+    for _, o in ipairs(workspace:GetDescendants()) do
+        if o.Name:lower():match(CONFIG.EggMatch) and not seen[o] then
+            if not findIsUnderSkipRoot(o) and findHasRequiredKeyword(o.Name) then
+                local part
+                if o:IsA("BasePart") then part = o
+                elseif o:IsA("Model") then
+                    part = o.PrimaryPart or o:FindFirstChildWhichIsA("BasePart")
+                end
+                if part then
+                    table.insert(list, {
+                        obj = o, part = part, name = o.Name,
+                        taken = isEggTaken(o),
+                    })
+                    seen[o] = true
+                end
+            end
+        end
+    end
+    return list
+end
+
+local function findTeleportBiggest()
+    local list = findCollectEggs()
+    local best, bestScore = nil, -1
+    for _, e in ipairs(list) do
+        if not e.taken then
+            local score = 0
+            if e.obj:IsA("BasePart") then
+                local s = e.obj.Size
+                score = s.X + s.Y + s.Z
+            else
+                for _, p in ipairs(e.obj:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        local s = p.Size
+                        local sc = s.X + s.Y + s.Z
+                        if sc > score then score = sc end
+                    end
+                end
+            end
+            if score > bestScore then best, bestScore = e, score end
+        end
+    end
+    if not best then findLog("No available egg found"); return end
+    local c = player.Character
+    if not c then return end
+    pcall(function()
+        c:PivotTo(CFrame.new(best.part.Position + Vector3.new(0, 4, 0)))
+    end)
+    findLog(string.format("Biggest: %s (size %.0f)", best.name, bestScore))
+end
+
+local function findTeleportByName(query)
+    if not query or query == "" then findLog("Type a name first"); return end
+    local q = query:lower()
+    local list = findCollectEggs()
+    local hits = {}
+    for _, e in ipairs(list) do
+        if not e.taken and e.name:lower():find(q, 1, true) then
+            table.insert(hits, e)
+        end
+    end
+    if #hits == 0 then
+        findLog("No available target named '"..query.."'")
+        findLog("(Owned eggs & decorations skipped)")
+        return
+    end
+    findLog("Found "..#hits.." target(s):")
+    for i = 1, math.min(5, #hits) do findLog("  "..hits[i].name) end
+    local c = player.Character
+    if not c then return end
+    pcall(function()
+        c:PivotTo(CFrame.new(hits[1].part.Position + Vector3.new(0, 4, 0)))
+    end)
+    findLog("Teleported to "..hits[1].name)
+end
+
+local function findListEggs()
+    for _, c in ipairs(findScroll:GetChildren()) do
+        if c:IsA("TextLabel") then c:Destroy() end
+    end
+    local list = findCollectEggs()
+    local avail = 0
+    for _, e in ipairs(list) do if not e.taken then avail = avail + 1 end end
+    findLog("Eggs on map: "..#list.." | Available: "..avail)
+    for i, e in ipairs(list) do
+        local tag = e.taken and "[TAKEN]" or "[FREE] "
+        findLog(string.format("%2d. %s %s", i, tag, e.name))
+    end
+end
+
+findBiggestBtn.MouseButton1Click:Connect(findTeleportBiggest)
+findGoBtn.MouseButton1Click:Connect(function()
+    findTeleportByName(findInput.Text)
+end)
+findListBtn.MouseButton1Click:Connect(findListEggs)
+
+findLog("Ready. Type a name or press Biggest Egg.")
 playIntro()
 task.wait(4.2)
 win.Visible = true
