@@ -852,7 +852,7 @@ SBX.Font=Enum.Font.GothamMedium
 SBX.TextXAlignment=Enum.TextXAlignment.Left
 SBX.ClearTextOnFocus=false
 SBX.ZIndex=105
-local KL=createCollapsible(ET,"KEYLESS HUBS","29 hubs","🔓",true,ACG)
+local KL=createCollapsible(ET,"KEYLESS HUBS","28 hubs","🔓",true,ACG)
 local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","8 hubs","🔑",false,ACR)
 local KeylessScripts={
 {Name="DECODE HUB",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/ItzYumi/Decode/refs/heads/main/DE%3ACODE.lua", true))()'},
@@ -871,10 +871,9 @@ local KeylessScripts={
 {Name="VINCITORE",Icon="👑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/idk953072-crypto/Steal-an-Egg/refs/heads/main/vincitore"))()'},
 {Name="LENNON V3",Icon="🎵",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv3/refs/heads/main/stealanegg.lua"))()'},
 {Name="MIRANDA",Icon="⚡",Link="https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"},
-{Name="ON HUB",Icon="🔷",Link="https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua""},
+{Name="ON HUB",Icon="🔷",Link="https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua"},
 {Name="BEE HUB",Icon="🐝",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/178cde5c2aba98369938c59b56f63654.lua"))()"},
 {Name="VORTEX X SAGE",Icon="🌿",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Israel-Vortex/vortex-x-scripts/refs/heads/main/Official-Vortex-Software/Dev-Project/StealAnEgg.lua"))()"},
-{Name="ANTI-CHASE",Icon="🏃",Link='https://pastefy.app/nasHhfko/raw')()"},
 {Name="GLINT ANTI-CHASE",Icon="🏃",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/6824c37a4078d7d311677732e231edaa.lua"))()"}
 {Name="NEVA HUB",Icon="🌑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()"}
 {Name="JANE HUB",Icon="🧞",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/b88a6143b351d79f4c5a108ec33b5a2c.lua"))()"}
