@@ -852,7 +852,7 @@ SBX.Font=Enum.Font.GothamMedium
 SBX.TextXAlignment=Enum.TextXAlignment.Left
 SBX.ClearTextOnFocus=false
 SBX.ZIndex=105
-local KL=createCollapsible(ET,"KEYLESS HUBS","17 hubs","🔓",true,ACG)
+local KL=createCollapsible(ET,"KEYLESS HUBS","29 hubs","🔓",true,ACG)
 local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","8 hubs","🔑",false,ACR)
 local KeylessScripts={
 {Name="DECODE HUB",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/ItzYumi/Decode/refs/heads/main/DE%3ACODE.lua", true))()'},
@@ -862,16 +862,28 @@ local KeylessScripts={
 {Name="LKZ HUB",Icon="⚡",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/65bf3459d87ba3ac46350e154b640929.lua"))()'},
 {Name="UNIVERSE HUB",Icon="🌌",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Uranus197/-Univers-Hub-Graphics-Script-/refs/heads/main/UniversHub"))()'},
 {Name="KURDMADE",Icon="🔒",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/elampo092/psychic-carnival/refs/heads/main/Kurdmade-hub"))()'},
-{Name="SIMEPLE SHADER",Icon="🎨",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxscripts2026/simple-shader/refs/heads/main/lua"))()'},
+{Name="SIMPLE SHADER",Icon="🎨",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxscripts2026/simple-shader/refs/heads/main/lua"))()'},
 {Name="RENE HUB",Icon="🎯",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscrip-arch/srver/refs/heads/main/Stealanegg"))()'},
 {Name="VOIDSHELL",Icon="💀",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidShell-null/VoidShell-Hub/refs/heads/main/Scripts/StealAnEgg.luau"))()'},
 {Name="TSUO HUB",Icon="🌟",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()'},
 {Name="SOURCE HUB",Icon="📦",Link='loadstring(game:HttpGet("https://pastebin.com/raw/d0zBUM6r"))()'},
 {Name="SERVER FINDER",Icon="🔍",Link='loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Low-Server-Finder-GUI-30660"))()'},
-{Name="VINCITORE",Icon="👑",Link='script_key="KEYLESS"; loadstring(game:HttpGet("https://raw.githubusercontent.com/tutorkah104-rgb/Steal-an-Egg/refs/heads/main/Vincitore.luau"))()'},
-{Name="LENNON",Icon="🎵",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()'},
+{Name="VINCITORE",Icon="👑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/idk953072-crypto/Steal-an-Egg/refs/heads/main/vincitore"))()'},
+{Name="LENNON V3",Icon="🎵",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv3/refs/heads/main/stealanegg.lua"))()'},
 {Name="MIRANDA",Icon="⚡",Link="https://raw.githubusercontent.com/miirandahub/loader/main/stealaeggs"},
 {Name="ON HUB",Icon="🔷",Link="https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua"}
+{Name="BEE HUB",Icon="🐝",Link="loadstring(game:HttpGet("https://flowauth.net/v1/loaders/178cde5c2aba98369938c59b56f63654.lua"))()"}
+{Name="VORTEX X SAGE",Icon="🌿",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/Israel-Vortex/vortex-x-scripts/refs/heads/main/Official-Vortex-Software/Dev-Project/StealAnEgg.lua"))()"}
+{Name="ANTI-CHASE",Icon="🏃",Link="loadstring(game:HttpGet'https://pastefy.app/nasHhfko/raw')()"}
+{Name="GLINT ANTI-CHASE",Icon="🏃",Link="loadstring(game:HttpGet("https://flowauth.net/v1/loaders/6824c37a4078d7d311677732e231edaa.lua"))()"}
+{Name="NEVA HUB",Icon="🌑",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()"}
+{Name="JANE HUB",Icon="🧞",Link="loadstring(game:HttpGet("https://flowauth.net/v1/loaders/b88a6143b351d79f4c5a108ec33b5a2c.lua"))()"}
+{Name="PULSE HUB",Icon="💉",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()"}
+{Name="Premium source hub",Icon="📙",Link="loadstring(game:HttpGet("https://pastefy.app/QSoxIZH7/raw"))()"}
+{Name="NIGHT HUB",Icon="🌃",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()"}
+{Name="CHILLI HUB",Icon="🌶️",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()"}
+{Name="RONNIE HUB",Icon="👯‍♂️",Link="loadstring(game:HttpGet("https://raw.githubusercontent.com/elonmod/skibidi/refs/heads/main/Ronneihub-keyless.lua"))()"}
+{Name="HIP HUB",Icon="🦵",Link="loadstring(game:HttpGet("https://hiphub.cloud/api/script-roblox/loader"))()"}
 }
 local KeyReqScripts={
 {Name="OMG HUB",Icon="💎",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()'},
