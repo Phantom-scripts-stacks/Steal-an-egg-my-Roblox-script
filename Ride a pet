@@ -1698,6 +1698,7 @@ end)
 findListBtn.MouseButton1Click:Connect(findListEggs)
 
 findLog("Ready. Type a name or press Biggest Egg.")
+
 playIntro()
 task.wait(4.2)
 win.Visible = true
