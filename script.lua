@@ -1002,10 +1002,9 @@ SBX.TextXAlignment=Enum.TextXAlignment.Left
 SBX.ClearTextOnFocus=false
 SBX.ZIndex=105
 
-local KL=createCollapsible(ET,"KEYLESS HUBS","27 hubs","🔓",true,ACG)
-local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","8 hubs","🔑",false,ACR)
-
-local KeylessScripts={
+local KL=createCollapsible(ET,"KEYLESS HUBS","28 hubs","🔓",true,ACG)
+local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","10 hubs","🔑",false,ACR)
+                local KeylessScripts={
 {Name="DECODE HUB",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/ItzYumi/Decode/refs/heads/main/DE%3ACODE.lua", true))()'},
 {Name="FOXNAME HUB",Icon="🦊",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()'},
 {Name="CRZHUB",Icon="🔥",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/3c4e87ed34813171b0f8d53a108a7d88.lua"))()'},
@@ -1029,9 +1028,9 @@ local KeylessScripts={
 {Name="NEVA HUB",Icon="🌑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()'},
 {Name="JANE HUB",Icon="🧞",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/b88a6143b351d79f4c5a108ec33b5a2c.lua"))()'},
 {Name="PULSE HUB",Icon="💉",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()'},
-{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://api.obscuravm.com/scripts/7274301667433708967"))()},
 {Name="CHILLI HUB",Icon="🌶️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()'},
 {Name="RONNIE HUB",Icon="👯‍♂️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/elonmod/skibidi/refs/heads/main/Ronneihub-keyless.lua"))()'},
+{Name="HORIZON",Icon="🌅",Link='script_key="Trial"; loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()'}
 }
 
 local KeyReqScripts={
@@ -1042,9 +1041,9 @@ local KeyReqScripts={
 {Name="ZEROIN HUB",Icon="0️⃣",Link='loadstring(game:HttpGet("https://zeroinhub.com/api/script"))()'},
 {Name="BIGFROOT",Icon="🌱",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()'},
 {Name="AJJANS",Icon="🎪",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()'},
-{Name="HORIZON",Icon="🌅",Link='script_key="Trial"; loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()'}
-{Name="HIP HUB",Icon="🦵",Link='loadstring(game:HttpGet("https://hiphub.cloud/api/script-roblox/loader"))()'}
+{Name="HIP HUB",Icon="🦵",Link='loadstring(game:HttpGet("https://hiphub.cloud/api/script-roblox/loader"))()'},
 {Name="NIGHT HUB",Icon="🌃",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()'},
+{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://api.obscuravm.com/scripts/7274301667433708967"))()'}
 }
 
 local SBTN={}
@@ -1322,8 +1321,7 @@ AddButtonToPage(VT,"Player Name ESP",function(s)
         showN("Name ESP OFF","info")
     end
 end,{toggle=true,key="nameESP",icon="🌈"})
-
-addSection(VT,"Eggs")
+                addSection(VT,"Eggs")
 local function clEE()
     for _,o in ipairs(workspace:GetChildren()) do
         local bb=o:FindFirstChild("LatinaEggESP")
@@ -1447,7 +1445,8 @@ AddButtonToPage(QT,"Invisible",function(s)
     end
     showN("Invisible "..(s and "ON" or "OFF"),s and "success" or "info")
 end,{toggle=true,key="invisible",icon="👤"})
-                local XT=CreateTab("Extras","✨")
+
+local XT=CreateTab("Extras","✨")
 addSection(XT,"Visual")
 
 local CG,CL
@@ -1536,8 +1535,7 @@ AddButtonToPage(XT,"Rainbow Character",function(s)
         showN("Rainbow OFF","info")
     end
 end,{toggle=true,key="rainbowChar",icon="🌈"})
-
-addSection(XT,"Utility")
+                addSection(XT,"Utility")
 
 AddButtonToPage(XT,"Server Region",function()
     local r="Unknown"
@@ -1905,8 +1903,7 @@ end,{icon="▶️"})
 AddButtonToPage(STB,"Stop",function()
     if CSnd then CSnd:Stop() CSnd:Destroy() CSnd=nil showN("Stopped","info") end
 end,{icon="⏹"})
-
-local SVT=CreateTab("Server","🌐")
+                local SVT=CreateTab("Server","🌐")
 addSection(SVT,"Server Actions")
 AddButtonToPage(SVT,"Rejoin Current",function()
     TPS:Teleport(game.PlaceId,LP)
@@ -1949,8 +1946,9 @@ for _,dl in ipairs(DLs) do
             showN(dl.Name.." copied!","success")
         end)
     end,{icon=dl.Icon})
-                end
-                local OT=CreateTab("Owner","👑")
+end
+
+local OT=CreateTab("Owner","👑")
 addSection(OT,"About")
 local OC=Instance.new("Frame",OT)
 OC.Size=UDim2.new(1,-8,0,80)
@@ -2017,9 +2015,8 @@ local function killThread(t) if t then pcall(function() task.cancel(t) end) end 
 local function disconnectAll()
     for _,c in ipairs(MegaState.Connections) do pcall(function() c:Disconnect() end) end
     MegaState.Connections={}
-end
-
-addSection(PT,"Speed Control (1-1000)")
+                end
+                addSection(PT,"Speed Control (1-1000)")
 local speedFrame=Instance.new("Frame",PT)
 speedFrame.Size=UDim2.new(1,-8,0,80)
 speedFrame.BackgroundColor3=Themes[Config.Theme].Element
@@ -2182,8 +2179,7 @@ AddButtonToPage(PT,"Custom Jump Power",function(s)
         showN("Jump OFF","info")
     end
 end,{toggle=true,key="megaJP",icon="🦘"})
-
-addSection(PT,"Protection")
+                addSection(PT,"Protection")
 local antiRagConn,antiKbConn,antiTrapConn,godConn
 AddButtonToPage(PT,"Anti-Ragdoll / Anti-Stun",function(s)
     if s then
@@ -2238,7 +2234,8 @@ AddButtonToPage(PT,"Anti-Knockback",function(s)
         showN("Anti-Knockback OFF","info")
     end
 end,{toggle=true,key="megaAntiKB",icon="🚫"})
-                AddButtonToPage(PT,"Anti-Trap",function(s)
+
+AddButtonToPage(PT,"Anti-Trap",function(s)
     if s then
         if antiTrapConn then antiTrapConn:Disconnect() end
         antiTrapConn=RS.Heartbeat:Connect(function()
@@ -2363,8 +2360,7 @@ AddButtonToPage(PT,"Custom Gravity",function(s)
         showN("Gravity OFF","info")
     end
 end,{toggle=true,key="megaGravity",icon="🌍"})
-
-addSection(XT,"Mega Fun")
+                addSection(XT,"Mega Fun")
 local trailConn
 AddButtonToPage(XT,"Rainbow Trail",function(s)
     if s then
