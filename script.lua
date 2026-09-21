@@ -1537,15 +1537,6 @@ AddButtonToPage(XT,"Rainbow Character",function(s)
 end,{toggle=true,key="rainbowChar",icon="🌈"})
                 addSection(XT,"Utility")
 
-AddButtonToPage(XT,"Server Region",function()
-    local r="Unknown"
-    pcall(function()
-        local d=HS:JSONDecode(game:HttpGet("https://ipinfo.io/json"))
-        r=(d.city or "?")..", "..(d.country or "?")
-    end)
-    showN("Region: "..r,"info")
-end,{icon="🌍"})
-
 local EG,EL2
 AddButtonToPage(XT,"Entity Counter",function(s)
     if s then
