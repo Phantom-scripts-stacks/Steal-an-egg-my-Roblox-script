@@ -1029,7 +1029,7 @@ local KeylessScripts={
 {Name="NEVA HUB",Icon="🌑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()'},
 {Name="JANE HUB",Icon="🧞",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/b88a6143b351d79f4c5a108ec33b5a2c.lua"))()'},
 {Name="PULSE HUB",Icon="💉",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()'},
-{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://api.obscuravm.com/scripts/7274301667433708967"))()
+{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://api.obscuravm.com/scripts/7274301667433708967"))()},
 {Name="CHILLI HUB",Icon="🌶️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()'},
 {Name="RONNIE HUB",Icon="👯‍♂️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/elonmod/skibidi/refs/heads/main/Ronneihub-keyless.lua"))()'},
 }
