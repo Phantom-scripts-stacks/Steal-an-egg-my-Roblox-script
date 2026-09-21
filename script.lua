@@ -1,4 +1,5 @@
-task.wait(1)
+repeat wait() until game:IsLoaded()
+wait(1)
 local P=game:GetService("Players")
 local LP=P.LocalPlayer
 local PG=LP:WaitForChild("PlayerGui")
