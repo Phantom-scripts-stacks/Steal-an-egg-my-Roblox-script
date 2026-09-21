@@ -1029,11 +1029,9 @@ local KeylessScripts={
 {Name="NEVA HUB",Icon="🌑",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()'},
 {Name="JANE HUB",Icon="🧞",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/b88a6143b351d79f4c5a108ec33b5a2c.lua"))()'},
 {Name="PULSE HUB",Icon="💉",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()'},
-{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://pastefy.app/QSoxIZH7/raw"))()'},
-{Name="NIGHT HUB",Icon="🌃",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()'},
+{Name="Premium source hub",Icon="📙",Link='loadstring(game:HttpGet("https://api.obscuravm.com/scripts/7274301667433708967"))()
 {Name="CHILLI HUB",Icon="🌶️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()'},
 {Name="RONNIE HUB",Icon="👯‍♂️",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/elonmod/skibidi/refs/heads/main/Ronneihub-keyless.lua"))()'},
-{Name="HIP HUB",Icon="🦵",Link='loadstring(game:HttpGet("https://hiphub.cloud/api/script-roblox/loader"))()'}
 }
 
 local KeyReqScripts={
@@ -1045,6 +1043,8 @@ local KeyReqScripts={
 {Name="BIGFROOT",Icon="🌱",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()'},
 {Name="AJJANS",Icon="🎪",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()'},
 {Name="HORIZON",Icon="🌅",Link='script_key="Trial"; loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()'}
+{Name="HIP HUB",Icon="🦵",Link='loadstring(game:HttpGet("https://hiphub.cloud/api/script-roblox/loader"))()'}
+{Name="NIGHT HUB",Icon="🌃",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()'},
 }
 
 local SBTN={}
