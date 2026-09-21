@@ -63,12 +63,21 @@ gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() gui.Parent = CoreGui end)
 if not gui.Parent then gui.Parent = player:WaitForChild("PlayerGui") end
 
+-- ============ INTRO ============
 local intro = Instance.new("Frame")
 intro.Size = UDim2.new(1, 0, 1, 0)
 intro.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+intro.BackgroundTransparency = 1
 intro.BorderSizePixel = 0
 intro.ZIndex = 100
 intro.Parent = gui
+
+task.delay(6, function()
+    if intro and intro.Parent then
+        intro.Visible = false
+        intro:Destroy()
+    end
+end)
 
 local square = Instance.new("Frame")
 square.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -87,15 +96,6 @@ sqStroke.Color = T.accent2
 sqStroke.Thickness = 3
 sqStroke.Transparency = 1
 sqStroke.Parent = square
-
-local introImage = Instance.new("ImageLabel")
-introImage.Size = UDim2.new(1, 0, 1, 0)
-introImage.BackgroundTransparency = 1
-introImage.Image = IMAGE_ID
-introImage.ScaleType = Enum.ScaleType.Crop
-introImage.ImageTransparency = 1
-introImage.ZIndex = 102
-introImage.Parent = square
 
 local introImage = Instance.new("ImageLabel")
 introImage.Size = UDim2.new(1, 0, 1, 0)
@@ -144,6 +144,7 @@ end)
 
 local function playIntro()
     intro.Visible = true
+    intro.BackgroundTransparency = 1
     square.Size = UDim2.new(0, 100, 0, 100)
     square.BackgroundTransparency = 1
     sqStroke.Transparency = 1
@@ -189,12 +190,13 @@ local function playIntro()
     end)
 end
 
+-- ============ MAIN WINDOW LANDSCAPE ============
 local win = Instance.new("Frame")
 win.AnchorPoint = Vector2.new(0.5, 0.5)
-win.Size = UDim2.new(0, 290, 0, 390)
+win.Size = UDim2.new(0, 620, 0, 340)
 win.Position = UDim2.new(0.5, 0, 0.5, 0)
 win.BackgroundColor3 = T.bg1
-win.BackgroundTransparency = 0.15
+win.BackgroundTransparency = 0.08
 win.BorderSizePixel = 0
 win.Active = true
 win.Draggable = true
@@ -202,20 +204,21 @@ win.Visible = false
 win.ClipsDescendants = true
 win.ZIndex = 5
 win.Parent = gui
-Instance.new("UICorner", win).CornerRadius = UDim.new(0, 18)
+Instance.new("UICorner", win).CornerRadius = UDim.new(0, 16)
 
 local winBgGrad = Instance.new("UIGradient")
 winBgGrad.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, T.bg1),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 15, 55)),
     ColorSequenceKeypoint.new(1, T.bg2),
 })
-winBgGrad.Rotation = 90
+winBgGrad.Rotation = 45
 winBgGrad.Parent = win
 
 local winStroke = Instance.new("UIStroke")
 winStroke.Color = T.accent
-winStroke.Thickness = 2.5
-winStroke.Transparency = 0.1
+winStroke.Thickness = 2
+winStroke.Transparency = 0.15
 winStroke.Parent = win
 
 local borderGrad = Instance.new("UIGradient")
@@ -225,15 +228,51 @@ task.spawn(function()
     while win.Parent do
         task.wait(0.03)
         t = t + 1
-        borderGrad.Offset = Vector2.new((t * 0.012) % 1, 0)
+        borderGrad.Offset = Vector2.new((t * 0.010) % 1, 0)
     end
 end)
 borderGrad.Parent = winStroke
 
+local resizeHandle = Instance.new("TextButton")
+resizeHandle.Size = UDim2.new(0, 22, 0, 22)
+resizeHandle.Position = UDim2.new(1, -22, 1, -22)
+resizeHandle.BackgroundColor3 = T.panelHi
+resizeHandle.BackgroundTransparency = 0.3
+resizeHandle.Text = "◢"
+resizeHandle.TextColor3 = T.accent
+resizeHandle.TextSize = 13
+resizeHandle.Font = Enum.Font.GothamBold
+resizeHandle.BorderSizePixel = 0
+resizeHandle.AutoButtonColor = false
+resizeHandle.ZIndex = 20
+resizeHandle.Parent = win
+Instance.new("UICorner", resizeHandle).CornerRadius = UDim.new(0, 6)
+
+local resizing, rStart, sSize = false, nil, nil
+resizeHandle.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        resizing = true; rStart = i.Position; sSize = win.AbsoluteSize
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if not resizing then return end
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseMovement then
+        local dx = i.Position.X - rStart.X
+        local dy = i.Position.Y - rStart.Y
+        win.Size = UDim2.new(0, math.clamp(sSize.X + dx, 520, 1000), 0, math.clamp(sSize.Y + dy, 300, 700))
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+        resizing = false
+    end
+end)
+
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1, 0, 0, 4)
+topBar.Size = UDim2.new(1, 0, 0, 3)
 topBar.BackgroundColor3 = T.accent
 topBar.BorderSizePixel = 0
+topBar.ZIndex = 6
 topBar.Parent = win
 local topGrad = Instance.new("UIGradient")
 topGrad.Color = ColorSequence.new(rainbowColors)
@@ -247,59 +286,59 @@ task.spawn(function()
         topGrad.Offset = Vector2.new((t * 0.015) % 1, 0)
     end
 end)
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1, 0, 0, 52)
+header.Position = UDim2.new(0, 0, 0, 3)
+header.BackgroundColor3 = Color3.fromRGB(25, 12, 50)
+header.BackgroundTransparency = 0.2
+header.BorderSizePixel = 0
+header.ZIndex = 6
+header.Parent = win
 
-local resizeHandle = Instance.new("TextButton")
-resizeHandle.Size = UDim2.new(0, 18, 0, 18)
-resizeHandle.Position = UDim2.new(1, -18, 1, -18)
-resizeHandle.BackgroundColor3 = T.panelHi
-resizeHandle.Text = "◢"
-resizeHandle.TextColor3 = T.accent
-resizeHandle.TextSize = 11
-resizeHandle.Font = Enum.Font.GothamBold
-resizeHandle.BorderSizePixel = 0
-resizeHandle.AutoButtonColor = false
-resizeHandle.ZIndex = 20
-resizeHandle.Parent = win
-Instance.new("UICorner", resizeHandle).CornerRadius = UDim.new(0, 5)
+local headerGrad = Instance.new("UIGradient")
+headerGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 25, 110)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 20, 80)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 12, 50)),
+})
+headerGrad.Rotation = 0
+headerGrad.Parent = header
 
-local resizing, rStart, sSize = false, nil, nil
-resizeHandle.InputBegan:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
-        resizing = true; rStart = i.Position; sSize = win.AbsoluteSize
-    end
-end)
-UserInputService.InputChanged:Connect(function(i)
-    if not resizing then return end
-    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseMovement then
-        local dx = i.Position.X - rStart.X
-        local dy = i.Position.Y - rStart.Y
-        win.Size = UDim2.new(0, math.clamp(sSize.X + dx, 260, 580), 0, math.clamp(sSize.Y + dy, 260, 700))
-    end
-end)
-UserInputService.InputEnded:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
-        resizing = false
-    end
-end)
+local logoBadge = Instance.new("Frame")
+logoBadge.Size = UDim2.new(0, 36, 0, 36)
+logoBadge.Position = UDim2.new(0, 10, 0.5, -18)
+logoBadge.BackgroundColor3 = T.accent
+logoBadge.BorderSizePixel = 0
+logoBadge.ZIndex = 7
+logoBadge.Parent = header
+Instance.new("UICorner", logoBadge).CornerRadius = UDim.new(0, 9)
 
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 42)
-titleBar.Position = UDim2.new(0, 0, 0, 4)
-titleBar.BackgroundColor3 = T.panel
-titleBar.BackgroundTransparency = 0.35
-titleBar.BorderSizePixel = 0
-titleBar.Parent = win
+local logoBadgeGrad = Instance.new("UIGradient")
+logoBadgeGrad.Color = ColorSequence.new(T.accent, T.accent2)
+logoBadgeGrad.Rotation = 45
+logoBadgeGrad.Parent = logoBadge
+
+local logoImg = Instance.new("ImageLabel")
+logoImg.Size = UDim2.new(1, -6, 1, -6)
+logoImg.Position = UDim2.new(0, 3, 0, 3)
+logoImg.BackgroundTransparency = 1
+logoImg.Image = IMAGE_ID
+logoImg.ScaleType = Enum.ScaleType.Crop
+logoImg.ZIndex = 8
+logoImg.Parent = logoBadge
+Instance.new("UICorner", logoImg).CornerRadius = UDim.new(0, 7)
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -110, 1, 0)
-title.Position = UDim2.new(0, 12, 0, 0)
+title.Size = UDim2.new(0, 300, 0, 22)
+title.Position = UDim2.new(0, 56, 0, 8)
 title.BackgroundTransparency = 1
 title.Text = "✦ LATINA HUB RAP ✦"
 title.TextColor3 = T.text
 title.Font = Enum.Font.GothamBlack
-title.TextSize = 13
+title.TextSize = 15
 title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = titleBar
+title.ZIndex = 7
+title.Parent = header
 
 local titleGrad = Instance.new("UIGradient")
 titleGrad.Color = ColorSequence.new(rainbowColors)
@@ -314,34 +353,62 @@ task.spawn(function()
     end
 end)
 
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(0, 260, 0, 12)
+subtitle.Position = UDim2.new(0, 56, 0, 30)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "RIDE A PET  ·  LANDSCAPE EDITION"
+subtitle.TextColor3 = T.accent2
+subtitle.Font = Enum.Font.GothamBold
+subtitle.TextSize = 9
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.ZIndex = 7
+subtitle.Parent = header
+
 local fpsFrame = Instance.new("Frame")
-fpsFrame.Size = UDim2.new(0, 70, 0, 20)
-fpsFrame.Position = UDim2.new(1, -94, 0, 11)
+fpsFrame.Size = UDim2.new(0, 100, 0, 24)
+fpsFrame.Position = UDim2.new(1, -140, 0, 14)
 fpsFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-fpsFrame.BackgroundTransparency = 0.4
+fpsFrame.BackgroundTransparency = 0.5
 fpsFrame.BorderSizePixel = 0
 fpsFrame.ZIndex = 7
-fpsFrame.Parent = titleBar
-Instance.new("UICorner", fpsFrame).CornerRadius = UDim.new(0, 5)
+fpsFrame.Parent = header
+Instance.new("UICorner", fpsFrame).CornerRadius = UDim.new(1, 0)
 
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, 0, 0.5, 0)
+fpsLabel.Size = UDim2.new(0.5, 0, 1, 0)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS --"
 fpsLabel.TextColor3 = T.accent2
 fpsLabel.Font = Enum.Font.GothamBold
-fpsLabel.TextSize = 8
+fpsLabel.TextSize = 9
+fpsLabel.ZIndex = 8
 fpsLabel.Parent = fpsFrame
 
 local msLabel = Instance.new("TextLabel")
-msLabel.Size = UDim2.new(1, 0, 0.5, 0)
-msLabel.Position = UDim2.new(0, 0, 0.5, 0)
+msLabel.Size = UDim2.new(0.5, 0, 1, 0)
+msLabel.Position = UDim2.new(0.5, 0, 0, 0)
 msLabel.BackgroundTransparency = 1
 msLabel.Text = "MS --"
 msLabel.TextColor3 = T.accent
 msLabel.Font = Enum.Font.GothamBold
-msLabel.TextSize = 8
+msLabel.TextSize = 9
+msLabel.ZIndex = 8
 msLabel.Parent = fpsFrame
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 28, 0, 28)
+closeBtn.Position = UDim2.new(1, -36, 0.5, -14)
+closeBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 60)
+closeBtn.BackgroundTransparency = 0.2
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = T.bad
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.BorderSizePixel = 0
+closeBtn.ZIndex = 8
+closeBtn.Parent = header
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
 
 task.spawn(function()
     local frames, lastSecond = 0, tick()
@@ -364,73 +431,162 @@ task.spawn(function()
     end
 end)
 
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 24, 0, 24)
-closeBtn.Position = UDim2.new(1, -28, 0, 9)
-closeBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 60)
-closeBtn.Text = "✕"
-closeBtn.TextColor3 = T.bad
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 12
-closeBtn.BorderSizePixel = 0
-closeBtn.ZIndex = 8
-closeBtn.Parent = titleBar
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 120, 1, -104)
+sidebar.Position = UDim2.new(0, 8, 0, 60)
+sidebar.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+sidebar.BackgroundTransparency = 0.3
+sidebar.BorderSizePixel = 0
+sidebar.ZIndex = 6
+sidebar.Parent = win
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 12)
 
-local tabBar = Instance.new("Frame")
-tabBar.Size = UDim2.new(1, -16, 0, 68)
-tabBar.Position = UDim2.new(0, 8, 0, 52)
-tabBar.BackgroundTransparency = 1
-tabBar.Parent = win
+local sideStroke = Instance.new("UIStroke")
+sideStroke.Color = T.panelHi
+sideStroke.Thickness = 1
+sideStroke.Transparency = 0.5
+sideStroke.Parent = sidebar
 
-local tabGrid = Instance.new("UIGridLayout")
-tabGrid.CellSize = UDim2.new(0, 64, 0, 30)
-tabGrid.CellPadding = UDim2.new(0, 3, 0, 3)
-tabGrid.SortOrder = Enum.SortOrder.LayoutOrder
-tabGrid.Parent = tabBar
+local sideList = Instance.new("UIListLayout")
+sideList.SortOrder = Enum.SortOrder.LayoutOrder
+sideList.Padding = UDim.new(0, 4)
+sideList.Parent = sidebar
+
+local sidePad = Instance.new("UIPadding", sidebar)
+sidePad.PaddingTop = UDim.new(0, 8)
+sidePad.PaddingBottom = UDim.new(0, 8)
+sidePad.PaddingLeft = UDim.new(0, 6)
+sidePad.PaddingRight = UDim.new(0, 6)
+
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, -144, 1, -104)
+contentFrame.Position = UDim2.new(0, 136, 0, 60)
+contentFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 42)
+contentFrame.BackgroundTransparency = 0.4
+contentFrame.BorderSizePixel = 0
+contentFrame.ZIndex = 6
+contentFrame.Parent = win
+Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 12)
+
+local contentStroke = Instance.new("UIStroke")
+contentStroke.Color = T.panelHi
+contentStroke.Thickness = 1
+contentStroke.Transparency = 0.5
+contentStroke.Parent = contentFrame
+
+local statusBar = Instance.new("Frame")
+statusBar.Size = UDim2.new(1, -16, 0, 22)
+statusBar.Position = UDim2.new(0, 8, 1, -28)
+statusBar.BackgroundColor3 = Color3.fromRGB(15, 8, 30)
+statusBar.BackgroundTransparency = 0.3
+statusBar.BorderSizePixel = 0
+statusBar.ZIndex = 6
+statusBar.Parent = win
+Instance.new("UICorner", statusBar).CornerRadius = UDim.new(0, 8)
+
+local statusPlayer = Instance.new("TextLabel")
+statusPlayer.Size = UDim2.new(0, 200, 1, 0)
+statusPlayer.Position = UDim2.new(0, 10, 0, 0)
+statusPlayer.BackgroundTransparency = 1
+statusPlayer.Text = "● " .. player.Name
+statusPlayer.TextColor3 = T.good
+statusPlayer.Font = Enum.Font.GothamBold
+statusPlayer.TextSize = 9
+statusPlayer.TextXAlignment = Enum.TextXAlignment.Left
+statusPlayer.ZIndex = 7
+statusPlayer.Parent = statusBar
+
+local statusVersion = Instance.new("TextLabel")
+statusVersion.Size = UDim2.new(0, 260, 1, 0)
+statusVersion.Position = UDim2.new(1, -270, 0, 0)
+statusVersion.BackgroundTransparency = 1
+statusVersion.Text = "LATINA HUB RAP  ·  LANDSCAPE EDITION"
+statusVersion.TextColor3 = T.dim
+statusVersion.Font = Enum.Font.GothamBold
+statusVersion.TextSize = 9
+statusVersion.TextXAlignment = Enum.TextXAlignment.Right
+statusVersion.ZIndex = 7
+statusVersion.Parent = statusBar
 
 local pages = {}
 
 local function makeTab(name, order)
     local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
     btn.BackgroundColor3 = T.panel
+    btn.BackgroundTransparency = 0.4
     btn.Text = name
     btn.TextColor3 = T.dim
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 9
+    btn.TextSize = 10
     btn.BorderSizePixel = 0
     btn.LayoutOrder = order
     btn.AutoButtonColor = false
-    btn.Parent = tabBar
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
+    btn.ZIndex = 7
+    btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
     local s = Instance.new("UIStroke")
     s.Color = T.panelHi
+    s.Thickness = 1
+    s.Transparency = 0.6
     s.Parent = btn
 
-    local page = Instance.new("Frame")
-    page.Size = UDim2.new(1, -16, 1, -136)
-    page.Position = UDim2.new(0, 8, 0, 126)
-    page.BackgroundTransparency = 1
-    page.Visible = false
-    page.Parent = win
+    local activeBar = Instance.new("Frame")
+    activeBar.Size = UDim2.new(0, 3, 0, 0)
+    activeBar.Position = UDim2.new(0, -1, 0.5, 0)
+    activeBar.AnchorPoint = Vector2.new(0, 0.5)
+    activeBar.BackgroundColor3 = T.accent2
+    activeBar.BorderSizePixel = 0
+    activeBar.BackgroundTransparency = 1
+    activeBar.ZIndex = 8
+    activeBar.Parent = btn
+    Instance.new("UICorner", activeBar).CornerRadius = UDim.new(1, 0)
 
-    pages[name] = { btn = btn, page = page, stroke = s }
+    local page = Instance.new("ScrollingFrame")
+    page.Size = UDim2.new(1, -16, 1, -16)
+    page.Position = UDim2.new(0, 8, 0, 8)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = T.accent
+    page.Visible = false
+    page.ZIndex = 7
+    page.Parent = contentFrame
+
+    local pLayout = Instance.new("UIListLayout", page)
+    pLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    pLayout.Padding = UDim.new(0, 6)
+    pLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        page.CanvasSize = UDim2.new(0, 0, 0, pLayout.AbsoluteContentSize.Y + 8)
+    end)
+
+    pages[name] = { btn = btn, page = page, stroke = s, activeBar = activeBar, layout = pLayout }
+
     btn.MouseButton1Click:Connect(function()
         for n, p in pairs(pages) do
             p.page.Visible = (n == name)
             if n == name then
                 p.btn.BackgroundColor3 = T.accent
+                p.btn.BackgroundTransparency = 0
                 p.btn.TextColor3 = Color3.fromRGB(255, 255, 255)
                 p.stroke.Color = T.accent2
                 p.stroke.Thickness = 2
+                p.stroke.Transparency = 0.2
+                p.activeBar.BackgroundTransparency = 0
             else
                 p.btn.BackgroundColor3 = T.panel
+                p.btn.BackgroundTransparency = 0.4
                 p.btn.TextColor3 = T.dim
                 p.stroke.Color = T.panelHi
                 p.stroke.Thickness = 1
+                p.stroke.Transparency = 0.6
+                p.activeBar.BackgroundTransparency = 1
             end
         end
     end)
+
     return page
 end
 
@@ -445,26 +601,46 @@ local ownerPage= makeTab("OWNER", 8)
 
 pages["MAIN"].page.Visible = true
 pages["MAIN"].btn.BackgroundColor3 = T.accent
+pages["MAIN"].btn.BackgroundTransparency = 0
 pages["MAIN"].btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 pages["MAIN"].stroke.Color = T.accent2
 pages["MAIN"].stroke.Thickness = 2
+pages["MAIN"].stroke.Transparency = 0.2
+pages["MAIN"].activeBar.BackgroundTransparency = 0
 
 local function makeButton(parent, text, yPos, onClick)
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1, 0, 0, 32)
-    b.Position = UDim2.new(0, 0, 0, yPos)
+    b.Size = UDim2.new(1, -8, 0, 32)
+    b.Position = UDim2.new(0, 4, 0, yPos)
     b.BackgroundColor3 = T.panel
+    b.BackgroundTransparency = 0.15
     b.Text = text
     b.TextColor3 = T.text
     b.Font = Enum.Font.GothamSemibold
     b.TextSize = 11
     b.BorderSizePixel = 0
     b.AutoButtonColor = false
+    b.ZIndex = 8
     b.Parent = parent
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 7)
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+
     local s = Instance.new("UIStroke")
     s.Color = T.panelHi
+    s.Thickness = 1
+    s.Transparency = 0.5
     s.Parent = b
+
+    b.MouseEnter:Connect(function()
+        b.BackgroundColor3 = T.panelHi
+        s.Color = T.accent2
+        s.Transparency = 0.2
+    end)
+    b.MouseLeave:Connect(function()
+        b.BackgroundColor3 = T.panel
+        s.Color = T.panelHi
+        s.Transparency = 0.5
+    end)
+
     if onClick then b.MouseButton1Click:Connect(onClick) end
     return b
 end
@@ -473,21 +649,22 @@ local function setBtn(b, on, color)
     b.BackgroundColor3 = on and (color or T.good) or T.panel
     b.TextColor3 = on and Color3.fromRGB(0, 0, 0) or T.text
 end
-
 local infoFrame = Instance.new("Frame")
-infoFrame.Size = UDim2.new(1, 0, 0, 100)
-infoFrame.Position = UDim2.new(0, 0, 0, 0)
+infoFrame.Size = UDim2.new(1, -8, 0, 90)
+infoFrame.Position = UDim2.new(0, 4, 0, 0)
 infoFrame.BackgroundColor3 = T.panelHi
 infoFrame.BackgroundTransparency = 0.3
 infoFrame.BorderSizePixel = 0
+infoFrame.ZIndex = 8
 infoFrame.Parent = mainPage
 Instance.new("UICorner", infoFrame).CornerRadius = UDim.new(0, 10)
 
 local avatarFrame = Instance.new("Frame")
-avatarFrame.Size = UDim2.new(0, 70, 0, 70)
-avatarFrame.Position = UDim2.new(0, 12, 0, 15)
+avatarFrame.Size = UDim2.new(0, 65, 0, 65)
+avatarFrame.Position = UDim2.new(0, 12, 0, 12)
 avatarFrame.BackgroundColor3 = T.panel
 avatarFrame.BorderSizePixel = 0
+avatarFrame.ZIndex = 9
 avatarFrame.Parent = infoFrame
 Instance.new("UICorner", avatarFrame).CornerRadius = UDim.new(0, 10)
 
@@ -496,40 +673,44 @@ avatarImg.Size = UDim2.new(1, -4, 1, -4)
 avatarImg.Position = UDim2.new(0, 2, 0, 2)
 avatarImg.BackgroundTransparency = 1
 avatarImg.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
+avatarImg.ZIndex = 10
 avatarImg.Parent = avatarFrame
 Instance.new("UICorner", avatarImg).CornerRadius = UDim.new(0, 8)
 
 local nameLabel = Instance.new("TextLabel")
-nameLabel.Size = UDim2.new(1, -100, 0, 25)
-nameLabel.Position = UDim2.new(0, 92, 0, 25)
+nameLabel.Size = UDim2.new(1, -90, 0, 22)
+nameLabel.Position = UDim2.new(0, 86, 0, 15)
 nameLabel.BackgroundTransparency = 1
 nameLabel.Text = player.DisplayName
 nameLabel.TextColor3 = T.text
 nameLabel.Font = Enum.Font.GothamBold
 nameLabel.TextSize = 14
 nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+nameLabel.ZIndex = 9
 nameLabel.Parent = infoFrame
 
 local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, -100, 0, 20)
-userLabel.Position = UDim2.new(0, 92, 0, 50)
+userLabel.Size = UDim2.new(1, -90, 0, 18)
+userLabel.Position = UDim2.new(0, 86, 0, 38)
 userLabel.BackgroundTransparency = 1
 userLabel.Text = "@" .. player.Name
 userLabel.TextColor3 = T.dim
 userLabel.Font = Enum.Font.GothamMedium
 userLabel.TextSize = 11
 userLabel.TextXAlignment = Enum.TextXAlignment.Left
+userLabel.ZIndex = 9
 userLabel.Parent = infoFrame
 
 local userIdLabel = Instance.new("TextLabel")
-userIdLabel.Size = UDim2.new(1, -100, 0, 18)
-userIdLabel.Position = UDim2.new(0, 92, 0, 70)
+userIdLabel.Size = UDim2.new(1, -90, 0, 16)
+userIdLabel.Position = UDim2.new(0, 86, 0, 58)
 userIdLabel.BackgroundTransparency = 1
 userIdLabel.Text = "ID: " .. player.UserId
 userIdLabel.TextColor3 = T.dim
 userIdLabel.Font = Enum.Font.GothamMedium
 userIdLabel.TextSize = 10
 userIdLabel.TextXAlignment = Enum.TextXAlignment.Left
+userIdLabel.ZIndex = 9
 userIdLabel.Parent = infoFrame
 
 local function applySpeed()
@@ -553,7 +734,7 @@ local function applyJump()
     end)
 end
 
-local speedEnableBtn = makeButton(mainPage, "Enable Speed: OFF", 105)
+local speedEnableBtn = makeButton(mainPage, "Enable Speed: OFF", 100)
 speedEnableBtn.MouseButton1Click:Connect(function()
     state.speedOn = not state.speedOn
     speedEnableBtn.Text = "Enable Speed: " .. (state.speedOn and "ON" or "OFF")
@@ -562,21 +743,23 @@ speedEnableBtn.MouseButton1Click:Connect(function()
 end)
 
 local speedLabel = Instance.new("TextLabel")
-speedLabel.Size = UDim2.new(1, 0, 0, 16)
-speedLabel.Position = UDim2.new(0, 0, 0, 141)
+speedLabel.Size = UDim2.new(1, -16, 0, 16)
+speedLabel.Position = UDim2.new(0, 8, 0, 138)
 speedLabel.BackgroundTransparency = 1
 speedLabel.Text = "Speed: 100"
 speedLabel.TextColor3 = T.text
 speedLabel.Font = Enum.Font.GothamSemibold
 speedLabel.TextSize = 10
 speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+speedLabel.ZIndex = 8
 speedLabel.Parent = mainPage
 
 local speedBar = Instance.new("Frame")
-speedBar.Size = UDim2.new(1, 0, 0, 8)
-speedBar.Position = UDim2.new(0, 0, 0, 159)
+speedBar.Size = UDim2.new(1, -16, 0, 8)
+speedBar.Position = UDim2.new(0, 8, 0, 156)
 speedBar.BackgroundColor3 = T.panelHi
 speedBar.BorderSizePixel = 0
+speedBar.ZIndex = 8
 speedBar.Parent = mainPage
 Instance.new("UICorner", speedBar).CornerRadius = UDim.new(1, 0)
 
@@ -584,6 +767,7 @@ local speedFill = Instance.new("Frame")
 speedFill.Size = UDim2.new(0.1, 0, 1, 0)
 speedFill.BackgroundColor3 = T.accent
 speedFill.BorderSizePixel = 0
+speedFill.ZIndex = 9
 speedFill.Parent = speedBar
 Instance.new("UICorner", speedFill).CornerRadius = UDim.new(1, 0)
 
@@ -594,6 +778,7 @@ speedKnob.BackgroundColor3 = T.accent2
 speedKnob.Text = ""
 speedKnob.BorderSizePixel = 0
 speedKnob.AutoButtonColor = false
+speedKnob.ZIndex = 10
 speedKnob.Parent = speedBar
 Instance.new("UICorner", speedKnob).CornerRadius = UDim.new(1, 0)
 
@@ -631,7 +816,7 @@ UserInputService.InputEnded:Connect(function(i)
     end
 end)
 
-local jumpEnableBtn = makeButton(mainPage, "Enable Jump: OFF", 175)
+local jumpEnableBtn = makeButton(mainPage, "Enable Jump: OFF", 174)
 jumpEnableBtn.MouseButton1Click:Connect(function()
     state.jumpOn = not state.jumpOn
     jumpEnableBtn.Text = "Enable Jump: " .. (state.jumpOn and "ON" or "OFF")
@@ -640,21 +825,23 @@ jumpEnableBtn.MouseButton1Click:Connect(function()
 end)
 
 local jumpLabel = Instance.new("TextLabel")
-jumpLabel.Size = UDim2.new(1, 0, 0, 16)
-jumpLabel.Position = UDim2.new(0, 0, 0, 211)
+jumpLabel.Size = UDim2.new(1, -16, 0, 16)
+jumpLabel.Position = UDim2.new(0, 8, 0, 212)
 jumpLabel.BackgroundTransparency = 1
 jumpLabel.Text = "Jump: 50"
 jumpLabel.TextColor3 = T.text
 jumpLabel.Font = Enum.Font.GothamSemibold
 jumpLabel.TextSize = 10
 jumpLabel.TextXAlignment = Enum.TextXAlignment.Left
+jumpLabel.ZIndex = 8
 jumpLabel.Parent = mainPage
 
 local jumpBar = Instance.new("Frame")
-jumpBar.Size = UDim2.new(1, 0, 0, 8)
-jumpBar.Position = UDim2.new(0, 0, 0, 229)
+jumpBar.Size = UDim2.new(1, -16, 0, 8)
+jumpBar.Position = UDim2.new(0, 8, 0, 230)
 jumpBar.BackgroundColor3 = T.panelHi
 jumpBar.BorderSizePixel = 0
+jumpBar.ZIndex = 8
 jumpBar.Parent = mainPage
 Instance.new("UICorner", jumpBar).CornerRadius = UDim.new(1, 0)
 
@@ -662,6 +849,7 @@ local jumpFill = Instance.new("Frame")
 jumpFill.Size = UDim2.new(0.1, 0, 1, 0)
 jumpFill.BackgroundColor3 = T.accent2
 jumpFill.BorderSizePixel = 0
+jumpFill.ZIndex = 9
 jumpFill.Parent = jumpBar
 Instance.new("UICorner", jumpFill).CornerRadius = UDim.new(1, 0)
 
@@ -672,6 +860,7 @@ jumpKnob.BackgroundColor3 = T.accent
 jumpKnob.Text = ""
 jumpKnob.BorderSizePixel = 0
 jumpKnob.AutoButtonColor = false
+jumpKnob.ZIndex = 10
 jumpKnob.Parent = jumpBar
 Instance.new("UICorner", jumpKnob).CornerRadius = UDim.new(1, 0)
 
@@ -709,6 +898,7 @@ UserInputService.InputEnded:Connect(function(i)
     end
 end)
 
+-- ============ MOVE PAGE ============
 local moveflyBtn = makeButton(movePage, "Fly: OFF", 0)
 local flyVel, flyGyro, flyConn
 moveflyBtn.MouseButton1Click:Connect(function()
@@ -744,7 +934,7 @@ moveflyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local noclipBtn = makeButton(movePage, "Noclip: OFF", 38)
+local noclipBtn = makeButton(movePage, "Noclip: OFF", 40)
 noclipBtn.MouseButton1Click:Connect(function()
     state.noclipOn = not state.noclipOn
     noclipBtn.Text = "Noclip: " .. (state.noclipOn and "ON" or "OFF")
@@ -764,14 +954,14 @@ task.spawn(function()
     end
 end)
 
-local sprintBtn = makeButton(movePage, "Auto-Sprint: OFF", 76)
+local sprintBtn = makeButton(movePage, "Auto-Sprint: OFF", 80)
 sprintBtn.MouseButton1Click:Connect(function()
     state.autoSprint = not state.autoSprint
     sprintBtn.Text = "Auto-Sprint: " .. (state.autoSprint and "ON" or "OFF")
     setBtn(sprintBtn, state.autoSprint)
 end)
 
-local fallBtn = makeButton(movePage, "Anti-Fall: OFF", 114)
+local fallBtn = makeButton(movePage, "Anti-Fall: OFF", 120)
 fallBtn.MouseButton1Click:Connect(function()
     state.antiFall = not state.antiFall
     fallBtn.Text = "Anti-Fall: " .. (state.antiFall and "ON" or "OFF")
@@ -791,10 +981,10 @@ task.spawn(function()
         end
     end
 end)
-
+-- ============ TP PAGE ============
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
-local tpBaseBtn = makeButton(tpPage, "Teleport to Underground Base", 38)
-local autoTPBtn = makeButton(tpPage, "Auto Best Egg TP: OFF", 76)
+local tpBaseBtn = makeButton(tpPage, "Teleport to Underground Base", 40)
+local autoTPBtn = makeButton(tpPage, "Auto Best Egg TP: OFF", 80)
 
 local function isEggTaken(egg)
     local node = egg
@@ -939,6 +1129,239 @@ task.spawn(function()
     end
 end)
 
+local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 120)
+local findInput = Instance.new("TextBox")
+findInput.Size = UDim2.new(1, -8, 0, 30)
+findInput.Position = UDim2.new(0, 4, 0, 160)
+findInput.BackgroundColor3 = Color3.fromRGB(50, 30, 90)
+findInput.Text = ""
+findInput.PlaceholderText = "Type pet or egg name"
+findInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+findInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
+findInput.Font = Enum.Font.GothamSemibold
+findInput.TextSize = 11
+findInput.BorderSizePixel = 0
+findInput.ClearTextOnFocus = false
+findInput.ZIndex = 8
+findInput.Parent = tpPage
+Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 7)
+
+local findGoBtn = makeButton(tpPage, "Find & Teleport", 198)
+local findListBtn = makeButton(tpPage, "List Available Eggs", 238)
+
+local findScroll = Instance.new("ScrollingFrame")
+findScroll.Size = UDim2.new(1, -8, 0, 150)
+findScroll.Position = UDim2.new(0, 4, 0, 278)
+findScroll.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+findScroll.BorderSizePixel = 0
+findScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+findScroll.ScrollBarThickness = 4
+findScroll.ZIndex = 8
+findScroll.Parent = tpPage
+Instance.new("UICorner", findScroll).CornerRadius = UDim.new(0, 7)
+
+local findLayout = Instance.new("UIListLayout")
+findLayout.Padding = UDim.new(0, 2)
+findLayout.SortOrder = Enum.SortOrder.LayoutOrder
+findLayout.Parent = findScroll
+
+local function findLog(msg)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -8, 0, 18)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = msg
+    lbl.TextColor3 = Color3.fromRGB(220, 210, 240)
+    lbl.Font = Enum.Font.Code
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 9
+    lbl.Parent = findScroll
+    findScroll.CanvasSize = UDim2.new(0, 0, 0, findLayout.AbsoluteContentSize.Y)
+end
+
+local FIND_SKIP_ROOTS = {
+    "Ground", "Decorations", "Props", "Terrain",
+    "Camera", "Lighting", "Effects", "VFX",
+}
+local FIND_REQUIRE_KW = { "egg", "spawn", "shop", "nest" }
+
+local function findIsUnderSkipRoot(obj)
+    local node = obj
+    while node and node ~= workspace do
+        for _, skip in ipairs(FIND_SKIP_ROOTS) do
+            if node.Name == skip then return true end
+        end
+        node = node.Parent
+    end
+    return false
+end
+
+local function findHasRequiredKeyword(name)
+    local n = name:lower()
+    for _, k in ipairs(FIND_REQUIRE_KW) do
+        if n:find(k, 1, true) then return true end
+    end
+    return false
+end
+
+local function findCollectEggs()
+    local list = {}
+    local seen = {}
+    local re = workspace:FindFirstChild("RenderedEggs")
+    if re then
+        for _, egg in ipairs(re:GetChildren()) do
+            if egg:IsA("Model") or egg:IsA("BasePart") then
+                local part = egg:IsA("BasePart") and egg
+                    or egg.PrimaryPart
+                    or egg:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    table.insert(list, {
+                        obj = egg, part = part, name = egg.Name,
+                        taken = isEggTaken(egg),
+                    })
+                    seen[egg] = true
+                end
+            end
+        end
+    end
+    for _, o in ipairs(workspace:GetDescendants()) do
+        if o.Name:lower():match(CONFIG.EggMatch) and not seen[o] then
+            if not findIsUnderSkipRoot(o) and findHasRequiredKeyword(o.Name) then
+                local part
+                if o:IsA("BasePart") then part = o
+                elseif o:IsA("Model") then
+                    part = o.PrimaryPart or o:FindFirstChildWhichIsA("BasePart")
+                end
+                if part then
+                    table.insert(list, {
+                        obj = o, part = part, name = o.Name,
+                        taken = isEggTaken(o),
+                    })
+                    seen[o] = true
+                end
+            end
+        end
+    end
+    return list
+end
+
+-- read the pet name that is inside an egg
+local function getPetNameInsideEgg(egg)
+    local obj = egg.obj
+    for _, a in ipairs({"Pet","PetName","Contents","Content","Inside","Reward","Item","Name"}) do
+        local v = obj:GetAttribute(a)
+        if v and type(v) == "string" and #v > 1 then return v end
+    end
+    for _, d in ipairs(obj:GetDescendants()) do
+        local n = d.Name:lower()
+        if d:IsA("StringValue") and (n:find("pet") or n:find("content") or n:find("inside") or n:find("reward") or n:find("name")) then
+            if d.Value and #d.Value > 1 then return d.Value end
+        elseif d:IsA("ObjectValue") and (n:find("pet") or n:find("content") or n:find("inside")) then
+            if d.Value then return d.Value.Name end
+        end
+    end
+    for _, d in ipairs(obj:GetDescendants()) do
+        if d:IsA("TextLabel") and d.Text and #d.Text > 1 then
+            local txt = d.Text
+            local m = txt:match("[Pp]et[:%s]*([%w%s%-']+)")
+            if m and #m > 1 then return m:gsub("^%s+",""):gsub("%s+$","") end
+            if not txt:lower():find("egg") and #txt > 2 and #txt < 40 then
+                return txt
+            end
+        end
+    end
+    for _, d in ipairs(obj:GetChildren()) do
+        if d:IsA("Model") and d ~= obj and #d.Name > 2 and not d.Name:lower():find("egg") then
+            return d.Name
+        end
+    end
+    return nil
+end
+
+local function findTeleportBiggest()
+    local list = findCollectEggs()
+    local best, bestScore = nil, -1
+    for _, e in ipairs(list) do
+        if not e.taken then
+            local score = 0
+            if e.obj:IsA("BasePart") then
+                local s = e.obj.Size
+                score = s.X + s.Y + s.Z
+            else
+                for _, p in ipairs(e.obj:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        local s = p.Size
+                        local sc = s.X + s.Y + s.Z
+                        if sc > score then score = sc end
+                    end
+                end
+            end
+            if score > bestScore then best, bestScore = e, score end
+        end
+    end
+    if not best then findLog("No available egg found"); return end
+    local c = player.Character
+    if not c then return end
+    pcall(function()
+        c:PivotTo(CFrame.new(best.part.Position + Vector3.new(0, 4, 0)))
+    end)
+    findLog(string.format("Biggest: %s (size %.0f)", best.name, bestScore))
+end
+
+local function findTeleportByName(query)
+    if not query or query == "" then findLog("Type a name first"); return end
+    local q = query:lower()
+    local list = findCollectEggs()
+    local hits = {}
+    for _, e in ipairs(list) do
+        if not e.taken then
+            local petName = getPetNameInsideEgg(e)
+            e.petName = petName
+            if e.name:lower():find(q, 1, true) or (petName and petName:lower():find(q, 1, true)) then
+                table.insert(hits, e)
+            end
+        end
+    end
+    if #hits == 0 then
+        findLog("No egg containing '"..query.."'")
+        return
+    end
+    findLog("Found "..#hits.." match(es):")
+    for i = 1, math.min(5, #hits) do
+        local h = hits[i]
+        findLog("  "..h.name.."  ("..(h.petName or "?")..")")
+    end
+    local c = player.Character
+    if not c then return end
+    pcall(function()
+        c:PivotTo(CFrame.new(hits[1].part.Position + Vector3.new(0, 4, 0)))
+    end)
+    findLog("TP -> "..hits[1].name.." ["..(hits[1].petName or "?").."]")
+end
+
+local function findListEggs()
+    for _, c in ipairs(findScroll:GetChildren()) do
+        if c:IsA("TextLabel") then c:Destroy() end
+    end
+    local list = findCollectEggs()
+    local avail = 0
+    for _, e in ipairs(list) do if not e.taken then avail = avail + 1 end end
+    findLog("Eggs: "..#list.." | Available: "..avail)
+    for i, e in ipairs(list) do
+        local tag = e.taken and "[TAKEN]" or "[FREE] "
+        local petName = getPetNameInsideEgg(e)
+        findLog(string.format("%2d. %s %s  ->  %s", i, tag, e.name, petName or "?"))
+    end
+end
+
+findBiggestBtn.MouseButton1Click:Connect(findTeleportBiggest)
+findGoBtn.MouseButton1Click:Connect(function()
+    findTeleportByName(findInput.Text)
+end)
+findListBtn.MouseButton1Click:Connect(findListEggs)
+
+findLog("Ready. Type pet or egg name, then press Find & Teleport.")
+-- ============ ESP PAGE ============
 local espBtn = makeButton(espPage, "Egg ESP: OFF", 0)
 local espFolder = Instance.new("Folder")
 espFolder.Name = "EggESP"
@@ -1027,6 +1450,7 @@ task.spawn(function()
     end
 end)
 
+-- ============ VIS PAGE ============
 local origLighting = {
     Brightness = Lighting.Brightness,
     ClockTime = Lighting.ClockTime,
@@ -1049,8 +1473,7 @@ fbBtn.MouseButton1Click:Connect(function()
         Lighting.OutdoorAmbient = Color3.fromRGB(200, 200, 200)
         Lighting.Ambient = Color3.fromRGB(180, 180, 180)
     else
-
-Lighting.Brightness = origLighting.Brightness
+        Lighting.Brightness = origLighting.Brightness
         Lighting.ClockTime = origLighting.ClockTime
         Lighting.FogEnd = origLighting.FogEnd
         Lighting.GlobalShadows = origLighting.GlobalShadows
@@ -1059,7 +1482,7 @@ Lighting.Brightness = origLighting.Brightness
     end
 end)
 
-local bloomBtn = makeButton(visPage, "Bloom: OFF", 38)
+local bloomBtn = makeButton(visPage, "Bloom: OFF", 40)
 local bloomFx
 bloomBtn.MouseButton1Click:Connect(function()
     state.bloomOn = not state.bloomOn
@@ -1076,7 +1499,7 @@ bloomBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local cartoonBtn = makeButton(visPage, "Cartoon: OFF", 76)
+local cartoonBtn = makeButton(visPage, "Cartoon: OFF", 80)
 local cartoonFx
 cartoonBtn.MouseButton1Click:Connect(function()
     state.cartoonOn = not state.cartoonOn
@@ -1093,7 +1516,7 @@ cartoonBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local blurBtn = makeButton(visPage, "Blur: OFF", 114)
+local blurBtn = makeButton(visPage, "Blur: OFF", 120)
 local blurFx
 blurBtn.MouseButton1Click:Connect(function()
     state.blurOn = not state.blurOn
@@ -1108,7 +1531,7 @@ blurBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local dofBtn = makeButton(visPage, "DOF: OFF", 152)
+local dofBtn = makeButton(visPage, "DOF: OFF", 160)
 local dofFx
 dofBtn.MouseButton1Click:Connect(function()
     state.dofOn = not state.dofOn
@@ -1126,7 +1549,7 @@ dofBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local neonBtn = makeButton(visPage, "Neon: OFF", 190)
+local neonBtn = makeButton(visPage, "Neon: OFF", 200)
 local neonFx
 neonBtn.MouseButton1Click:Connect(function()
     state.neonOn = not state.neonOn
@@ -1144,21 +1567,23 @@ neonBtn.MouseButton1Click:Connect(function()
 end)
 
 local fovLabel = Instance.new("TextLabel")
-fovLabel.Size = UDim2.new(1, 0, 0, 16)
-fovLabel.Position = UDim2.new(0, 0, 0, 228)
+fovLabel.Size = UDim2.new(1, -16, 0, 16)
+fovLabel.Position = UDim2.new(0, 8, 0, 240)
 fovLabel.BackgroundTransparency = 1
 fovLabel.Text = "FOV: 70"
 fovLabel.TextColor3 = T.text
 fovLabel.Font = Enum.Font.GothamSemibold
 fovLabel.TextSize = 10
 fovLabel.TextXAlignment = Enum.TextXAlignment.Left
+fovLabel.ZIndex = 8
 fovLabel.Parent = visPage
 
 local fovBar = Instance.new("Frame")
-fovBar.Size = UDim2.new(1, 0, 0, 6)
-fovBar.Position = UDim2.new(0, 0, 0, 246)
+fovBar.Size = UDim2.new(1, -16, 0, 6)
+fovBar.Position = UDim2.new(0, 8, 0, 258)
 fovBar.BackgroundColor3 = T.panelHi
 fovBar.BorderSizePixel = 0
+fovBar.ZIndex = 8
 fovBar.Parent = visPage
 Instance.new("UICorner", fovBar).CornerRadius = UDim.new(1, 0)
 
@@ -1169,6 +1594,7 @@ fovKnob.BackgroundColor3 = T.accent2
 fovKnob.Text = ""
 fovKnob.BorderSizePixel = 0
 fovKnob.AutoButtonColor = false
+fovKnob.ZIndex = 9
 fovKnob.Parent = fovBar
 Instance.new("UICorner", fovKnob).CornerRadius = UDim.new(1, 0)
 
@@ -1204,13 +1630,13 @@ UserInputService.InputEnded:Connect(function(i)
     end
 end)
 
-local resetFovBtn = makeButton(visPage, "Reset FOV", 268)
+local resetFovBtn = makeButton(visPage, "Reset FOV", 278)
 resetFovBtn.MouseButton1Click:Connect(function()
     workspace.CurrentCamera.FieldOfView = 70
     fovLabel.Text = "FOV: 70"
     fovKnob.Position = UDim2.new(0, -7, 0.5, -7)
 end)
-
+-- ============ AUTO PAGE ============
 local collectBtn = makeButton(autoPage, "Auto-Collect: OFF", 0)
 collectBtn.MouseButton1Click:Connect(function()
     state.autoCollect = not state.autoCollect
@@ -1242,7 +1668,7 @@ task.spawn(function()
     end
 end)
 
-local hopBtn = makeButton(autoPage, "Server Hop", 38)
+local hopBtn = makeButton(autoPage, "Server Hop", 40)
 hopBtn.MouseButton1Click:Connect(function()
     pcall(function()
         local TeleportService = game:GetService("TeleportService")
@@ -1258,20 +1684,20 @@ hopBtn.MouseButton1Click:Connect(function()
                 end
             end
         end
-
-if #servers > 0 then
+        if #servers > 0 then
             TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], player)
         end
     end)
 end)
 
-local rejoinBtn = makeButton(autoPage, "Rejoin Server", 76)
+local rejoinBtn = makeButton(autoPage, "Rejoin Server", 80)
 rejoinBtn.MouseButton1Click:Connect(function()
     pcall(function()
         game:GetService("TeleportService"):Teleport(game.PlaceId, player)
     end)
 end)
 
+-- ============ MISC PAGE ============
 local godBtn = makeButton(miscPage, "Godmode (local): OFF", 0)
 godBtn.MouseButton1Click:Connect(function()
     state.godOn = not state.godOn
@@ -1283,7 +1709,7 @@ godBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
-local respawnBtn = makeButton(miscPage, "Auto-Respawn: OFF", 38)
+local respawnBtn = makeButton(miscPage, "Auto-Respawn: OFF", 40)
 respawnBtn.MouseButton1Click:Connect(function()
     state.autoRespawn = not state.autoRespawn
     respawnBtn.Text = "Auto-Respawn: " .. (state.autoRespawn and "ON" or "OFF")
@@ -1305,7 +1731,7 @@ task.spawn(function()
     end
 end)
 
-local fpsBoostBtn = makeButton(miscPage, "FPS Boost: OFF", 76)
+local fpsBoostBtn = makeButton(miscPage, "FPS Boost: OFF", 80)
 local fpsBoostCache = {}
 fpsBoostBtn.MouseButton1Click:Connect(function()
     state.fpsBoost = not state.fpsBoost
@@ -1336,7 +1762,7 @@ fpsBoostBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local notifyBtn = makeButton(miscPage, "Notify: Hello", 114)
+local notifyBtn = makeButton(miscPage, "Notify: Hello", 120)
 notifyBtn.MouseButton1Click:Connect(function()
     pcall(function()
         StarterGui:SetCore("SendNotification", {
@@ -1347,6 +1773,7 @@ notifyBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- ============ OWNER PAGE ============
 local ownerTitle = Instance.new("TextLabel")
 ownerTitle.Size = UDim2.new(1, 0, 0, 40)
 ownerTitle.Position = UDim2.new(0, 0, 0, 10)
@@ -1355,6 +1782,7 @@ ownerTitle.Text = "✦ OWNER ✦"
 ownerTitle.TextColor3 = T.accent2
 ownerTitle.Font = Enum.Font.GothamBlack
 ownerTitle.TextSize = 18
+ownerTitle.ZIndex = 8
 ownerTitle.Parent = ownerPage
 
 local ownerName = Instance.new("TextLabel")
@@ -1365,19 +1793,21 @@ ownerName.Text = "LATINA HUB RAP"
 ownerName.TextColor3 = T.text
 ownerName.Font = Enum.Font.GothamBold
 ownerName.TextSize = 15
+ownerName.ZIndex = 8
 ownerName.Parent = ownerPage
 
 local tiktokLabel = Instance.new("TextLabel")
 tiktokLabel.Size = UDim2.new(1, 0, 0, 25)
-tiktokLabel.Position = UDim2.new(0, 0, 0, 100)
+tiktokLabel.Position = UDim2.new(0, 0, 0, 95)
 tiktokLabel.BackgroundTransparency = 1
 tiktokLabel.Text = "TikTok: " .. TIKTOK
 tiktokLabel.TextColor3 = T.text
 tiktokLabel.Font = Enum.Font.GothamSemibold
 tiktokLabel.TextSize = 13
+tiktokLabel.ZIndex = 8
 tiktokLabel.Parent = ownerPage
 
-local copyTiktokBtn = makeButton(ownerPage, "Copy TikTok", 135)
+local copyTiktokBtn = makeButton(ownerPage, "Copy TikTok", 130)
 copyTiktokBtn.MouseButton1Click:Connect(function()
     pcall(function()
         if setclipboard then setclipboard(TIKTOK) end
@@ -1389,15 +1819,16 @@ end)
 
 local discordLabel = Instance.new("TextLabel")
 discordLabel.Size = UDim2.new(1, 0, 0, 25)
-discordLabel.Position = UDim2.new(0, 0, 0, 180)
+discordLabel.Position = UDim2.new(0, 0, 0, 170)
 discordLabel.BackgroundTransparency = 1
 discordLabel.Text = "Discord Server"
 discordLabel.TextColor3 = T.text
 discordLabel.Font = Enum.Font.GothamSemibold
 discordLabel.TextSize = 13
+discordLabel.ZIndex = 8
 discordLabel.Parent = ownerPage
 
-local copyDiscordBtn = makeButton(ownerPage, "Copy Discord Link", 210)
+local copyDiscordBtn = makeButton(ownerPage, "Copy Discord Link", 200)
 copyDiscordBtn.MouseButton1Click:Connect(function()
     pcall(function()
         if setclipboard then setclipboard(DISCORD_LINK) end
@@ -1409,18 +1840,20 @@ end)
 
 local discordInfo = Instance.new("TextLabel")
 discordInfo.Size = UDim2.new(1, 0, 0, 30)
-discordInfo.Position = UDim2.new(0, 0, 0, 250)
+discordInfo.Position = UDim2.new(0, 0, 0, 240)
 discordInfo.BackgroundTransparency = 1
 discordInfo.Text = DISCORD_LINK
 discordInfo.TextColor3 = T.accent2
 discordInfo.Font = Enum.Font.GothamMedium
 discordInfo.TextSize = 9
 discordInfo.TextWrapped = true
+discordInfo.ZIndex = 8
 discordInfo.Parent = ownerPage
 
+-- ============ FLOATING ICON ============
 local icon = Instance.new("TextButton")
-icon.Size = UDim2.new(0, 60, 0, 60)
-icon.Position = UDim2.new(0, 15, 0.5, -30)
+icon.Size = UDim2.new(0, 58, 0, 58)
+icon.Position = UDim2.new(0, 15, 0.5, -29)
 icon.BackgroundColor3 = T.panel
 icon.Text = ""
 icon.BorderSizePixel = 0
@@ -1458,6 +1891,7 @@ closeBtn.MouseButton1Click:Connect(function()
     iconStroke.Color = T.good
 end)
 
+-- ============ LOOPS ============
 task.spawn(function()
     while task.wait(0.3) do
         if state.speedOn then applySpeed() end
@@ -1492,215 +1926,13 @@ player.CharacterAdded:Connect(function(c)
     if state.jumpOn then applyJump() end
 end)
 
--- ============================================================
--- ADD INTO EXISTING "TP" TAB (no new tab)
--- Paste this whole block BEFORE the line: playIntro()
--- ============================================================
-
--- Move existing TP buttons down to make room
-tpBestBtn.Position = UDim2.new(0, 0, 0, 152)
-tpBaseBtn.Position = UDim2.new(0, 0, 0, 190)
-eggToBaseBtn.Position = UDim2.new(0, 0, 0, 228)
-autoTPBtn.Position = UDim2.new(0, 0, 0, 266)
-
--- Feature 1: Teleport to Biggest Egg
-local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 0)
-
--- Feature 2: Find & Teleport by Name
-local findInput = Instance.new("TextBox")
-findInput.Size = UDim2.new(1, 0, 0, 30)
-findInput.Position = UDim2.new(0, 0, 0, 38)
-findInput.BackgroundColor3 = Color3.fromRGB(50, 30, 90)
-findInput.Text = ""
-findInput.PlaceholderText = "Type pet / egg name"
-findInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-findInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
-findInput.Font = Enum.Font.GothamSemibold
-findInput.TextSize = 11
-findInput.BorderSizePixel = 0
-findInput.ClearTextOnFocus = false
-findInput.Parent = tpPage
-Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 7)
-
-local findGoBtn = makeButton(tpPage, "Find & Teleport", 76)
-
--- Feature 3: List Available Eggs
-local findListBtn = makeButton(tpPage, "List Available Eggs", 114)
-
--- Log area at the bottom of TP tab
-local findScroll = Instance.new("ScrollingFrame")
-findScroll.Size = UDim2.new(1, 0, 1, -320)
-findScroll.Position = UDim2.new(0, 0, 0, 312)
-findScroll.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
-findScroll.BorderSizePixel = 0
-findScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-findScroll.ScrollBarThickness = 4
-findScroll.Parent = tpPage
-Instance.new("UICorner", findScroll).CornerRadius = UDim.new(0, 7)
-
-local findLayout = Instance.new("UIListLayout")
-findLayout.Padding = UDim.new(0, 2)
-findLayout.SortOrder = Enum.SortOrder.LayoutOrder
-findLayout.Parent = findScroll
-
-local function findLog(msg)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -8, 0, 18)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = msg
-    lbl.TextColor3 = Color3.fromRGB(220, 210, 240)
-    lbl.Font = Enum.Font.Code
-    lbl.TextSize = 10
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = findScroll
-    findScroll.CanvasSize = UDim2.new(0, 0, 0, findLayout.AbsoluteContentSize.Y)
-end
-
-local FIND_SKIP_ROOTS = {
-    "Ground", "Decorations", "Props", "Terrain",
-    "Camera", "Lighting", "Effects", "VFX",
-}
-local FIND_REQUIRE_KW = { "egg", "spawn", "shop", "nest" }
-
-local function findIsUnderSkipRoot(obj)
-    local node = obj
-    while node and node ~= workspace do
-        for _, skip in ipairs(FIND_SKIP_ROOTS) do
-            if node.Name == skip then return true end
-        end
-        node = node.Parent
-    end
-    return false
-end
-
-local function findHasRequiredKeyword(name)
-    local n = name:lower()
-    for _, k in ipairs(FIND_REQUIRE_KW) do
-        if n:find(k, 1, true) then return true end
-    end
-    return false
-end
-
-local function findCollectEggs()
-    local list = {}
-    local seen = {}
-    local re = workspace:FindFirstChild("RenderedEggs")
-    if re then
-        for _, egg in ipairs(re:GetChildren()) do
-            if egg:IsA("Model") or egg:IsA("BasePart") then
-                local part = egg:IsA("BasePart") and egg
-                    or egg.PrimaryPart
-                    or egg:FindFirstChildWhichIsA("BasePart")
-                if part then
-                    table.insert(list, {
-                        obj = egg, part = part, name = egg.Name,
-                        taken = isEggTaken(egg),
-                    })
-                    seen[egg] = true
-                end
-            end
-        end
-    end
-    for _, o in ipairs(workspace:GetDescendants()) do
-        if o.Name:lower():match(CONFIG.EggMatch) and not seen[o] then
-            if not findIsUnderSkipRoot(o) and findHasRequiredKeyword(o.Name) then
-                local part
-                if o:IsA("BasePart") then part = o
-                elseif o:IsA("Model") then
-                    part = o.PrimaryPart or o:FindFirstChildWhichIsA("BasePart")
-                end
-                if part then
-                    table.insert(list, {
-                        obj = o, part = part, name = o.Name,
-                        taken = isEggTaken(o),
-                    })
-                    seen[o] = true
-                end
-            end
-        end
-    end
-    return list
-end
-
-local function findTeleportBiggest()
-    local list = findCollectEggs()
-    local best, bestScore = nil, -1
-    for _, e in ipairs(list) do
-        if not e.taken then
-            local score = 0
-            if e.obj:IsA("BasePart") then
-                local s = e.obj.Size
-                score = s.X + s.Y + s.Z
-            else
-                for _, p in ipairs(e.obj:GetDescendants()) do
-                    if p:IsA("BasePart") then
-                        local s = p.Size
-                        local sc = s.X + s.Y + s.Z
-                        if sc > score then score = sc end
-                    end
-                end
-            end
-            if score > bestScore then best, bestScore = e, score end
-        end
-    end
-    if not best then findLog("No available egg found"); return end
-    local c = player.Character
-    if not c then return end
-    pcall(function()
-        c:PivotTo(CFrame.new(best.part.Position + Vector3.new(0, 4, 0)))
-    end)
-    findLog(string.format("Biggest: %s (size %.0f)", best.name, bestScore))
-end
-
-local function findTeleportByName(query)
-    if not query or query == "" then findLog("Type a name first"); return end
-    local q = query:lower()
-    local list = findCollectEggs()
-    local hits = {}
-    for _, e in ipairs(list) do
-        if not e.taken and e.name:lower():find(q, 1, true) then
-            table.insert(hits, e)
-        end
-    end
-    if #hits == 0 then
-        findLog("No available target named '"..query.."'")
-        findLog("(Owned eggs & decorations skipped)")
-        return
-    end
-    findLog("Found "..#hits.." target(s):")
-    for i = 1, math.min(5, #hits) do findLog("  "..hits[i].name) end
-    local c = player.Character
-    if not c then return end
-    pcall(function()
-        c:PivotTo(CFrame.new(hits[1].part.Position + Vector3.new(0, 4, 0)))
-    end)
-    findLog("Teleported to "..hits[1].name)
-end
-
-local function findListEggs()
-    for _, c in ipairs(findScroll:GetChildren()) do
-        if c:IsA("TextLabel") then c:Destroy() end
-    end
-    local list = findCollectEggs()
-    local avail = 0
-    for _, e in ipairs(list) do if not e.taken then avail = avail + 1 end end
-    findLog("Eggs on map: "..#list.." | Available: "..avail)
-    for i, e in ipairs(list) do
-        local tag = e.taken and "[TAKEN]" or "[FREE] "
-        findLog(string.format("%2d. %s %s", i, tag, e.name))
-    end
-end
-
-findBiggestBtn.MouseButton1Click:Connect(findTeleportBiggest)
-findGoBtn.MouseButton1Click:Connect(function()
-    findTeleportByName(findInput.Text)
-end)
-findListBtn.MouseButton1Click:Connect(findListEggs)
-
-findLog("Ready. Type a name or press Biggest Egg.")
-
-playIntro()
+-- ============ LAUNCH ============
+pcall(playIntro)
 task.wait(4.2)
+if intro and intro.Parent then
+    intro.Visible = false
+    intro:Destroy()
+end
 win.Visible = true
 winOpen = true
 iconStroke.Color = T.bad
