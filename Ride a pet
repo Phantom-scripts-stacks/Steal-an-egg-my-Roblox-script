@@ -1031,102 +1031,198 @@ tpBestBtn.MouseButton1Click:Connect(function()
     if part then pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end) end
 end)
 
-local teleporting = false
-local baseName = "Teleport to the Base (v2)"
+-- ============ TELEPORT TO BASE (v2) — FLY VERSION (Speed 15000) ============
+local tpBaseBtn = makeButton(tpPage, "Teleport to the base (v2)", 40)
+local baseName   = "Teleport to the base (v2)"
 
-local function hasEgg()
+local baseFlyState = { flying = false, noclipOn = false }
+
+local function findMyBaseFly()
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then return nil end
+    for _, plot in ipairs(plots:GetChildren()) do
+        if plot:IsA("Model") then
+            local data = plot:FindFirstChild("Data")
+            local owner = data and data:FindFirstChild("Owner")
+            if owner and owner:IsA("ObjectValue") then
+                local v = owner.Value
+                if v and (v.Name == player.Name
+                    or tostring(v) == tostring(player.UserId)) then
+                    return plot:GetPivot().Position
+                end
+            end
+            local nest = plot:GetAttribute("NestsOwnerLoaded")
+            if nest and tostring(nest) == tostring(player.UserId) then
+                return plot:GetPivot().Position
+            end
+        end
+    end
+    return nil
+end
+
+local function baseNoclipApply()
+    local c = player.Character
+    if not c then return end
+    for _, p in ipairs(c:GetDescendants()) do
+        if p:IsA("BasePart") then p.CanCollide = false end
+    end
+end
+
+local function baseNoclipRestore()
+    local c = player.Character
+    if not c then return end
+    for _, p in ipairs(c:GetDescendants()) do
+        if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
+            p.CanCollide = true
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.15) do
+        if baseFlyState.noclipOn then pcall(baseNoclipApply) end
+    end
+end)
+
+local function baseFullStop(reason)
+    baseFlyState.flying   = false
+    baseFlyState.noclipOn = false
+    pcall(baseNoclipRestore)
+
     local c = player.Character
     if c then
-        for _, item in ipairs(c:GetChildren()) do
-            if item.Name:lower():match("egg") then return true end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if h then
+            h:MoveTo(c:GetPivot().Position)
+            h.WalkSpeed = 16
+            h.JumpPower = 50
+            h.UseJumpPower = true
+        end
+        for _, obj in ipairs(c:GetDescendants()) do
+            if obj:IsA("BodyVelocity") or obj:IsA("BodyGyro")
+                or obj:IsA("BodyAngularVelocity")
+                or obj:IsA("BodyForce") or obj:IsA("BodyThrust")
+                or obj:IsA("BodyPosition") then
+                pcall(function() obj:Destroy() end)
+            end
         end
     end
-    local bp = player:FindFirstChild("Backpack")
-    if bp then
-        for _, item in ipairs(bp:GetChildren()) do
-            if item.Name:lower():match("egg") then return true end
-        end
+
+    local cam = workspace.CurrentCamera
+    if cam then
+        cam.CameraType = Enum.CameraType.Custom
+        cam.CameraSubject = player.Character
+            and player.Character:FindFirstChildOfClass("Humanoid")
     end
-    return false
+
+    tpBaseBtn.Text = baseName
 end
 
 tpBaseBtn.MouseButton1Click:Connect(function()
-    if teleporting then
-        teleporting = false
+    if baseFlyState.flying then
+        baseFullStop("Cancelled")
+        return
+    end
+
+    local c = player.Character
+    if not c then return end
+    local r = c:FindFirstChild("HumanoidRootPart")
+    if not r then return end
+
+    local basePos = findMyBaseFly()
+    if not basePos then
+        tpBaseBtn.Text = "Base not found"
+        task.wait(1)
         tpBaseBtn.Text = baseName
         return
     end
 
-    teleporting = true
-    tpBaseBtn.Text = "Teleporting..."
+    baseFlyState.flying   = true
+    baseFlyState.noclipOn = true
+    tpBaseBtn.Text = "Flying..."
 
-    local STEP_SIZE = 100
-    local STEP_DELAY = 0.05
-    local BASE_POSITION = CONFIG.BaseCFrame.Position
+    local FLY_HEIGHT    = 400
+    local SPEED         = 15000
+    local STEP_CAP      = 500
+    local ARRIVE_RADIUS = 40
+    local NEAR_RADIUS   = 800
+    local DESCEND_RATE  = 0.10
+    local TICK_DELAY    = 0.03
+    local LAND_HEIGHT   = 5
+
+    local stepPerTick = math.min(SPEED * TICK_DELAY, STEP_CAP)
 
     task.spawn(function()
-        local c = player.Character or player.CharacterAdded:Wait()
-        local r = c:WaitForChild("HumanoidRootPart")
-        local distance = (BASE_POSITION - r.Position).Magnitude
-        local steps = math.ceil(distance / STEP_SIZE)
-
-        for i = 1, steps do
-            if not teleporting then break end
+        while baseFlyState.flying do
             local cc = player.Character
-            if not cc then break end
+            if not cc then baseFullStop("Character gone"); return end
             local rr = cc:FindFirstChild("HumanoidRootPart")
-            if not rr then break end
+            if not rr then baseFullStop("Root gone"); return end
 
-            local currentPos = rr.Position
-            local diff = BASE_POSITION - currentPos
-            local distLeft = diff.Magnitude
+            local bp = findMyBaseFly()
+            if not bp then baseFullStop("Base lost"); return end
+            basePos = bp
 
-            if distLeft < STEP_SIZE then
-                pcall(function() cc:PivotTo(CFrame.new(BASE_POSITION)) end)
-                break
+            local flatDiff = Vector3.new(
+                basePos.X - rr.Position.X,
+                0,
+                basePos.Z - rr.Position.Z
+            )
+            local flatDist = flatDiff.Magnitude
+
+            local targetY
+            if flatDist > NEAR_RADIUS then
+                targetY = basePos.Y + FLY_HEIGHT
+            else
+                local t = flatDist / NEAR_RADIUS
+                local h = LAND_HEIGHT + (FLY_HEIGHT - LAND_HEIGHT) * t
+                targetY = basePos.Y + h
             end
 
-            local direction = diff.Unit
-            local newPos = currentPos + direction * STEP_SIZE
+            local target = Vector3.new(basePos.X, targetY, basePos.Z)
+            local diff = target - rr.Position
+            local dist = diff.Magnitude
 
-            pcall(function() cc:PivotTo(CFrame.new(newPos)) end)
+            if flatDist <= ARRIVE_RADIUS
+                and math.abs(rr.Position.Y - (basePos.Y + LAND_HEIGHT)) <= 15 then
+                local landing = Vector3.new(
+                    basePos.X,
+                    basePos.Y + LAND_HEIGHT,
+                    basePos.Z
+                )
+                pcall(function()
+                    cc:PivotTo(CFrame.new(landing))
+                end)
+                task.wait(0.1)
+                baseFullStop("Arrived at base")
+                return
+            end
 
-            task.wait(STEP_DELAY)
+            local step
+            if dist < stepPerTick then
+                step = diff
+            else
+                step = diff.Unit * stepPerTick
+            end
+
+            if flatDist <= NEAR_RADIUS then
+                local newY = rr.Position.Y
+                    + (targetY - rr.Position.Y) * DESCEND_RATE
+                step = Vector3.new(step.X, newY - rr.Position.Y, step.Z)
+            end
+
+            pcall(function()
+                cc:PivotTo(CFrame.new(rr.Position + step))
+            end)
+
+            local cam = workspace.CurrentCamera
+            if cam and cam.CameraType ~= Enum.CameraType.Custom then
+                cam.CameraType = Enum.CameraType.Custom
+            end
+
+            task.wait(TICK_DELAY)
         end
-
-        teleporting = false
-        tpBaseBtn.Text = baseName
     end)
-end)
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if teleporting and hasEgg() then
-            teleporting = false
-            tpBaseBtn.Text = baseName
-        end
-    end
-end)
-
-autoTPBtn.MouseButton1Click:Connect(function()
-    state.tpOn = not state.tpOn
-    autoTPBtn.Text = "Auto Best Egg TP: " .. (state.tpOn and "ON" or "OFF")
-    setBtn(autoTPBtn, state.tpOn)
-end)
-
-task.spawn(function()
-    while task.wait(1.0) do
-        if state.tpOn then
-            local best = findBestEgg()
-            if best then
-                local part = getEggPart(best)
-                local c = player.Character
-                if part and c then
-                    pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end)
-                end
-            end
-        end
-    end
 end)
 
 local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 120)
