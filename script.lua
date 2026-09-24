@@ -1005,6 +1005,8 @@ SBX.ZIndex=105
 local KL=createCollapsible(ET,"KEYLESS HUBS","28 hubs","🔓",true,ACG)
 local KQ=createCollapsible(ET,"KEY REQUIRED HUBS","10 hubs","🔑",false,ACR)
                 local KeylessScripts={
+{Name="LENNON KAITUN (OP)",Icon="🔓",Link='loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/4595fe31a5f7a8b4f4dd7071f3119ef7.lua"))()'},
+{Name="MIRANDA AFK (OP)",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/miirandahub/loader/refs/heads/main/mirandaafk.lua"))()'},
 {Name="DECODE HUB",Icon="🔓",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/ItzYumi/Decode/refs/heads/main/DE%3ACODE.lua", true))()'},
 {Name="FOXNAME HUB",Icon="🦊",Link='loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()'},
 {Name="CRZHUB",Icon="🔥",Link='loadstring(game:HttpGet("https://flowauth.net/v1/loaders/3c4e87ed34813171b0f8d53a108a7d88.lua"))()'},
