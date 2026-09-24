@@ -1138,7 +1138,7 @@ tpBaseBtn.MouseButton1Click:Connect(function()
 
     baseFlyState.flying   = true
     baseFlyState.noclipOn = true
-    tpBaseBtn.Text = "Flying..."
+    tpBaseBtn.Text = "GOING..."
 
     local FLY_HEIGHT    = 400
     local SPEED         = 15000
