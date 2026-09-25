@@ -983,7 +983,7 @@ task.spawn(function()
 end)
 -- ============ TP PAGE ============
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
-local tpBaseBtn = makeButton(tpPage, "GO TO PLOT", 40)
+local tpBaseBtn = makeButton(tpPage, "Teleport to base (v3)", 40)
 
 tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
@@ -1033,8 +1033,8 @@ tpBestBtn.MouseButton1Click:Connect(function()
     if part then pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end) end
 end)
 
--- ============ GO TO PLOT (v2) ============
-local baseName   = "GO TO PLOT"
+-- ============ Teleport to base (v3) ============
+local baseName   = "Teleport to base (V3)"
 
 local baseFlyState = { flying = false, noclipOn = false }
 
