@@ -1165,7 +1165,7 @@ tpBaseBtn.MouseButton1Click:Connect(function()
     -- FLY HEIGHT = 5 (very low, almost at ground level)
     local FLY_HEIGHT    = 5
     local SPEED         = 50000
-    local STEP_CAP      = 500
+    local STEP_CAP      = 5000
     local ARRIVE_RADIUS = 40
     local NEAR_RADIUS   = 500
     local DESCEND_RATE  = 0.10
