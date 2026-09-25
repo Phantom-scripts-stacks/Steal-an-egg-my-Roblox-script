@@ -984,7 +984,9 @@ end)
 -- ============ TP PAGE ============
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
 local tpBaseBtn = makeButton(tpPage, "GO TO PLOT", 40)
-local autoTPBtn = makeButton(tpPage, "Auto Best Egg TP: OFF", 80)
+
+tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
 local function isEggTaken(egg)
     local node = egg
@@ -1031,10 +1033,17 @@ tpBestBtn.MouseButton1Click:Connect(function()
     if part then pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end) end
 end)
 
--- ============ GO TO PLOT (v2)============
+-- ============ GO TO PLOT (v2) ============
 local baseName   = "GO TO PLOT"
 
 local baseFlyState = { flying = false, noclipOn = false }
+
+local baseSavedState = {
+    hadNoclip = false,
+    hadFly = false,
+    walkSpeed = 16,
+    jumpPower = 50,
+}
 
 local function findMyBaseFly()
     local plots = workspace:FindFirstChild("Plots")
@@ -1086,22 +1095,23 @@ end)
 local function baseFullStop(reason)
     baseFlyState.flying   = false
     baseFlyState.noclipOn = false
-    pcall(baseNoclipRestore)
+
+    if not baseSavedState.hadNoclip then
+        pcall(baseNoclipRestore)
+    end
 
     local c = player.Character
     if c then
         local h = c:FindFirstChildOfClass("Humanoid")
         if h then
             h:MoveTo(c:GetPivot().Position)
-            h.WalkSpeed = 16
-            h.JumpPower = 50
+            h.WalkSpeed = baseSavedState.walkSpeed
+            h.JumpPower = baseSavedState.jumpPower
             h.UseJumpPower = true
         end
         for _, obj in ipairs(c:GetDescendants()) do
-            if obj:IsA("BodyVelocity") or obj:IsA("BodyGyro")
-                or obj:IsA("BodyAngularVelocity")
-                or obj:IsA("BodyForce") or obj:IsA("BodyThrust")
-                or obj:IsA("BodyPosition") then
+            if (obj:IsA("BodyVelocity") or obj:IsA("BodyGyro"))
+                and obj.Name == "GoToPlotMover" then
                 pcall(function() obj:Destroy() end)
             end
         end
@@ -1115,6 +1125,8 @@ local function baseFullStop(reason)
     end
 
     tpBaseBtn.Text = baseName
+    tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 end
 
 tpBaseBtn.MouseButton1Click:Connect(function()
@@ -1133,18 +1145,29 @@ tpBaseBtn.MouseButton1Click:Connect(function()
         tpBaseBtn.Text = "Base not found"
         task.wait(1)
         tpBaseBtn.Text = baseName
+        tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
         return
     end
+
+    local h = c:FindFirstChildOfClass("Humanoid")
+    baseSavedState.hadNoclip = state.noclipOn
+    baseSavedState.hadFly    = state.flyOn
+    baseSavedState.walkSpeed = h and h.WalkSpeed or 16
+    baseSavedState.jumpPower = h and h.JumpPower or 50
 
     baseFlyState.flying   = true
     baseFlyState.noclipOn = true
     tpBaseBtn.Text = "GOING..."
+    tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
-    local FLY_HEIGHT    = 350
-    local SPEED         = 15000
-    local STEP_CAP      = 500
+    -- FLY HEIGHT = 5 (very low, almost at ground level)
+    local FLY_HEIGHT    = 5
+    local SPEED         = 50000
+    local STEP_CAP      = 5000
     local ARRIVE_RADIUS = 40
-    local NEAR_RADIUS   = 800
+    local NEAR_RADIUS   = 500
     local DESCEND_RATE  = 0.10
     local TICK_DELAY    = 0.03
     local LAND_HEIGHT   = 3
@@ -1174,8 +1197,8 @@ tpBaseBtn.MouseButton1Click:Connect(function()
                 targetY = basePos.Y + FLY_HEIGHT
             else
                 local t = flatDist / NEAR_RADIUS
-                local h = LAND_HEIGHT + (FLY_HEIGHT - LAND_HEIGHT) * t
-                targetY = basePos.Y + h
+                local hh = LAND_HEIGHT + (FLY_HEIGHT - LAND_HEIGHT) * t
+                targetY = basePos.Y + hh
             end
 
             local target = Vector3.new(basePos.X, targetY, basePos.Z)
@@ -1340,7 +1363,6 @@ local function findCollectEggs()
     return list
 end
 
--- read the pet name that is inside an egg
 local function getPetNameInsideEgg(egg)
     local obj = egg.obj
     for _, a in ipairs({"Pet","PetName","Contents","Content","Inside","Reward","Item","Name"}) do
@@ -1456,6 +1478,7 @@ end)
 findListBtn.MouseButton1Click:Connect(findListEggs)
 
 findLog("Ready. Type pet or egg name, then press Find & Teleport.")
+
 -- ============ ESP PAGE ============
 local espBtn = makeButton(espPage, "Egg ESP: OFF", 0)
 local espFolder = Instance.new("Folder")
@@ -1731,6 +1754,7 @@ resetFovBtn.MouseButton1Click:Connect(function()
     fovLabel.Text = "FOV: 70"
     fovKnob.Position = UDim2.new(0, -7, 0.5, -7)
 end)
+
 -- ============ AUTO PAGE ============
 local collectBtn = makeButton(autoPage, "Auto-Collect: OFF", 0)
 collectBtn.MouseButton1Click:Connect(function()
