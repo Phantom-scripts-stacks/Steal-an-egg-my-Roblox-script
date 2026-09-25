@@ -1140,14 +1140,14 @@ tpBaseBtn.MouseButton1Click:Connect(function()
     baseFlyState.noclipOn = true
     tpBaseBtn.Text = "GOING..."
 
-    local FLY_HEIGHT    = 400
+    local FLY_HEIGHT    = 350
     local SPEED         = 15000
     local STEP_CAP      = 500
     local ARRIVE_RADIUS = 40
     local NEAR_RADIUS   = 800
     local DESCEND_RATE  = 0.10
     local TICK_DELAY    = 0.03
-    local LAND_HEIGHT   = 5
+    local LAND_HEIGHT   = 3
 
     local stepPerTick = math.min(SPEED * TICK_DELAY, STEP_CAP)
 
