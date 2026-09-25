@@ -1163,8 +1163,8 @@ tpBaseBtn.MouseButton1Click:Connect(function()
     tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
     -- FLY HEIGHT = 5 (very low, almost at ground level)
-    local FLY_HEIGHT    = 6
-    local SPEED         = 5000
+    local FLY_HEIGHT    = 5
+    local SPEED         = 50000
     local STEP_CAP      = 500
     local ARRIVE_RADIUS = 40
     local NEAR_RADIUS   = 500
