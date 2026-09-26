@@ -61,9 +61,7 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-pcall(function() gui.Parent = CoreGui end)
-if not gui.Parent then gui.Parent = player:WaitForChild("PlayerGui") end
-
+gui.Parent = player:WaitForChild("PlayerGui")
 -- ============ INTRO (liquid glass) ============
 local intro = Instance.new("Frame")
 intro.Size = UDim2.new(1, 0, 1, 0)
