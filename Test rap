@@ -41,17 +41,18 @@ local state = {
     blurOn = false, dofOn = false, neonOn = false,
 }
 
+-- Liquid Glass Theme
 local T = {
-    bg1     = Color3.fromRGB(40, 20, 70),
-    bg2     = Color3.fromRGB(20, 10, 40),
-    panel   = Color3.fromRGB(35, 20, 60),
-    panelHi = Color3.fromRGB(60, 35, 100),
+    bg1     = Color3.fromRGB(255, 255, 255),
+    bg2     = Color3.fromRGB(220, 220, 230),
+    panel   = Color3.fromRGB(255, 255, 255),
+    panelHi = Color3.fromRGB(240, 240, 250),
     accent  = Color3.fromRGB(180, 100, 255),
     accent2 = Color3.fromRGB(120, 180, 255),
-    text    = Color3.fromRGB(255, 255, 255),
-    dim     = Color3.fromRGB(190, 170, 220),
-    good    = Color3.fromRGB(120, 255, 170),
-    bad     = Color3.fromRGB(255, 120, 150),
+    text    = Color3.fromRGB(30, 30, 40),
+    dim     = Color3.fromRGB(120, 120, 140),
+    good    = Color3.fromRGB(100, 220, 150),
+    bad     = Color3.fromRGB(255, 100, 130),
 }
 
 local gui = Instance.new("ScreenGui")
@@ -63,11 +64,11 @@ gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() gui.Parent = CoreGui end)
 if not gui.Parent then gui.Parent = player:WaitForChild("PlayerGui") end
 
--- ============ INTRO ============
+-- ============ INTRO (liquid glass) ============
 local intro = Instance.new("Frame")
 intro.Size = UDim2.new(1, 0, 1, 0)
 intro.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-intro.BackgroundTransparency = 1
+intro.BackgroundTransparency = 0.3
 intro.BorderSizePixel = 0
 intro.ZIndex = 100
 intro.Parent = gui
@@ -83,7 +84,7 @@ local square = Instance.new("Frame")
 square.AnchorPoint = Vector2.new(0.5, 0.5)
 square.Size = UDim2.new(0, 100, 0, 100)
 square.Position = UDim2.new(0.5, 0, 0.5, -40)
-square.BackgroundColor3 = T.accent
+square.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 square.BorderSizePixel = 0
 square.BackgroundTransparency = 1
 square.ClipsDescendants = true
@@ -92,7 +93,7 @@ square.Parent = intro
 Instance.new("UICorner", square).CornerRadius = UDim.new(0, 90)
 
 local sqStroke = Instance.new("UIStroke")
-sqStroke.Color = T.accent2
+sqStroke.Color = Color3.fromRGB(255, 255, 255)
 sqStroke.Thickness = 3
 sqStroke.Transparency = 1
 sqStroke.Parent = square
@@ -118,29 +119,6 @@ introTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 introTitle.TextTransparency = 1
 introTitle.ZIndex = 101
 introTitle.Parent = intro
-
-local rainbowColors = {
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 80, 200)),
-    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(180, 80, 255)),
-    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(80, 130, 255)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(80, 220, 255)),
-    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(80, 240, 180)),
-    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(240, 200, 80)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 80, 200)),
-}
-
-local introGrad = Instance.new("UIGradient")
-introGrad.Color = ColorSequence.new(rainbowColors)
-introGrad.Parent = introTitle
-
-task.spawn(function()
-    local t = 0
-    while introTitle.Parent do
-        task.wait(0.03)
-        t = t + 1
-        introGrad.Offset = Vector2.new((t * 0.015) % 1, 0)
-    end
-end)
 
 local function playIntro()
     intro.Visible = true
@@ -190,13 +168,13 @@ local function playIntro()
     end)
 end
 
--- ============ MAIN WINDOW LANDSCAPE ============
+-- ============ MAIN WINDOW (liquid glass) ============
 local win = Instance.new("Frame")
 win.AnchorPoint = Vector2.new(0.5, 0.5)
 win.Size = UDim2.new(0, 620, 0, 340)
 win.Position = UDim2.new(0.5, 0, 0.5, 0)
-win.BackgroundColor3 = T.bg1
-win.BackgroundTransparency = 0.08
+win.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+win.BackgroundTransparency = 0.8
 win.BorderSizePixel = 0
 win.Active = true
 win.Draggable = true
@@ -204,40 +182,34 @@ win.Visible = false
 win.ClipsDescendants = true
 win.ZIndex = 5
 win.Parent = gui
-Instance.new("UICorner", win).CornerRadius = UDim.new(0, 16)
+Instance.new("UICorner", win).CornerRadius = UDim.new(0, 22)
 
+-- Glass gradient
 local winBgGrad = Instance.new("UIGradient")
 winBgGrad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, T.bg1),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 15, 55)),
-    ColorSequenceKeypoint.new(1, T.bg2),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(240, 240, 250)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 230, 245)),
+})
+winBgGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.7),
+    NumberSequenceKeypoint.new(0.5, 0.85),
+    NumberSequenceKeypoint.new(1, 0.8),
 })
 winBgGrad.Rotation = 45
 winBgGrad.Parent = win
 
 local winStroke = Instance.new("UIStroke")
-winStroke.Color = T.accent
+winStroke.Color = Color3.fromRGB(255, 255, 255)
 winStroke.Thickness = 2
-winStroke.Transparency = 0.15
+winStroke.Transparency = 0.4
 winStroke.Parent = win
-
-local borderGrad = Instance.new("UIGradient")
-borderGrad.Color = ColorSequence.new(rainbowColors)
-task.spawn(function()
-    local t = 0
-    while win.Parent do
-        task.wait(0.03)
-        t = t + 1
-        borderGrad.Offset = Vector2.new((t * 0.010) % 1, 0)
-    end
-end)
-borderGrad.Parent = winStroke
 
 local resizeHandle = Instance.new("TextButton")
 resizeHandle.Size = UDim2.new(0, 22, 0, 22)
 resizeHandle.Position = UDim2.new(1, -22, 1, -22)
-resizeHandle.BackgroundColor3 = T.panelHi
-resizeHandle.BackgroundTransparency = 0.3
+resizeHandle.BackgroundColor3 = Color3.fromRGB(240, 240, 250)
+resizeHandle.BackgroundTransparency = 0.4
 resizeHandle.Text = "◢"
 resizeHandle.TextColor3 = T.accent
 resizeHandle.TextSize = 13
@@ -270,36 +242,29 @@ end)
 
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 3)
-topBar.BackgroundColor3 = T.accent
+topBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+topBar.BackgroundTransparency = 0.5
 topBar.BorderSizePixel = 0
 topBar.ZIndex = 6
 topBar.Parent = win
-local topGrad = Instance.new("UIGradient")
-topGrad.Color = ColorSequence.new(rainbowColors)
-topGrad.Parent = topBar
 
-task.spawn(function()
-    local t = 0
-    while topBar.Parent do
-        task.wait(0.03)
-        t = t + 1
-        topGrad.Offset = Vector2.new((t * 0.015) % 1, 0)
-    end
-end)
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, 0, 0, 52)
 header.Position = UDim2.new(0, 0, 0, 3)
-header.BackgroundColor3 = Color3.fromRGB(25, 12, 50)
-header.BackgroundTransparency = 0.2
+header.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+header.BackgroundTransparency = 0.75
 header.BorderSizePixel = 0
 header.ZIndex = 6
 header.Parent = win
 
 local headerGrad = Instance.new("UIGradient")
 headerGrad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 25, 110)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 20, 80)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 12, 50)),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 230, 245)),
+})
+headerGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.7),
+    NumberSequenceKeypoint.new(1, 0.85),
 })
 headerGrad.Rotation = 0
 headerGrad.Parent = header
@@ -307,16 +272,12 @@ headerGrad.Parent = header
 local logoBadge = Instance.new("Frame")
 logoBadge.Size = UDim2.new(0, 36, 0, 36)
 logoBadge.Position = UDim2.new(0, 10, 0.5, -18)
-logoBadge.BackgroundColor3 = T.accent
+logoBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+logoBadge.BackgroundTransparency = 0.3
 logoBadge.BorderSizePixel = 0
 logoBadge.ZIndex = 7
 logoBadge.Parent = header
 Instance.new("UICorner", logoBadge).CornerRadius = UDim.new(0, 9)
-
-local logoBadgeGrad = Instance.new("UIGradient")
-logoBadgeGrad.Color = ColorSequence.new(T.accent, T.accent2)
-logoBadgeGrad.Rotation = 45
-logoBadgeGrad.Parent = logoBadge
 
 local logoImg = Instance.new("ImageLabel")
 logoImg.Size = UDim2.new(1, -6, 1, -6)
@@ -333,32 +294,19 @@ title.Size = UDim2.new(0, 300, 0, 22)
 title.Position = UDim2.new(0, 56, 0, 8)
 title.BackgroundTransparency = 1
 title.Text = "✦ LATINA HUB RAP ✦"
-title.TextColor3 = T.text
+title.TextColor3 = Color3.fromRGB(60, 30, 100)
 title.Font = Enum.Font.GothamBlack
 title.TextSize = 15
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.ZIndex = 7
 title.Parent = header
 
-local titleGrad = Instance.new("UIGradient")
-titleGrad.Color = ColorSequence.new(rainbowColors)
-titleGrad.Parent = title
-
-task.spawn(function()
-    local t = 0
-    while title.Parent do
-        task.wait(0.03)
-        t = t + 1
-        titleGrad.Offset = Vector2.new((t * 0.015) % 1, 0)
-    end
-end)
-
 local subtitle = Instance.new("TextLabel")
 subtitle.Size = UDim2.new(0, 260, 0, 12)
 subtitle.Position = UDim2.new(0, 56, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "RIDE A PET  ·  LANDSCAPE EDITION"
-subtitle.TextColor3 = T.accent2
+subtitle.Text = "RIDE A PET  ·  LIQUID GLASS EDITION"
+subtitle.TextColor3 = T.accent
 subtitle.Font = Enum.Font.GothamBold
 subtitle.TextSize = 9
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -368,8 +316,8 @@ subtitle.Parent = header
 local fpsFrame = Instance.new("Frame")
 fpsFrame.Size = UDim2.new(0, 100, 0, 24)
 fpsFrame.Position = UDim2.new(1, -140, 0, 14)
-fpsFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-fpsFrame.BackgroundTransparency = 0.5
+fpsFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+fpsFrame.BackgroundTransparency = 0.6
 fpsFrame.BorderSizePixel = 0
 fpsFrame.ZIndex = 7
 fpsFrame.Parent = header
@@ -379,7 +327,7 @@ local fpsLabel = Instance.new("TextLabel")
 fpsLabel.Size = UDim2.new(0.5, 0, 1, 0)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS --"
-fpsLabel.TextColor3 = T.accent2
+fpsLabel.TextColor3 = T.accent
 fpsLabel.Font = Enum.Font.GothamBold
 fpsLabel.TextSize = 9
 fpsLabel.ZIndex = 8
@@ -390,7 +338,7 @@ msLabel.Size = UDim2.new(0.5, 0, 1, 0)
 msLabel.Position = UDim2.new(0.5, 0, 0, 0)
 msLabel.BackgroundTransparency = 1
 msLabel.Text = "MS --"
-msLabel.TextColor3 = T.accent
+msLabel.TextColor3 = T.accent2
 msLabel.Font = Enum.Font.GothamBold
 msLabel.TextSize = 9
 msLabel.ZIndex = 8
@@ -399,8 +347,8 @@ msLabel.Parent = fpsFrame
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 28, 0, 28)
 closeBtn.Position = UDim2.new(1, -36, 0.5, -14)
-closeBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 60)
-closeBtn.BackgroundTransparency = 0.2
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 210)
+closeBtn.BackgroundTransparency = 0.4
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = T.bad
 closeBtn.Font = Enum.Font.GothamBold
@@ -434,15 +382,15 @@ end)
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 120, 1, -104)
 sidebar.Position = UDim2.new(0, 8, 0, 60)
-sidebar.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
-sidebar.BackgroundTransparency = 0.3
+sidebar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sidebar.BackgroundTransparency = 0.75
 sidebar.BorderSizePixel = 0
 sidebar.ZIndex = 6
 sidebar.Parent = win
-Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 14)
 
 local sideStroke = Instance.new("UIStroke")
-sideStroke.Color = T.panelHi
+sideStroke.Color = Color3.fromRGB(255, 255, 255)
 sideStroke.Thickness = 1
 sideStroke.Transparency = 0.5
 sideStroke.Parent = sidebar
@@ -476,15 +424,15 @@ sidePad.PaddingRight = UDim.new(0, 6)
 local contentFrame = Instance.new("Frame")
 contentFrame.Size = UDim2.new(1, -144, 1, -104)
 contentFrame.Position = UDim2.new(0, 136, 0, 60)
-contentFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 42)
-contentFrame.BackgroundTransparency = 0.4
+contentFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+contentFrame.BackgroundTransparency = 0.8
 contentFrame.BorderSizePixel = 0
 contentFrame.ZIndex = 6
 contentFrame.Parent = win
-Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 14)
 
 local contentStroke = Instance.new("UIStroke")
-contentStroke.Color = T.panelHi
+contentStroke.Color = Color3.fromRGB(255, 255, 255)
 contentStroke.Thickness = 1
 contentStroke.Transparency = 0.5
 contentStroke.Parent = contentFrame
@@ -492,8 +440,8 @@ contentStroke.Parent = contentFrame
 local statusBar = Instance.new("Frame")
 statusBar.Size = UDim2.new(1, -16, 0, 22)
 statusBar.Position = UDim2.new(0, 8, 1, -28)
-statusBar.BackgroundColor3 = Color3.fromRGB(15, 8, 30)
-statusBar.BackgroundTransparency = 0.3
+statusBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+statusBar.BackgroundTransparency = 0.7
 statusBar.BorderSizePixel = 0
 statusBar.ZIndex = 6
 statusBar.Parent = win
@@ -515,7 +463,7 @@ local statusVersion = Instance.new("TextLabel")
 statusVersion.Size = UDim2.new(0, 260, 1, 0)
 statusVersion.Position = UDim2.new(1, -270, 0, 0)
 statusVersion.BackgroundTransparency = 1
-statusVersion.Text = "LATINA HUB RAP  ·  LANDSCAPE EDITION"
+statusVersion.Text = "LATINA HUB RAP  ·  LIQUID GLASS"
 statusVersion.TextColor3 = T.dim
 statusVersion.Font = Enum.Font.GothamBold
 statusVersion.TextSize = 9
@@ -528,8 +476,8 @@ local pages = {}
 local function makeTab(name, order)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, 0, 0, 30)
-    btn.BackgroundColor3 = T.panel
-    btn.BackgroundTransparency = 0.4
+    btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundTransparency = 0.5
     btn.Text = name
     btn.TextColor3 = T.dim
     btn.Font = Enum.Font.GothamBold
@@ -539,19 +487,19 @@ local function makeTab(name, order)
     btn.AutoButtonColor = false
     btn.ZIndex = 8
     btn.Parent = sideScroll
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 9)
 
     local s = Instance.new("UIStroke")
-    s.Color = T.panelHi
+    s.Color = Color3.fromRGB(255, 255, 255)
     s.Thickness = 1
-    s.Transparency = 0.6
+    s.Transparency = 0.5
     s.Parent = btn
 
     local activeBar = Instance.new("Frame")
     activeBar.Size = UDim2.new(0, 3, 0, 0)
     activeBar.Position = UDim2.new(0, -1, 0.5, 0)
     activeBar.AnchorPoint = Vector2.new(0, 0.5)
-    activeBar.BackgroundColor3 = T.accent2
+    activeBar.BackgroundColor3 = T.accent
     activeBar.BorderSizePixel = 0
     activeBar.BackgroundTransparency = 1
     activeBar.ZIndex = 9
@@ -588,19 +536,19 @@ local function makeTab(name, order)
             p.page.Visible = (n == name)
             if n == name then
                 p.btn.BackgroundColor3 = T.accent
-                p.btn.BackgroundTransparency = 0
+                p.btn.BackgroundTransparency = 0.1
                 p.btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                p.stroke.Color = T.accent2
+                p.stroke.Color = Color3.fromRGB(255, 255, 255)
                 p.stroke.Thickness = 2
                 p.stroke.Transparency = 0.2
                 p.activeBar.BackgroundTransparency = 0
             else
-                p.btn.BackgroundColor3 = T.panel
-                p.btn.BackgroundTransparency = 0.4
+                p.btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                p.btn.BackgroundTransparency = 0.5
                 p.btn.TextColor3 = T.dim
-                p.stroke.Color = T.panelHi
+                p.stroke.Color = Color3.fromRGB(255, 255, 255)
                 p.stroke.Thickness = 1
-                p.stroke.Transparency = 0.6
+                p.stroke.Transparency = 0.5
                 p.activeBar.BackgroundTransparency = 1
             end
         end
@@ -621,9 +569,9 @@ local announcePage = makeTab("ANNOUNCE", 9)
 
 pages["MAIN"].page.Visible = true
 pages["MAIN"].btn.BackgroundColor3 = T.accent
-pages["MAIN"].btn.BackgroundTransparency = 0
+pages["MAIN"].btn.BackgroundTransparency = 0.1
 pages["MAIN"].btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-pages["MAIN"].stroke.Color = T.accent2
+pages["MAIN"].stroke.Color = Color3.fromRGB(255, 255, 255)
 pages["MAIN"].stroke.Thickness = 2
 pages["MAIN"].stroke.Transparency = 0.2
 pages["MAIN"].activeBar.BackgroundTransparency = 0
@@ -632,8 +580,8 @@ local function makeButton(parent, text, yPos, onClick)
     local b = Instance.new("TextButton")
     b.Size = UDim2.new(1, -8, 0, 32)
     b.Position = UDim2.new(0, 4, 0, yPos)
-    b.BackgroundColor3 = T.panel
-    b.BackgroundTransparency = 0.15
+    b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    b.BackgroundTransparency = 0.45
     b.Text = text
     b.TextColor3 = T.text
     b.Font = Enum.Font.GothamSemibold
@@ -642,23 +590,25 @@ local function makeButton(parent, text, yPos, onClick)
     b.AutoButtonColor = false
     b.ZIndex = 8
     b.Parent = parent
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
 
     local s = Instance.new("UIStroke")
-    s.Color = T.panelHi
+    s.Color = Color3.fromRGB(255, 255, 255)
     s.Thickness = 1
-    s.Transparency = 0.5
+    s.Transparency = 0.4
     s.Parent = b
 
     b.MouseEnter:Connect(function()
-        b.BackgroundColor3 = T.panelHi
+        b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        b.BackgroundTransparency = 0.25
         s.Color = T.accent2
         s.Transparency = 0.2
     end)
     b.MouseLeave:Connect(function()
-        b.BackgroundColor3 = T.panel
-        s.Color = T.panelHi
-        s.Transparency = 0.5
+        b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        b.BackgroundTransparency = 0.45
+        s.Color = Color3.fromRGB(255, 255, 255)
+        s.Transparency = 0.4
     end)
 
     if onClick then b.MouseButton1Click:Connect(onClick) end
@@ -666,27 +616,37 @@ local function makeButton(parent, text, yPos, onClick)
 end
 
 local function setBtn(b, on, color)
-    b.BackgroundColor3 = on and (color or T.good) or T.panel
-    b.TextColor3 = on and Color3.fromRGB(0, 0, 0) or T.text
+    b.BackgroundColor3 = on and (color or T.good) or Color3.fromRGB(255, 255, 255)
+    b.BackgroundTransparency = on and 0.1 or 0.45
+    b.TextColor3 = on and Color3.fromRGB(255, 255, 255) or T.text
 end
+
+-- ============ MAIN PAGE ============
 local infoFrame = Instance.new("Frame")
 infoFrame.Size = UDim2.new(1, -8, 0, 90)
 infoFrame.Position = UDim2.new(0, 4, 0, 0)
-infoFrame.BackgroundColor3 = T.panelHi
-infoFrame.BackgroundTransparency = 0.3
+infoFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+infoFrame.BackgroundTransparency = 0.5
 infoFrame.BorderSizePixel = 0
 infoFrame.ZIndex = 8
 infoFrame.Parent = mainPage
-Instance.new("UICorner", infoFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", infoFrame).CornerRadius = UDim.new(0, 11)
+
+local infoStroke = Instance.new("UIStroke")
+infoStroke.Color = Color3.fromRGB(255, 255, 255)
+infoStroke.Thickness = 1
+infoStroke.Transparency = 0.4
+infoStroke.Parent = infoFrame
 
 local avatarFrame = Instance.new("Frame")
 avatarFrame.Size = UDim2.new(0, 65, 0, 65)
 avatarFrame.Position = UDim2.new(0, 12, 0, 12)
-avatarFrame.BackgroundColor3 = T.panel
+avatarFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+avatarFrame.BackgroundTransparency = 0.4
 avatarFrame.BorderSizePixel = 0
 avatarFrame.ZIndex = 9
 avatarFrame.Parent = infoFrame
-Instance.new("UICorner", avatarFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", avatarFrame).CornerRadius = UDim.new(0, 11)
 
 local avatarImg = Instance.new("ImageLabel")
 avatarImg.Size = UDim2.new(1, -4, 1, -4)
@@ -695,7 +655,7 @@ avatarImg.BackgroundTransparency = 1
 avatarImg.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
 avatarImg.ZIndex = 10
 avatarImg.Parent = avatarFrame
-Instance.new("UICorner", avatarImg).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", avatarImg).CornerRadius = UDim.new(0, 9)
 
 local nameLabel = Instance.new("TextLabel")
 nameLabel.Size = UDim2.new(1, -90, 0, 22)
@@ -777,7 +737,8 @@ speedLabel.Parent = mainPage
 local speedBar = Instance.new("Frame")
 speedBar.Size = UDim2.new(1, -16, 0, 8)
 speedBar.Position = UDim2.new(0, 8, 0, 156)
-speedBar.BackgroundColor3 = T.panelHi
+speedBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+speedBar.BackgroundTransparency = 0.5
 speedBar.BorderSizePixel = 0
 speedBar.ZIndex = 8
 speedBar.Parent = mainPage
@@ -794,13 +755,18 @@ Instance.new("UICorner", speedFill).CornerRadius = UDim.new(1, 0)
 local speedKnob = Instance.new("TextButton")
 speedKnob.Size = UDim2.new(0, 16, 0, 16)
 speedKnob.Position = UDim2.new(0.1, -8, 0.5, -8)
-speedKnob.BackgroundColor3 = T.accent2
+speedKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 speedKnob.Text = ""
 speedKnob.BorderSizePixel = 0
 speedKnob.AutoButtonColor = false
 speedKnob.ZIndex = 10
 speedKnob.Parent = speedBar
 Instance.new("UICorner", speedKnob).CornerRadius = UDim.new(1, 0)
+
+local speedKnobStroke = Instance.new("UIStroke")
+speedKnobStroke.Color = T.accent
+speedKnobStroke.Thickness = 2
+speedKnobStroke.Parent = speedKnob
 
 local function updateSpeed(x)
     local ap = speedBar.AbsolutePosition
@@ -859,7 +825,8 @@ jumpLabel.Parent = mainPage
 local jumpBar = Instance.new("Frame")
 jumpBar.Size = UDim2.new(1, -16, 0, 8)
 jumpBar.Position = UDim2.new(0, 8, 0, 230)
-jumpBar.BackgroundColor3 = T.panelHi
+jumpBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+jumpBar.BackgroundTransparency = 0.5
 jumpBar.BorderSizePixel = 0
 jumpBar.ZIndex = 8
 jumpBar.Parent = mainPage
@@ -876,13 +843,18 @@ Instance.new("UICorner", jumpFill).CornerRadius = UDim.new(1, 0)
 local jumpKnob = Instance.new("TextButton")
 jumpKnob.Size = UDim2.new(0, 16, 0, 16)
 jumpKnob.Position = UDim2.new(0.1, -8, 0.5, -8)
-jumpKnob.BackgroundColor3 = T.accent
+jumpKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 jumpKnob.Text = ""
 jumpKnob.BorderSizePixel = 0
 jumpKnob.AutoButtonColor = false
 jumpKnob.ZIndex = 10
 jumpKnob.Parent = jumpBar
 Instance.new("UICorner", jumpKnob).CornerRadius = UDim.new(1, 0)
+
+local jumpKnobStroke = Instance.new("UIStroke")
+jumpKnobStroke.Color = T.accent2
+jumpKnobStroke.Thickness = 2
+jumpKnobStroke.Parent = jumpKnob
 
 local function updateJump(x)
     local ap = jumpBar.AbsolutePosition
@@ -1001,17 +973,13 @@ task.spawn(function()
         end
     end
 end)
+
 -- ============ TP PAGE ============
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
 local tpBaseBtn = makeButton(tpPage, "Teleport to base (v3)", 40)
 local tpSetBtn  = makeButton(tpPage, "Teleport to Set Location", 80)
 local setLocBtn = makeButton(tpPage, "Set Location", 120)
 local clearLocBtn = makeButton(tpPage, "Clear Location", 160)
-
-tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
-tpSetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-tpSetBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
 local locLabel = Instance.new("TextLabel")
 locLabel.Size = UDim2.new(1, -8, 0, 16)
@@ -1096,7 +1064,6 @@ tpBestBtn.MouseButton1Click:Connect(function()
     if part then pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end) end
 end)
 
--- ============ Teleport to base (v3) ============
 local baseName   = "Teleport to base (v3)"
 local setName    = "Teleport to Set Location"
 
@@ -1189,11 +1156,7 @@ local function baseFullStop(reason)
     end
 
     tpBaseBtn.Text = baseName
-    tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
     tpSetBtn.Text = setName
-    tpSetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tpSetBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 end
 
 local function flyToTarget(getTarget, button, goingLabel)
@@ -1224,8 +1187,6 @@ local function flyToTarget(getTarget, button, goingLabel)
     baseFlyState.flying   = true
     baseFlyState.noclipOn = true
     button.Text = "GOING..."
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
     local FLY_HEIGHT    = 5
     local SPEED         = 50000
@@ -1329,18 +1290,19 @@ local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 240)
 local findInput = Instance.new("TextBox")
 findInput.Size = UDim2.new(1, -8, 0, 30)
 findInput.Position = UDim2.new(0, 4, 0, 280)
-findInput.BackgroundColor3 = Color3.fromRGB(50, 30, 90)
+findInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+findInput.BackgroundTransparency = 0.5
 findInput.Text = ""
 findInput.PlaceholderText = "Type pet or egg name"
-findInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-findInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
+findInput.TextColor3 = T.text
+findInput.PlaceholderColor3 = T.dim
 findInput.Font = Enum.Font.GothamSemibold
 findInput.TextSize = 11
 findInput.BorderSizePixel = 0
 findInput.ClearTextOnFocus = false
 findInput.ZIndex = 8
 findInput.Parent = tpPage
-Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 7)
+Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 8)
 
 local findGoBtn = makeButton(tpPage, "Find & Teleport", 318)
 local findListBtn = makeButton(tpPage, "List Available Eggs", 358)
@@ -1348,13 +1310,14 @@ local findListBtn = makeButton(tpPage, "List Available Eggs", 358)
 local findScroll = Instance.new("ScrollingFrame")
 findScroll.Size = UDim2.new(1, -8, 0, 150)
 findScroll.Position = UDim2.new(0, 4, 0, 398)
-findScroll.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+findScroll.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+findScroll.BackgroundTransparency = 0.7
 findScroll.BorderSizePixel = 0
 findScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 findScroll.ScrollBarThickness = 4
 findScroll.ZIndex = 8
 findScroll.Parent = tpPage
-Instance.new("UICorner", findScroll).CornerRadius = UDim.new(0, 7)
+Instance.new("UICorner", findScroll).CornerRadius = UDim.new(0, 8)
 
 local findLayout = Instance.new("UIListLayout")
 findLayout.Padding = UDim.new(0, 2)
@@ -1366,7 +1329,7 @@ local function findLog(msg)
     lbl.Size = UDim2.new(1, -8, 0, 18)
     lbl.BackgroundTransparency = 1
     lbl.Text = msg
-    lbl.TextColor3 = Color3.fromRGB(220, 210, 240)
+    lbl.TextColor3 = T.text
     lbl.Font = Enum.Font.Code
     lbl.TextSize = 10
     lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -1777,7 +1740,8 @@ fovLabel.Parent = visPage
 local fovBar = Instance.new("Frame")
 fovBar.Size = UDim2.new(1, -16, 0, 6)
 fovBar.Position = UDim2.new(0, 8, 0, 258)
-fovBar.BackgroundColor3 = T.panelHi
+fovBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+fovBar.BackgroundTransparency = 0.5
 fovBar.BorderSizePixel = 0
 fovBar.ZIndex = 8
 fovBar.Parent = visPage
@@ -1786,13 +1750,18 @@ Instance.new("UICorner", fovBar).CornerRadius = UDim.new(1, 0)
 local fovKnob = Instance.new("TextButton")
 fovKnob.Size = UDim2.new(0, 14, 0, 14)
 fovKnob.Position = UDim2.new(0, -7, 0.5, -7)
-fovKnob.BackgroundColor3 = T.accent2
+fovKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 fovKnob.Text = ""
 fovKnob.BorderSizePixel = 0
 fovKnob.AutoButtonColor = false
 fovKnob.ZIndex = 9
 fovKnob.Parent = fovBar
 Instance.new("UICorner", fovKnob).CornerRadius = UDim.new(1, 0)
+
+local fovKnobStroke = Instance.new("UIStroke")
+fovKnobStroke.Color = T.accent2
+fovKnobStroke.Thickness = 2
+fovKnobStroke.Parent = fovKnob
 
 local function updateFOV(x)
     local ap = fovBar.AbsolutePosition
@@ -1976,7 +1945,7 @@ ownerTitle.Size = UDim2.new(1, 0, 0, 40)
 ownerTitle.Position = UDim2.new(0, 0, 0, 10)
 ownerTitle.BackgroundTransparency = 1
 ownerTitle.Text = "✦ OWNER ✦"
-ownerTitle.TextColor3 = T.accent2
+ownerTitle.TextColor3 = T.accent
 ownerTitle.Font = Enum.Font.GothamBlack
 ownerTitle.TextSize = 18
 ownerTitle.ZIndex = 8
@@ -2040,7 +2009,7 @@ discordInfo.Size = UDim2.new(1, 0, 0, 30)
 discordInfo.Position = UDim2.new(0, 0, 0, 240)
 discordInfo.BackgroundTransparency = 1
 discordInfo.Text = DISCORD_LINK
-discordInfo.TextColor3 = T.accent2
+discordInfo.TextColor3 = T.accent
 discordInfo.Font = Enum.Font.GothamMedium
 discordInfo.TextSize = 9
 discordInfo.TextWrapped = true
@@ -2051,7 +2020,8 @@ discordInfo.Parent = ownerPage
 local icon = Instance.new("TextButton")
 icon.Size = UDim2.new(0, 58, 0, 58)
 icon.Position = UDim2.new(0, 15, 0.5, -29)
-icon.BackgroundColor3 = T.panel
+icon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+icon.BackgroundTransparency = 0.3
 icon.Text = ""
 icon.BorderSizePixel = 0
 icon.Active = true
@@ -2135,7 +2105,7 @@ winOpen = true
 iconStroke.Color = T.bad
 
 -- ============================================
--- ANNOUNCE TAB (7s notification + liquid glass)
+-- ANNOUNCE TAB (iPhone notification + liquid glass)
 -- ============================================
 task.spawn(function()
     local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -2151,7 +2121,7 @@ task.spawn(function()
         end
     end
 
-    -- ============ NOTIFICATION GUI (liquid glass style) ============
+    -- ============ iPHONE-STYLE NOTIFICATION ============
     local notifGui = Instance.new("ScreenGui")
     notifGui.Name = "AnnounceNotify"
     notifGui.ResetOnSpawn = false
@@ -2160,92 +2130,130 @@ task.spawn(function()
     notifGui.Parent = gui
 
     local notifFrame = Instance.new("Frame")
-    notifFrame.Size = UDim2.new(0, 500, 0, 80)
-    notifFrame.Position = UDim2.new(0.5, -250, 0, -120)
-    notifFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    notifFrame.BackgroundTransparency = 0.85
+    notifFrame.Size = UDim2.new(0, 520, 0, 78)
+    notifFrame.Position = UDim2.new(0.5, -260, 0, -120)
+    notifFrame.BackgroundColor3 = Color3.fromRGB(245, 245, 250)
+    notifFrame.BackgroundTransparency = 0.25
     notifFrame.BorderSizePixel = 0
     notifFrame.ZIndex = 1001
     notifFrame.Parent = notifGui
-    Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 18)
+    Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 20)
 
     local notifStroke = Instance.new("UIStroke")
     notifStroke.Color = Color3.fromRGB(255, 255, 255)
     notifStroke.Thickness = 2
-    notifStroke.Transparency = 0.4
+    notifStroke.Transparency = 0.35
     notifStroke.Parent = notifFrame
 
     local notifGrad = Instance.new("UIGradient")
     notifGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 200, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 200, 255))
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(240, 235, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 220, 240))
     })
     notifGrad.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.75),
-        NumberSequenceKeypoint.new(0.5, 0.9),
-        NumberSequenceKeypoint.new(1, 0.85)
+        NumberSequenceKeypoint.new(0, 0.65),
+        NumberSequenceKeypoint.new(0.5, 0.8),
+        NumberSequenceKeypoint.new(1, 0.75)
     })
     notifGrad.Rotation = 45
     notifGrad.Parent = notifFrame
 
+    -- Shine highlight
     local shine = Instance.new("Frame")
-    shine.Size = UDim2.new(1, -20, 0, 20)
-    shine.Position = UDim2.new(0, 10, 0, 6)
+    shine.Size = UDim2.new(1, -24, 0, 22)
+    shine.Position = UDim2.new(0, 12, 0, 6)
     shine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    shine.BackgroundTransparency = 0.85
+    shine.BackgroundTransparency = 0.7
     shine.BorderSizePixel = 0
     shine.ZIndex = 1002
     shine.Parent = notifFrame
-    Instance.new("UICorner", shine).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", shine).CornerRadius = UDim.new(0, 14)
 
+    -- App icon badge
+    local appBadge = Instance.new("Frame")
+    appBadge.Size = UDim2.new(0, 42, 0, 42)
+    appBadge.Position = UDim2.new(0, 14, 0.5, -21)
+    appBadge.BackgroundColor3 = Color3.fromRGB(180, 100, 255)
+    appBadge.BorderSizePixel = 0
+    appBadge.ZIndex = 1003
+    appBadge.Parent = notifFrame
+    Instance.new("UICorner", appBadge).CornerRadius = UDim.new(0, 11)
+
+    local appBadgeGrad = Instance.new("UIGradient")
+    appBadgeGrad.Color = ColorSequence.new(Color3.fromRGB(180, 100, 255), Color3.fromRGB(120, 180, 255))
+    appBadgeGrad.Rotation = 45
+    appBadgeGrad.Parent = appBadge
+
+    local appBadgeIcon = Instance.new("ImageLabel")
+    appBadgeIcon.Size = UDim2.new(1, -6, 1, -6)
+    appBadgeIcon.Position = UDim2.new(0, 3, 0, 3)
+    appBadgeIcon.BackgroundTransparency = 1
+    appBadgeIcon.Image = IMAGE_ID
+    appBadgeIcon.ScaleType = Enum.ScaleType.Crop
+    appBadgeIcon.ZIndex = 1004
+    appBadgeIcon.Parent = appBadge
+    Instance.new("UICorner", appBadgeIcon).CornerRadius = UDim.new(0, 9)
+
+    -- Title
     local notifTitle = Instance.new("TextLabel")
-    notifTitle.Size = UDim2.new(1, -20, 0, 22)
-    notifTitle.Position = UDim2.new(0, 14, 0, 10)
+    notifTitle.Size = UDim2.new(1, -80, 0, 18)
+    notifTitle.Position = UDim2.new(0, 68, 0, 12)
     notifTitle.BackgroundTransparency = 1
-    notifTitle.Text = "📢 ANNOUNCEMENT"
-    notifTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notifTitle.Font = Enum.Font.GothamBlack
-    notifTitle.TextSize = 14
+    notifTitle.Text = "LATINA HUB RAP"
+    notifTitle.TextColor3 = Color3.fromRGB(60, 30, 100)
+    notifTitle.Font = Enum.Font.GothamBold
+    notifTitle.TextSize = 13
     notifTitle.TextXAlignment = Enum.TextXAlignment.Left
-    notifTitle.TextStrokeTransparency = 0.6
-    notifTitle.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     notifTitle.ZIndex = 1003
     notifTitle.Parent = notifFrame
 
+    -- Time
+    local notifTime = Instance.new("TextLabel")
+    notifTime.Size = UDim2.new(0, 60, 0, 18)
+    notifTime.Position = UDim2.new(1, -70, 0, 12)
+    notifTime.BackgroundTransparency = 1
+    notifTime.Text = "now"
+    notifTime.TextColor3 = Color3.fromRGB(120, 120, 140)
+    notifTime.Font = Enum.Font.GothamMedium
+    notifTime.TextSize = 11
+    notifTime.TextXAlignment = Enum.TextXAlignment.Right
+    notifTime.ZIndex = 1003
+    notifTime.Parent = notifFrame
+
+    -- Message
     local notifText = Instance.new("TextLabel")
-    notifText.Size = UDim2.new(1, -28, 0, 38)
-    notifText.Position = UDim2.new(0, 14, 0, 34)
+    notifText.Size = UDim2.new(1, -90, 0, 30)
+    notifText.Position = UDim2.new(0, 68, 0, 34)
     notifText.BackgroundTransparency = 1
     notifText.Text = ""
-    notifText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notifText.TextColor3 = Color3.fromRGB(30, 30, 40)
     notifText.Font = Enum.Font.GothamSemibold
-    notifText.TextSize = 15
+    notifText.TextSize = 13
     notifText.TextXAlignment = Enum.TextXAlignment.Left
     notifText.TextWrapped = true
-    notifText.TextStrokeTransparency = 0.7
-    notifText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    notifText.TextYAlignment = Enum.TextYAlignment.Top
     notifText.ZIndex = 1003
     notifText.Parent = notifFrame
 
     local function showNotification(message)
         notifText.Text = message
-        notifFrame.Position = UDim2.new(0.5, -250, 0, -120)
+        notifFrame.Position = UDim2.new(0.5, -260, 0, -120)
         
         task.spawn(function()
-            for i = 0, 20 do
-                local t = i / 20
-                local e = 1 - (1 - t) ^ 3
-                notifFrame.Position = UDim2.new(0.5, -250, 0, -120 + (150 * e))
+            for i = 0, 25 do
+                local t = i / 25
+                local e = 1 - (1 - t) ^ 4
+                notifFrame.Position = UDim2.new(0.5, -260, 0, -120 + (150 * e))
                 task.wait(0.02)
             end
             
             task.wait(7)
             
-            for i = 0, 20 do
-                local t = i / 20
+            for i = 0, 25 do
+                local t = i / 25
                 local e = t * t
-                notifFrame.Position = UDim2.new(0.5, -250, 0, 30 - (150 * e))
+                notifFrame.Position = UDim2.new(0.5, -260, 0, 30 - (150 * e))
                 task.wait(0.02)
             end
         end)
@@ -2255,7 +2263,8 @@ task.spawn(function()
     local annScroll = Instance.new("ScrollingFrame")
     annScroll.Size = UDim2.new(1, -8, 1, -150)
     annScroll.Position = UDim2.new(0, 4, 0, 0)
-    annScroll.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
+    annScroll.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    annScroll.BackgroundTransparency = 0.7
     annScroll.BorderSizePixel = 0
     annScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
     annScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -2267,7 +2276,7 @@ task.spawn(function()
     annScroll.ClipsDescendants = true
     annScroll.ZIndex = 8
     annScroll.Parent = announcePage
-    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 10)
+    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 11)
 
     local annLayout = Instance.new("UIListLayout")
     annLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -2284,24 +2293,32 @@ task.spawn(function()
     local annInput = Instance.new("TextBox")
     annInput.Size = UDim2.new(1, -8, 0, 34)
     annInput.Position = UDim2.new(0, 4, 1, -116)
-    annInput.BackgroundColor3 = Color3.fromRGB(45, 30, 80)
+    annInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    annInput.BackgroundTransparency = 0.4
     annInput.BorderSizePixel = 0
     annInput.Text = ""
     annInput.PlaceholderText = "Type announcement..."
-    annInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    annInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
+    annInput.TextColor3 = T.text
+    annInput.PlaceholderColor3 = T.dim
     annInput.Font = Enum.Font.GothamSemibold
     annInput.TextSize = 12
     annInput.ClearTextOnFocus = false
     annInput.Visible = isOwner
     annInput.ZIndex = 8
     annInput.Parent = announcePage
-    Instance.new("UICorner", annInput).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", annInput).CornerRadius = UDim.new(0, 9)
+
+    local inputStroke = Instance.new("UIStroke")
+    inputStroke.Color = Color3.fromRGB(255, 255, 255)
+    inputStroke.Thickness = 1
+    inputStroke.Transparency = 0.4
+    inputStroke.Parent = annInput
 
     local annSend = Instance.new("TextButton")
     annSend.Size = UDim2.new(1, -8, 0, 34)
     annSend.Position = UDim2.new(0, 4, 1, -76)
     annSend.BackgroundColor3 = T.accent
+    annSend.BackgroundTransparency = 0.1
     annSend.BorderSizePixel = 0
     annSend.Text = "SEND ANNOUNCEMENT"
     annSend.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2311,15 +2328,16 @@ task.spawn(function()
     annSend.AutoButtonColor = false
     annSend.ZIndex = 8
     annSend.Parent = announcePage
-    Instance.new("UICorner", annSend).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", annSend).CornerRadius = UDim.new(0, 9)
 
     local annSendStroke = Instance.new("UIStroke")
-    annSendStroke.Color = T.accent2
+    annSendStroke.Color = Color3.fromRGB(255, 255, 255)
     annSendStroke.Thickness = 1
+    annSendStroke.Transparency = 0.3
     annSendStroke.Parent = annSend
 
     annSend.MouseEnter:Connect(function()
-        annSend.BackgroundColor3 = T.panelHi
+        annSend.BackgroundColor3 = Color3.fromRGB(200, 120, 255)
     end)
     annSend.MouseLeave:Connect(function()
         annSend.BackgroundColor3 = T.accent
@@ -2377,14 +2395,25 @@ task.spawn(function()
                 })
             end)
             
-            if ok and result and result.Body and result.Body ~= "null" then
+            if ok and result and result.Body then
                 local ok2, data = pcall(function()
                     return HttpService:JSONDecode(result.Body)
                 end)
                 
-                if ok2 and data then
+                if ok2 and data and type(data) == "table" then
+                    local messages = {}
                     for _, msg in pairs(data) do
-                        if msg.time and msg.time > lastTime then
+                        if type(msg) == "table" and msg.time and msg.text then
+                            table.insert(messages, msg)
+                        end
+                    end
+                    
+                    table.sort(messages, function(a, b)
+                        return a.time < b.time
+                    end)
+                    
+                    for _, msg in ipairs(messages) do
+                        if msg.time > lastTime then
                             lastTime = msg.time
                             count = count + 1
                             
@@ -2394,7 +2423,7 @@ task.spawn(function()
                             label.TextXAlignment = Enum.TextXAlignment.Left
                             label.Font = Enum.Font.Code
                             label.TextSize = 12
-                            label.TextColor3 = Color3.fromRGB(255, 200, 100)
+                            label.TextColor3 = T.text
                             label.Text = "[" .. msg.user .. "]: " .. msg.text
                             label.LayoutOrder = count
                             label.ZIndex = 9
