@@ -2302,6 +2302,210 @@ task.spawn(function()
     annPad.PaddingRight = UDim.new(0, 6)
     annPad.Parent = annScroll
 
+-- ============================================
+-- ANNOUNCE TAB (Latest notification only)
+-- ============================================
+task.spawn(function()
+    local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
+    local SECRET_KEY = "N30H4N_SECRET_2026_XyZ"
+    local OWNER_IDS = {11673546701}
+
+    local HttpService = game:GetService("HttpService")
+    local isOwner = false
+    for _, id in ipairs(OWNER_IDS) do
+        if player.UserId == id then
+            isOwner = true
+            break
+        end
+    end
+
+    -- ============ NOTIFICATION GUI ============
+    local notifGui = Instance.new("ScreenGui")
+    notifGui.Name = "AnnounceNotify"
+    notifGui.ResetOnSpawn = false
+    notifGui.IgnoreGuiInset = true
+    notifGui.DisplayOrder = 1000
+    notifGui.Parent = player:WaitForChild("PlayerGui")
+
+    local notifFrame = Instance.new("Frame")
+    notifFrame.Size = UDim2.new(0, 560, 0, 92)
+    notifFrame.Position = UDim2.new(0.5, -280, 0, -150)
+    notifFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    notifFrame.BackgroundTransparency = 0.15
+    notifFrame.BorderSizePixel = 0
+    notifFrame.ZIndex = 1001
+    notifFrame.Parent = notifGui
+    Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 26)
+
+    local notifStroke = Instance.new("UIStroke")
+    notifStroke.Color = Color3.fromRGB(255, 255, 255)
+    notifStroke.Thickness = 1.5
+    notifStroke.Transparency = 0.75
+    notifStroke.Parent = notifFrame
+
+    local notifGrad = Instance.new("UIGradient")
+    notifGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 55)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(25, 25, 35)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 22))
+    })
+    notifGrad.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.1),
+        NumberSequenceKeypoint.new(0.5, 0.25),
+        NumberSequenceKeypoint.new(1, 0.15)
+    })
+    notifGrad.Rotation = 45
+    notifGrad.Parent = notifFrame
+
+    local shine = Instance.new("Frame")
+    shine.Size = UDim2.new(1, -32, 0, 26)
+    shine.Position = UDim2.new(0, 16, 0, 8)
+    shine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    shine.BackgroundTransparency = 0.92
+    shine.BorderSizePixel = 0
+    shine.ZIndex = 1002
+    shine.Parent = notifFrame
+    Instance.new("UICorner", shine).CornerRadius = UDim.new(0, 18)
+
+    local appBadge = Instance.new("Frame")
+    appBadge.Size = UDim2.new(0, 52, 0, 52)
+    appBadge.Position = UDim2.new(0, 18, 0.5, -26)
+    appBadge.BackgroundColor3 = T.accent
+    appBadge.BorderSizePixel = 0
+    appBadge.ZIndex = 1003
+    appBadge.Parent = notifFrame
+    Instance.new("UICorner", appBadge).CornerRadius = UDim.new(0, 13)
+
+    local appBadgeGrad = Instance.new("UIGradient")
+    appBadgeGrad.Color = ColorSequence.new(T.accent, T.accent2)
+    appBadgeGrad.Rotation = 45
+    appBadgeGrad.Parent = appBadge
+
+    local appBadgeIcon = Instance.new("ImageLabel")
+    appBadgeIcon.Size = UDim2.new(1, -8, 1, -8)
+    appBadgeIcon.Position = UDim2.new(0, 4, 0, 4)
+    appBadgeIcon.BackgroundTransparency = 1
+    appBadgeIcon.Image = IMAGE_ID
+    appBadgeIcon.ScaleType = Enum.ScaleType.Crop
+    appBadgeIcon.ZIndex = 1004
+    appBadgeIcon.Parent = appBadge
+    Instance.new("UICorner", appBadgeIcon).CornerRadius = UDim.new(0, 10)
+
+    local notifTitle = Instance.new("TextLabel")
+    notifTitle.Size = UDim2.new(1, -100, 0, 22)
+    notifTitle.Position = UDim2.new(0, 82, 0, 14)
+    notifTitle.BackgroundTransparency = 1
+    notifTitle.Text = "LATINA HUB RAP"
+    notifTitle.TextColor3 = T.text
+    notifTitle.Font = Enum.Font.GothamBold
+    notifTitle.TextSize = 15
+    notifTitle.TextXAlignment = Enum.TextXAlignment.Left
+    notifTitle.ZIndex = 1003
+    notifTitle.Parent = notifFrame
+
+    local notifTime = Instance.new("TextLabel")
+    notifTime.Size = UDim2.new(0, 70, 0, 22)
+    notifTime.Position = UDim2.new(1, -85, 0, 14)
+    notifTime.BackgroundTransparency = 1
+    notifTime.Text = "now"
+    notifTime.TextColor3 = T.dim
+    notifTime.Font = Enum.Font.GothamMedium
+    notifTime.TextSize = 12
+    notifTime.TextXAlignment = Enum.TextXAlignment.Right
+    notifTime.ZIndex = 1003
+    notifTime.Parent = notifFrame
+
+    local notifText = Instance.new("TextLabel")
+    notifText.Size = UDim2.new(1, -110, 0, 40)
+    notifText.Position = UDim2.new(0, 82, 0, 40)
+    notifText.BackgroundTransparency = 1
+    notifText.Text = ""
+    notifText.TextColor3 = T.text
+    notifText.Font = Enum.Font.GothamSemibold
+    notifText.TextSize = 14
+    notifText.TextXAlignment = Enum.TextXAlignment.Left
+    notifText.TextYAlignment = Enum.TextYAlignment.Top
+    notifText.TextWrapped = true
+    notifText.ZIndex = 1003
+    notifText.Parent = notifFrame
+
+    -- Notification function
+    local notifRunning = false
+    local latestMessage = nil
+
+    local function showNotification(message)
+        latestMessage = message
+        
+        if notifRunning then return end
+        notifRunning = true
+        
+        task.spawn(function()
+            notifText.Text = latestMessage
+            notifFrame.Position = UDim2.new(0.5, -280, 0, -150)
+            
+            for i = 0, 30 do
+                local t = i / 30
+                local e = 1 - (1 - t) ^ 4
+                notifFrame.Position = UDim2.new(0.5, -280, 0, -150 + (180 * e))
+                task.wait(0.015)
+            end
+            
+            task.wait(7)
+            
+            for i = 0, 30 do
+                local t = i / 30
+                local e = t * t * t
+                notifFrame.Position = UDim2.new(0.5, -280, 0, 30 - (180 * e))
+                task.wait(0.015)
+            end
+            
+            task.wait(0.3)
+            notifRunning = false
+            
+            -- Kung may bagong message habang nag-a-animate, i-show ulit
+            if latestMessage ~= notifText.Text then
+                showNotification(latestMessage)
+            end
+        end)
+    end
+
+    -- ============ ANNOUNCE TAB CONTENT ============
+    local annScroll = Instance.new("ScrollingFrame")
+    annScroll.Size = UDim2.new(1, -8, 1, -150)
+    annScroll.Position = UDim2.new(0, 4, 0, 0)
+    annScroll.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    annScroll.BackgroundTransparency = 0.5
+    annScroll.BorderSizePixel = 0
+    annScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    annScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    annScroll.ScrollBarThickness = 6
+    annScroll.ScrollBarImageColor3 = T.accent
+    annScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    annScroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+    annScroll.Active = true
+    annScroll.ClipsDescendants = true
+    annScroll.ZIndex = 8
+    annScroll.Parent = announcePage
+    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 11)
+
+    local annScrollStroke = Instance.new("UIStroke")
+    annScrollStroke.Color = Color3.fromRGB(255, 255, 255)
+    annScrollStroke.Thickness = 1
+    annScrollStroke.Transparency = 0.85
+    annScrollStroke.Parent = annScroll
+
+    local annLayout = Instance.new("UIListLayout")
+    annLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    annLayout.Padding = UDim.new(0, 3)
+    annLayout.Parent = annScroll
+
+    local annPad = Instance.new("UIPadding")
+    annPad.PaddingTop = UDim.new(0, 4)
+    annPad.PaddingBottom = UDim.new(0, 4)
+    annPad.PaddingLeft = UDim.new(0, 6)
+    annPad.PaddingRight = UDim.new(0, 6)
+    annPad.Parent = annScroll
+
     local annInput = Instance.new("TextBox")
     annInput.Size = UDim2.new(1, -8, 0, 34)
     annInput.Position = UDim2.new(0, 4, 1, -116)
@@ -2366,8 +2570,10 @@ task.spawn(function()
     annStatus.ZIndex = 8
     annStatus.Parent = announcePage
 
-    local lastTime = 0
+    -- Track messages that have been displayed in chat
+    local seenMessages = {}
     local count = 0
+    local initialLoadDone = false
 
     local function send(msg)
         if not isOwner then return end
@@ -2414,21 +2620,27 @@ task.spawn(function()
                 
                 if ok2 and data and type(data) == "table" then
                     local messages = {}
-                    for _, msg in pairs(data) do
-                        if type(msg) == "table" and msg.time and msg.text then
+                    for key, msg in pairs(data) do
+                        if type(msg) == "table" and msg.text then
+                            msg._key = key
                             table.insert(messages, msg)
                         end
                     end
                     
                     table.sort(messages, function(a, b)
-                        return a.time < b.time
+                        return (a.time or 0) < (b.time or 0)
                     end)
                     
+                    local newMessages = {}
+                    
                     for _, msg in ipairs(messages) do
-                        if msg.time > lastTime then
-                            lastTime = msg.time
-                            count = count + 1
+                        local msgKey = msg._key or (msg.user .. "_" .. msg.text .. "_" .. tostring(msg.time))
+                        if not seenMessages[msgKey] then
+                            seenMessages[msgKey] = true
+                            table.insert(newMessages, msg)
                             
+                            -- Add to chat list
+                            count = count + 1
                             local label = Instance.new("TextLabel")
                             label.Size = UDim2.new(1, -12, 0, 24)
                             label.BackgroundTransparency = 1
@@ -2440,12 +2652,23 @@ task.spawn(function()
                             label.LayoutOrder = count
                             label.ZIndex = 9
                             label.Parent = annScroll
-                            
-                            task.wait(0.05)
-                            annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
-                            
-                            showNotification(msg.text)
                         end
+                    end
+                    
+                    if #newMessages > 0 then
+                        task.wait(0.05)
+                        annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
+                        
+                        -- I-show ang notification para sa PINAKA-LATEST na message lang
+                        if initialLoadDone then
+                            local latest = newMessages[#newMessages]
+                            showNotification(latest.text)
+                        end
+                    end
+                    
+                    -- Mark initial load as done pagkatapos ng unang GET
+                    if not initialLoadDone then
+                        initialLoadDone = true
                     end
                 end
             end
