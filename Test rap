@@ -1003,10 +1003,53 @@ task.spawn(function()
 end)
 -- ============ TP PAGE ============
 local tpBestBtn = makeButton(tpPage, "Teleport Best Egg", 0)
-local tpBaseBtn = makeButton(tpPage, "GO TO PLOT", 40)
+local tpBaseBtn = makeButton(tpPage, "Teleport to base (v3)", 40)
+local tpSetBtn  = makeButton(tpPage, "Teleport to Set Location", 80)
+local setLocBtn = makeButton(tpPage, "Set Location", 120)
+local clearLocBtn = makeButton(tpPage, "Clear Location", 160)
 
 tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
+tpSetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+tpSetBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
+
+local locLabel = Instance.new("TextLabel")
+locLabel.Size = UDim2.new(1, -8, 0, 16)
+locLabel.Position = UDim2.new(0, 4, 0, 200)
+locLabel.BackgroundTransparency = 1
+locLabel.Text = "Set Loc: none"
+locLabel.TextColor3 = T.accent2
+locLabel.Font = Enum.Font.GothamMedium
+locLabel.TextSize = 9
+locLabel.TextXAlignment = Enum.TextXAlignment.Left
+locLabel.ZIndex = 8
+locLabel.Parent = tpPage
+
+local customLocation = nil
+
+local function updateLocLabel()
+    if customLocation then
+        locLabel.Text = string.format("Set Loc: %.0f, %.0f, %.0f",
+            customLocation.X, customLocation.Y, customLocation.Z)
+    else
+        locLabel.Text = "Set Loc: none"
+    end
+end
+updateLocLabel()
+
+setLocBtn.MouseButton1Click:Connect(function()
+    local c = player.Character
+    if not c then return end
+    local r = c:FindFirstChild("HumanoidRootPart")
+    if not r then return end
+    customLocation = r.Position
+    updateLocLabel()
+end)
+
+clearLocBtn.MouseButton1Click:Connect(function()
+    customLocation = nil
+    updateLocLabel()
+end)
 
 local function isEggTaken(egg)
     local node = egg
@@ -1053,8 +1096,9 @@ tpBestBtn.MouseButton1Click:Connect(function()
     if part then pcall(function() c:PivotTo(CFrame.new(part.Position + Vector3.new(0, 4, 0))) end) end
 end)
 
--- ============ GO TO PLOT (v2) ============
-local baseName   = "GO TO PLOT"
+-- ============ Teleport to base (v3) ============
+local baseName   = "Teleport to base (v3)"
+local setName    = "Teleport to Set Location"
 
 local baseFlyState = { flying = false, noclipOn = false }
 
@@ -1147,9 +1191,12 @@ local function baseFullStop(reason)
     tpBaseBtn.Text = baseName
     tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
+    tpSetBtn.Text = setName
+    tpSetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tpSetBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 end
 
-tpBaseBtn.MouseButton1Click:Connect(function()
+local function flyToTarget(getTarget, button, goingLabel)
     if baseFlyState.flying then
         baseFullStop("Cancelled")
         return
@@ -1160,13 +1207,11 @@ tpBaseBtn.MouseButton1Click:Connect(function()
     local r = c:FindFirstChild("HumanoidRootPart")
     if not r then return end
 
-    local basePos = findMyBaseFly()
+    local basePos = getTarget()
     if not basePos then
-        tpBaseBtn.Text = "Base not found"
+        button.Text = "Target not found"
         task.wait(1)
-        tpBaseBtn.Text = baseName
-        tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
+        button.Text = goingLabel
         return
     end
 
@@ -1178,11 +1223,10 @@ tpBaseBtn.MouseButton1Click:Connect(function()
 
     baseFlyState.flying   = true
     baseFlyState.noclipOn = true
-    tpBaseBtn.Text = "GOING..."
-    tpBaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tpBaseBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
+    button.Text = "GOING..."
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
 
-    -- FLY HEIGHT = 5 (very low, almost at ground level)
     local FLY_HEIGHT    = 5
     local SPEED         = 50000
     local STEP_CAP      = 5000
@@ -1201,8 +1245,8 @@ tpBaseBtn.MouseButton1Click:Connect(function()
             local rr = cc:FindFirstChild("HumanoidRootPart")
             if not rr then baseFullStop("Root gone"); return end
 
-            local bp = findMyBaseFly()
-            if not bp then baseFullStop("Base lost"); return end
+            local bp = getTarget()
+            if not bp then baseFullStop("Target lost"); return end
             basePos = bp
 
             local flatDiff = Vector3.new(
@@ -1236,7 +1280,7 @@ tpBaseBtn.MouseButton1Click:Connect(function()
                     cc:PivotTo(CFrame.new(landing))
                 end)
                 task.wait(0.1)
-                baseFullStop("Arrived at base")
+                baseFullStop("Arrived")
                 return
             end
 
@@ -1265,12 +1309,26 @@ tpBaseBtn.MouseButton1Click:Connect(function()
             task.wait(TICK_DELAY)
         end
     end)
+end
+
+tpBaseBtn.MouseButton1Click:Connect(function()
+    flyToTarget(findMyBaseFly, tpBaseBtn, baseName)
 end)
 
-local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 120)
+tpSetBtn.MouseButton1Click:Connect(function()
+    if not customLocation then
+        tpSetBtn.Text = "No set location"
+        task.wait(1.5)
+        tpSetBtn.Text = setName
+        return
+    end
+    flyToTarget(function() return customLocation end, tpSetBtn, setName)
+end)
+
+local findBiggestBtn = makeButton(tpPage, "Teleport to Biggest Egg", 240)
 local findInput = Instance.new("TextBox")
 findInput.Size = UDim2.new(1, -8, 0, 30)
-findInput.Position = UDim2.new(0, 4, 0, 160)
+findInput.Position = UDim2.new(0, 4, 0, 280)
 findInput.BackgroundColor3 = Color3.fromRGB(50, 30, 90)
 findInput.Text = ""
 findInput.PlaceholderText = "Type pet or egg name"
@@ -1284,12 +1342,12 @@ findInput.ZIndex = 8
 findInput.Parent = tpPage
 Instance.new("UICorner", findInput).CornerRadius = UDim.new(0, 7)
 
-local findGoBtn = makeButton(tpPage, "Find & Teleport", 198)
-local findListBtn = makeButton(tpPage, "List Available Eggs", 238)
+local findGoBtn = makeButton(tpPage, "Find & Teleport", 318)
+local findListBtn = makeButton(tpPage, "List Available Eggs", 358)
 
 local findScroll = Instance.new("ScrollingFrame")
 findScroll.Size = UDim2.new(1, -8, 0, 150)
-findScroll.Position = UDim2.new(0, 4, 0, 278)
+findScroll.Position = UDim2.new(0, 4, 0, 398)
 findScroll.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
 findScroll.BorderSizePixel = 0
 findScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -2111,14 +2169,12 @@ task.spawn(function()
     notifFrame.Parent = notifGui
     Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 18)
 
-    -- Glass stroke (bright white, semi-transparent)
     local notifStroke = Instance.new("UIStroke")
     notifStroke.Color = Color3.fromRGB(255, 255, 255)
     notifStroke.Thickness = 2
     notifStroke.Transparency = 0.4
     notifStroke.Parent = notifFrame
 
-    -- Soft gradient overlay for glass depth
     local notifGrad = Instance.new("UIGradient")
     notifGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
@@ -2133,7 +2189,6 @@ task.spawn(function()
     notifGrad.Rotation = 45
     notifGrad.Parent = notifFrame
 
-    -- Top shine highlight (glass reflection)
     local shine = Instance.new("Frame")
     shine.Size = UDim2.new(1, -20, 0, 20)
     shine.Position = UDim2.new(0, 10, 0, 6)
@@ -2173,13 +2228,11 @@ task.spawn(function()
     notifText.ZIndex = 1003
     notifText.Parent = notifFrame
 
-    -- Slide down animation (7-second display)
     local function showNotification(message)
         notifText.Text = message
         notifFrame.Position = UDim2.new(0.5, -250, 0, -120)
         
         task.spawn(function()
-            -- Slide down
             for i = 0, 20 do
                 local t = i / 20
                 local e = 1 - (1 - t) ^ 3
@@ -2187,237 +2240,8 @@ task.spawn(function()
                 task.wait(0.02)
             end
             
-            -- Display for 7 seconds
             task.wait(7)
             
-            -- Slide up
-            for i = 0, 20 do
-                local t = i / 20
-                local e = t * t
-                notifFrame.Position = UDim2.new(0.5, -250, 0, 30 - (150 * e))
-                task.wait(0.02)
-            end
-        end)
-    end
-
-    -- ============ ANNOUNCE TAB CONTENT ============
-    local annScroll = Instance.new("ScrollingFrame")
-    annScroll.Size = UDim2.new(1, -8, 1, -150)
-    annScroll.Position = UDim2.new(0, 4, 0, 0)
-    annScroll.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
-    annScroll.BorderSizePixel = 0
-    annScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    annScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    annScroll.ScrollBarThickness = 6
-    annScroll.ScrollBarImageColor3 = T.accent
-    annScroll.ScrollingDirection = Enum.ScrollingDirection.Y
-    annScroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
-    annScroll.Active = true
-    annScroll.ClipsDescendants = true
-    annScroll.ZIndex = 8
-    annScroll.Parent = announcePage
-    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 10)
-
-    local annLayout = Instance.new("UIListLayout")
-    annLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    annLayout.Padding = UDim.new(0, 3)
-    annLayout.Parent = annScroll
-
-    local annPad = Instance.new("UIPadding")
-    annPad.PaddingTop = UDim.new(0, 4)
-    annPad.PaddingBottom = UDim.new(0, 4)
-    annPad.PaddingLeft = UDim.new(0, 6)
-    annPad.PaddingRight = UDim.new(0, 6)
-    annPad.Parent = annScroll
-
-    local annInput = Instance.new("TextBox")
-    annInput.Size = UDim2.new(1, -8, 0, 34)
-    annInput.Position = UDim2.new(0, 4, 1, -116)
-    annInput.BackgroundColor3 = Color3.fromRGB(45, 30, 80)
-    annInput.BorderSizePixel = 0
-    annInput.Text = ""
-    annInput.PlaceholderText = "Type announcement..."
-    annInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    annInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
-    annInput.Font = Enum.Font.GothamSemibold
-    annInput.TextSize = 12
-    annInput.ClearTextOnFocus = false
-    annInput.Visible = isOwner
-    annInput.ZIndex = 8
-    annInput.Parent = announcePage
-    Instance.new("UICorner", annInput).CornerRadius = UDim.new(0, 8)
-
-    local annSend = Instance.new("TextButton")
-    annSend.Size = UDim2.new(1, -8, 0, 34)
-    annSend.Position = UDim2.new(0, 4, 1, -76)
-    annSend.BackgroundColor3 = T.accent
-    annSend.BorderSizePixel = 0
-    annSend.Text = "SEND ANNOUNCEMENT"
-    annSend.TextColor3 = Color3.fromRGB(255, 255, 255)
-    annSend.Font = Enum.Font.GothamBold
-    annSend.TextSize = 12
-    annSend.Visible = isOwner
-    annSend.AutoButtonColor = false
-    annSend.ZIndex = 8
-    annSend.Parent = announcePage
-    Instance.new("UICorner", annSend).CornerRadius = UDim.new(0, 8)
-
-    local annSendStroke = Instance.new("UIStroke")
-    annSendStroke.Color = T.accent2
-    annSendStroke.Thickness = 1
-    annSendStroke.Parent = annSend
-
-    annSend.MouseEnter:Connect(function()
-        annSend.BackgroundColor3 = T.panelHi
-    end)
-    annSend.MouseLeave:Connect(function()
-        annSend.BackgroundColor3 = T.accent
-    end)
-
-    local annStatus = Instance.new("TextLabel")
-    annStatus.Size = UDim2.new(1, -8, 0, 20)
-    annStatus.Position = UDim2.new(0, 4, 1, -38)
-    annStatus.BackgroundTransparency = 1
-    annStatus.Text = isOwner and "You can send announcements." or "Read-only. Only owner can send."
-    annStatus.TextColor3 = isOwner and T.good or T.dim
-    annStatus.Font = Enum.Font.GothamMedium
-    annStatus.TextSize = 10
-    annStatus.ZIndex = 8
-    annStatus.Parent = announcePage
-
-    local lastTime = 0
-    local count = 0
-
-    local function send(msg)
-        if not isOwner then return end
-        local data = {
-            user = player.Name,
-            text = msg,
-            time = os.time(),
-            key = SECRET_KEY,
-            source = "NEOHAN-ANNOUNCE"
-        }
-        local ok = pcall(function()
-            request({
-                Url = FIREBASE_URL .. "/messages.json",
-                Method = "POST",
-                Body = HttpService:JSONEncode(data),
-                Headers = {["Content-Type"] = "application/json"}
--- ============================================
--- ANNOUNCE TAB (7s notification + liquid glass)
--- ============================================
-task.spawn(function()
-    local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
-    local SECRET_KEY = "N30H4N_SECRET_2026_XyZ"
-    local OWNER_IDS = {11673546701}
-
-    local HttpService = game:GetService("HttpService")
-    local isOwner = false
-    for _, id in ipairs(OWNER_IDS) do
-        if player.UserId == id then
-            isOwner = true
-            break
-        end
-    end
-
-    -- ============ NOTIFICATION GUI (liquid glass style) ============
-    local notifGui = Instance.new("ScreenGui")
-    notifGui.Name = "AnnounceNotify"
-    notifGui.ResetOnSpawn = false
-    notifGui.IgnoreGuiInset = true
-    notifGui.DisplayOrder = 1000
-    notifGui.Parent = gui
-
-    local notifFrame = Instance.new("Frame")
-    notifFrame.Size = UDim2.new(0, 500, 0, 80)
-    notifFrame.Position = UDim2.new(0.5, -250, 0, -120)
-    notifFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    notifFrame.BackgroundTransparency = 0.85
-    notifFrame.BorderSizePixel = 0
-    notifFrame.ZIndex = 1001
-    notifFrame.Parent = notifGui
-    Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 18)
-
-    -- Glass stroke (bright white, semi-transparent)
-    local notifStroke = Instance.new("UIStroke")
-    notifStroke.Color = Color3.fromRGB(255, 255, 255)
-    notifStroke.Thickness = 2
-    notifStroke.Transparency = 0.4
-    notifStroke.Parent = notifFrame
-
-    -- Soft gradient overlay for glass depth
-    local notifGrad = Instance.new("UIGradient")
-    notifGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 200, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 200, 255))
-    })
-    notifGrad.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.75),
-        NumberSequenceKeypoint.new(0.5, 0.9),
-        NumberSequenceKeypoint.new(1, 0.85)
-    })
-    notifGrad.Rotation = 45
-    notifGrad.Parent = notifFrame
-
-    -- Top shine highlight (glass reflection)
-    local shine = Instance.new("Frame")
-    shine.Size = UDim2.new(1, -20, 0, 20)
-    shine.Position = UDim2.new(0, 10, 0, 6)
-    shine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    shine.BackgroundTransparency = 0.85
-    shine.BorderSizePixel = 0
-    shine.ZIndex = 1002
-    shine.Parent = notifFrame
-    Instance.new("UICorner", shine).CornerRadius = UDim.new(0, 12)
-
-    local notifTitle = Instance.new("TextLabel")
-    notifTitle.Size = UDim2.new(1, -20, 0, 22)
-    notifTitle.Position = UDim2.new(0, 14, 0, 10)
-    notifTitle.BackgroundTransparency = 1
-    notifTitle.Text = "📢 ANNOUNCEMENT"
-    notifTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notifTitle.Font = Enum.Font.GothamBlack
-    notifTitle.TextSize = 14
-    notifTitle.TextXAlignment = Enum.TextXAlignment.Left
-    notifTitle.TextStrokeTransparency = 0.6
-    notifTitle.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    notifTitle.ZIndex = 1003
-    notifTitle.Parent = notifFrame
-
-    local notifText = Instance.new("TextLabel")
-    notifText.Size = UDim2.new(1, -28, 0, 38)
-    notifText.Position = UDim2.new(0, 14, 0, 34)
-    notifText.BackgroundTransparency = 1
-    notifText.Text = ""
-    notifText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notifText.Font = Enum.Font.GothamSemibold
-    notifText.TextSize = 15
-    notifText.TextXAlignment = Enum.TextXAlignment.Left
-    notifText.TextWrapped = true
-    notifText.TextStrokeTransparency = 0.7
-    notifText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    notifText.ZIndex = 1003
-    notifText.Parent = notifFrame
-
-    -- Slide down animation (7-second display)
-    local function showNotification(message)
-        notifText.Text = message
-        notifFrame.Position = UDim2.new(0.5, -250, 0, -120)
-        
-        task.spawn(function()
-            -- Slide down
-            for i = 0, 20 do
-                local t = i / 20
-                local e = 1 - (1 - t) ^ 3
-                notifFrame.Position = UDim2.new(0.5, -250, 0, -120 + (150 * e))
-                task.wait(0.02)
-            end
-            
-            -- Display for 7 seconds
-            task.wait(7)
-            
-            -- Slide up
             for i = 0, 20 do
                 local t = i / 20
                 local e = t * t
@@ -2564,7 +2388,6 @@ task.spawn(function()
                             lastTime = msg.time
                             count = count + 1
                             
-                            -- Add to chat list
                             local label = Instance.new("TextLabel")
                             label.Size = UDim2.new(1, -12, 0, 24)
                             label.BackgroundTransparency = 1
@@ -2580,7 +2403,6 @@ task.spawn(function()
                             task.wait(0.05)
                             annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
                             
-                            -- Show top notification
                             showNotification(msg.text)
                         end
                     end
