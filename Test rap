@@ -41,7 +41,6 @@ local state = {
     blurOn = false, dofOn = false, neonOn = false,
 }
 
--- Black Liquid Glass Theme
 local T = {
     bg1     = Color3.fromRGB(15, 15, 20),
     bg2     = Color3.fromRGB(10, 10, 15),
@@ -63,7 +62,7 @@ gui.DisplayOrder = 999
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- ============ INTRO (black glass) ============
+-- ============ INTRO (single, black glass) ============
 local intro = Instance.new("Frame")
 intro.Size = UDim2.new(1, 0, 1, 0)
 intro.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -2096,7 +2095,7 @@ winOpen = true
 iconStroke.Color = T.bad
 
 -- ============================================
--- ANNOUNCE TAB (Black iPhone notification)
+-- ANNOUNCE TAB (Queue system + iPhone notif)
 -- ============================================
 task.spawn(function()
     local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -2112,7 +2111,7 @@ task.spawn(function()
         end
     end
 
-    -- ============ BLACK iPHONE-STYLE NOTIFICATION ============
+    -- Notification GUI
     local notifGui = Instance.new("ScreenGui")
     notifGui.Name = "AnnounceNotify"
     notifGui.ResetOnSpawn = false
@@ -2150,7 +2149,6 @@ task.spawn(function()
     notifGrad.Rotation = 45
     notifGrad.Parent = notifFrame
 
-    -- Glass shine
     local shine = Instance.new("Frame")
     shine.Size = UDim2.new(1, -32, 0, 26)
     shine.Position = UDim2.new(0, 16, 0, 8)
@@ -2161,7 +2159,6 @@ task.spawn(function()
     shine.Parent = notifFrame
     Instance.new("UICorner", shine).CornerRadius = UDim.new(0, 18)
 
-    -- App badge
     local appBadge = Instance.new("Frame")
     appBadge.Size = UDim2.new(0, 52, 0, 52)
     appBadge.Position = UDim2.new(0, 18, 0.5, -26)
@@ -2224,32 +2221,51 @@ task.spawn(function()
     notifText.ZIndex = 1003
     notifText.Parent = notifFrame
 
-    local function showNotification(message)
-        notifText.Text = message
-        notifFrame.Position = UDim2.new(0.5, -280, 0, -150)
+    -- Queue system
+    local notifQueue = {}
+    local notifRunning = false
+
+    local function processQueue()
+        if notifRunning then return end
+        notifRunning = true
         
         task.spawn(function()
-            -- Smooth slide down (ease-out cubic)
-            for i = 0, 30 do
-                local t = i / 30
-                local e = 1 - (1 - t) ^ 4
-                notifFrame.Position = UDim2.new(0.5, -280, 0, -150 + (180 * e))
-                task.wait(0.015)
+            while #notifQueue > 0 do
+                local message = table.remove(notifQueue, 1)
+                
+                notifText.Text = message
+                notifFrame.Position = UDim2.new(0.5, -280, 0, -150)
+                
+                -- Smooth slide down
+                for i = 0, 30 do
+                    local t = i / 30
+                    local e = 1 - (1 - t) ^ 4
+                    notifFrame.Position = UDim2.new(0.5, -280, 0, -150 + (180 * e))
+                    task.wait(0.015)
+                end
+                
+                task.wait(7)
+                
+                -- Smooth slide up
+                for i = 0, 30 do
+                    local t = i / 30
+                    local e = t * t * t
+                    notifFrame.Position = UDim2.new(0.5, -280, 0, 30 - (180 * e))
+                    task.wait(0.015)
+                end
+                
+                task.wait(0.2)
             end
-            
-            task.wait(7)
-            
-            -- Smooth slide up (ease-in cubic)
-            for i = 0, 30 do
-                local t = i / 30
-                local e = t * t * t
-                notifFrame.Position = UDim2.new(0.5, -280, 0, 30 - (180 * e))
-                task.wait(0.015)
-            end
+            notifRunning = false
         end)
     end
 
-    -- ============ ANNOUNCE TAB CONTENT ============
+    local function showNotification(message)
+        table.insert(notifQueue, message)
+        processQueue()
+    end
+
+    -- ANNOUNCE tab content
     local annScroll = Instance.new("ScrollingFrame")
     annScroll.Size = UDim2.new(1, -8, 1, -150)
     annScroll.Position = UDim2.new(0, 4, 0, 0)
