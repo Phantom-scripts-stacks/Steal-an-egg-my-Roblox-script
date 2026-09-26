@@ -2548,6 +2548,7 @@ task.spawn(function()
 
     local annSendStroke = Instance.new("UIStroke")
     annSendStroke.Color = Color3.fromRGB(255, 255, 255)
+
 -- ============================================
 -- ANNOUNCE TAB (old working version)
 -- ============================================
