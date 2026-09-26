@@ -2548,12 +2548,91 @@ task.spawn(function()
 
     local annSendStroke = Instance.new("UIStroke")
     annSendStroke.Color = Color3.fromRGB(255, 255, 255)
+-- ============================================
+-- ANNOUNCE TAB (old working version)
+-- ============================================
+task.spawn(function()
+    local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
+    local SECRET_KEY = "N30H4N_SECRET_2026_XyZ"
+    local OWNER_IDS = {11673546701}
+
+    local HttpService = game:GetService("HttpService")
+    local isOwner = false
+    for _, id in ipairs(OWNER_IDS) do
+        if player.UserId == id then
+            isOwner = true
+            break
+        end
+    end
+
+    local annScroll = Instance.new("ScrollingFrame")
+    annScroll.Size = UDim2.new(1, -8, 1, -150)
+    annScroll.Position = UDim2.new(0, 4, 0, 0)
+    annScroll.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
+    annScroll.BorderSizePixel = 0
+    annScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    annScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    annScroll.ScrollBarThickness = 6
+    annScroll.ScrollBarImageColor3 = T.accent
+    annScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    annScroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+    annScroll.Active = true
+    annScroll.ClipsDescendants = true
+    annScroll.ZIndex = 8
+    annScroll.Parent = announcePage
+    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 10)
+
+    local annLayout = Instance.new("UIListLayout")
+    annLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    annLayout.Padding = UDim.new(0, 3)
+    annLayout.Parent = annScroll
+
+    local annPad = Instance.new("UIPadding")
+    annPad.PaddingTop = UDim.new(0, 4)
+    annPad.PaddingBottom = UDim.new(0, 4)
+    annPad.PaddingLeft = UDim.new(0, 6)
+    annPad.PaddingRight = UDim.new(0, 6)
+    annPad.Parent = annScroll
+
+    local annInput = Instance.new("TextBox")
+    annInput.Size = UDim2.new(1, -8, 0, 34)
+    annInput.Position = UDim2.new(0, 4, 1, -116)
+    annInput.BackgroundColor3 = Color3.fromRGB(45, 30, 80)
+    annInput.BorderSizePixel = 0
+    annInput.Text = ""
+    annInput.PlaceholderText = "Type announcement..."
+    annInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    annInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
+    annInput.Font = Enum.Font.GothamSemibold
+    annInput.TextSize = 12
+    annInput.ClearTextOnFocus = false
+    annInput.Visible = isOwner
+    annInput.ZIndex = 8
+    annInput.Parent = announcePage
+    Instance.new("UICorner", annInput).CornerRadius = UDim.new(0, 8)
+
+    local annSend = Instance.new("TextButton")
+    annSend.Size = UDim2.new(1, -8, 0, 34)
+    annSend.Position = UDim2.new(0, 4, 1, -76)
+    annSend.BackgroundColor3 = T.accent
+    annSend.BorderSizePixel = 0
+    annSend.Text = "SEND ANNOUNCEMENT"
+    annSend.TextColor3 = Color3.fromRGB(255, 255, 255)
+    annSend.Font = Enum.Font.GothamBold
+    annSend.TextSize = 12
+    annSend.Visible = isOwner
+    annSend.AutoButtonColor = false
+    annSend.ZIndex = 8
+    annSend.Parent = announcePage
+    Instance.new("UICorner", annSend).CornerRadius = UDim.new(0, 8)
+
+    local annSendStroke = Instance.new("UIStroke")
+    annSendStroke.Color = T.accent2
     annSendStroke.Thickness = 1
-    annSendStroke.Transparency = 0.5
     annSendStroke.Parent = annSend
 
     annSend.MouseEnter:Connect(function()
-        annSend.BackgroundColor3 = Color3.fromRGB(200, 120, 255)
+        annSend.BackgroundColor3 = T.panelHi
     end)
     annSend.MouseLeave:Connect(function()
         annSend.BackgroundColor3 = T.accent
@@ -2570,10 +2649,8 @@ task.spawn(function()
     annStatus.ZIndex = 8
     annStatus.Parent = announcePage
 
-    -- Track messages that have been displayed in chat
-    local seenMessages = {}
+    local lastTime = 0
     local count = 0
-    local initialLoadDone = false
 
     local function send(msg)
         if not isOwner then return end
@@ -2613,62 +2690,32 @@ task.spawn(function()
                 })
             end)
             
-            if ok and result and result.Body then
+            if ok and result and result.Body and result.Body ~= "null" then
                 local ok2, data = pcall(function()
                     return HttpService:JSONDecode(result.Body)
                 end)
                 
-                if ok2 and data and type(data) == "table" then
-                    local messages = {}
-                    for key, msg in pairs(data) do
-                        if type(msg) == "table" and msg.text then
-                            msg._key = key
-                            table.insert(messages, msg)
-                        end
-                    end
-                    
-                    table.sort(messages, function(a, b)
-                        return (a.time or 0) < (b.time or 0)
-                    end)
-                    
-                    local newMessages = {}
-                    
-                    for _, msg in ipairs(messages) do
-                        local msgKey = msg._key or (msg.user .. "_" .. msg.text .. "_" .. tostring(msg.time))
-                        if not seenMessages[msgKey] then
-                            seenMessages[msgKey] = true
-                            table.insert(newMessages, msg)
-                            
-                            -- Add to chat list
+                if ok2 and data then
+                    for _, msg in pairs(data) do
+                        if msg.time and msg.time > lastTime then
+                            lastTime = msg.time
                             count = count + 1
+                            
                             local label = Instance.new("TextLabel")
                             label.Size = UDim2.new(1, -12, 0, 24)
                             label.BackgroundTransparency = 1
                             label.TextXAlignment = Enum.TextXAlignment.Left
                             label.Font = Enum.Font.Code
                             label.TextSize = 12
-                            label.TextColor3 = T.text
+                            label.TextColor3 = Color3.fromRGB(255, 200, 100)
                             label.Text = "[" .. msg.user .. "]: " .. msg.text
                             label.LayoutOrder = count
                             label.ZIndex = 9
                             label.Parent = annScroll
+                            
+                            task.wait(0.05)
+                            annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
                         end
-                    end
-                    
-                    if #newMessages > 0 then
-                        task.wait(0.05)
-                        annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
-                        
-                        -- I-show ang notification para sa PINAKA-LATEST na message lang
-                        if initialLoadDone then
-                            local latest = newMessages[#newMessages]
-                            showNotification(latest.text)
-                        end
-                    end
-                    
-                    -- Mark initial load as done pagkatapos ng unang GET
-                    if not initialLoadDone then
-                        initialLoadDone = true
                     end
                 end
             end
