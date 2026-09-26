@@ -447,12 +447,27 @@ sideStroke.Thickness = 1
 sideStroke.Transparency = 0.5
 sideStroke.Parent = sidebar
 
+local sideScroll = Instance.new("ScrollingFrame")
+sideScroll.Size = UDim2.new(1, 0, 1, 0)
+sideScroll.BackgroundTransparency = 1
+sideScroll.BorderSizePixel = 0
+sideScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+sideScroll.ScrollBarThickness = 3
+sideScroll.ScrollBarImageColor3 = T.accent
+sideScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+sideScroll.Active = true
+sideScroll.ZIndex = 7
+sideScroll.Parent = sidebar
+
 local sideList = Instance.new("UIListLayout")
 sideList.SortOrder = Enum.SortOrder.LayoutOrder
 sideList.Padding = UDim.new(0, 4)
-sideList.Parent = sidebar
+sideList.Parent = sideScroll
+sideList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    sideScroll.CanvasSize = UDim2.new(0, 0, 0, sideList.AbsoluteContentSize.Y + 16)
+end)
 
-local sidePad = Instance.new("UIPadding", sidebar)
+local sidePad = Instance.new("UIPadding", sideScroll)
 sidePad.PaddingTop = UDim.new(0, 8)
 sidePad.PaddingBottom = UDim.new(0, 8)
 sidePad.PaddingLeft = UDim.new(0, 6)
@@ -522,8 +537,8 @@ local function makeTab(name, order)
     btn.BorderSizePixel = 0
     btn.LayoutOrder = order
     btn.AutoButtonColor = false
-    btn.ZIndex = 7
-    btn.Parent = sidebar
+    btn.ZIndex = 8
+    btn.Parent = sideScroll
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
 
     local s = Instance.new("UIStroke")
@@ -539,7 +554,7 @@ local function makeTab(name, order)
     activeBar.BackgroundColor3 = T.accent2
     activeBar.BorderSizePixel = 0
     activeBar.BackgroundTransparency = 1
-    activeBar.ZIndex = 8
+    activeBar.ZIndex = 9
     activeBar.Parent = btn
     Instance.new("UICorner", activeBar).CornerRadius = UDim.new(1, 0)
 
@@ -549,8 +564,12 @@ local function makeTab(name, order)
     page.BackgroundTransparency = 1
     page.BorderSizePixel = 0
     page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    page.ScrollBarThickness = 3
+    page.ScrollBarThickness = 4
     page.ScrollBarImageColor3 = T.accent
+    page.ScrollingDirection = Enum.ScrollingDirection.Y
+    page.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+    page.Active = true
+    page.ClipsDescendants = true
     page.Visible = false
     page.ZIndex = 7
     page.Parent = contentFrame
@@ -598,6 +617,7 @@ local visPage  = makeTab("VIS", 5)
 local autoPage = makeTab("AUTO", 6)
 local miscPage = makeTab("MISC", 7)
 local ownerPage= makeTab("OWNER", 8)
+local announcePage = makeTab("ANNOUNCE", 9)
 
 pages["MAIN"].page.Visible = true
 pages["MAIN"].btn.BackgroundColor3 = T.accent
@@ -2046,7 +2066,6 @@ player.CharacterAdded:Connect(function(c)
 end)
 
 -- ============ LAUNCH ============
--- ============ LAUNCH ============
 pcall(playIntro)
 task.wait(4.2)
 if intro and intro.Parent then
@@ -2057,199 +2076,6 @@ win.Visible = true
 winOpen = true
 iconStroke.Color = T.bad
 
--- ============================================
--- ANNOUNCE TAB (Delta executor version)
--- ============================================
-task.spawn(function()
-    local FIREBASE_URL = "https://annoucement-d30e3-default-rtdb.asia-southeast1.firebasedatabase.app"
-    local OWNER_IDS = {11673546701}
-
-    local HttpService = game:GetService("HttpService")
-    local isOwner = false
-    for _, id in ipairs(OWNER_IDS) do
-        if player.UserId == id then
-            isOwner = true
-            break
-        end
-    end
-
-    local annScroll = Instance.new("ScrollingFrame")
-    annScroll.Size = UDim2.new(1, -8, 1, -150)
-    annScroll.Position = UDim2.new(0, 4, 0, 0)
-    annScroll.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
-    annScroll.BorderSizePixel = 0
-    annScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    annScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    annScroll.ScrollBarThickness = 6
-    annScroll.ScrollBarImageColor3 = T.accent
-    annScroll.ScrollingDirection = Enum.ScrollingDirection.Y
-    annScroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
-    annScroll.Active = true
-    annScroll.ClipsDescendants = true
-    annScroll.ZIndex = 8
-    annScroll.Parent = announcePage
-    Instance.new("UICorner", annScroll).CornerRadius = UDim.new(0, 10)
-
-    local annLayout = Instance.new("UIListLayout")
-    annLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    annLayout.Padding = UDim.new(0, 3)
-    annLayout.Parent = annScroll
-
-    local annPad = Instance.new("UIPadding")
-    annPad.PaddingTop = UDim.new(0, 4)
-    annPad.PaddingBottom = UDim.new(0, 4)
-    annPad.PaddingLeft = UDim.new(0, 6)
-    annPad.PaddingRight = UDim.new(0, 6)
-    annPad.Parent = annScroll
-
-    local annInput = Instance.new("TextBox")
-    annInput.Size = UDim2.new(1, -8, 0, 34)
-    annInput.Position = UDim2.new(0, 4, 1, -116)
-    annInput.BackgroundColor3 = Color3.fromRGB(45, 30, 80)
-    annInput.BorderSizePixel = 0
-    annInput.Text = ""
-    annInput.PlaceholderText = "Type announcement..."
-    annInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    annInput.PlaceholderColor3 = Color3.fromRGB(160, 140, 200)
-    annInput.Font = Enum.Font.GothamSemibold
-    annInput.TextSize = 12
-    annInput.ClearTextOnFocus = false
-    annInput.Visible = isOwner
-    annInput.ZIndex = 8
-    annInput.Parent = announcePage
-    Instance.new("UICorner", annInput).CornerRadius = UDim.new(0, 8)
-
-    local annSend = Instance.new("TextButton")
-    annSend.Size = UDim2.new(1, -8, 0, 34)
-    annSend.Position = UDim2.new(0, 4, 1, -76)
-    annSend.BackgroundColor3 = T.accent
-    annSend.BorderSizePixel = 0
-    annSend.Text = "SEND ANNOUNCEMENT"
-    annSend.TextColor3 = Color3.fromRGB(255, 255, 255)
-    annSend.Font = Enum.Font.GothamBold
-    annSend.TextSize = 12
-    annSend.Visible = isOwner
-    annSend.AutoButtonColor = false
-    annSend.ZIndex = 8
-    annSend.Parent = announcePage
-    Instance.new("UICorner", annSend).CornerRadius = UDim.new(0, 8)
-
-    local annSendStroke = Instance.new("UIStroke")
-    annSendStroke.Color = T.accent2
-    annSendStroke.Thickness = 1
-    annSendStroke.Parent = annSend
-
-    annSend.MouseEnter:Connect(function()
-        annSend.BackgroundColor3 = T.panelHi
-    end)
-    annSend.MouseLeave:Connect(function()
-        annSend.BackgroundColor3 = T.accent
-    end)
-
-    local annStatus = Instance.new("TextLabel")
-    annStatus.Size = UDim2.new(1, -8, 0, 20)
-    annStatus.Position = UDim2.new(0, 4, 1, -38)
-    annStatus.BackgroundTransparency = 1
-    annStatus.Text = isOwner and "You can send announcements." or "Read-only. Only owner can send."
-    annStatus.TextColor3 = isOwner and T.good or T.dim
-    annStatus.Font = Enum.Font.GothamMedium
-    annStatus.TextSize = 10
-    annStatus.ZIndex = 8
-    annStatus.Parent = announcePage
-
-    local lastTime = 0
-    local count = 0
-
-    local function send(msg)
-        if not isOwner then return end
-        local data = {
-            user = player.Name,
-            text = msg,
-            time = os.time(),
-            source = "NEOHAN-ANNOUNCE"
-        }
-        local ok = pcall(function()
-            request({
-                Url = FIREBASE_URL .. "/messages.json",
-                Method = "POST",
-                Body = HttpService:JSONEncode(data),
-                Headers = {["Content-Type"] = "application/json"}
-            })
-        end)
-        if ok then
-            annStatus.Text = "Sent!"
-            annStatus.TextColor3 = T.good
-        else
-            annStatus.Text = "Send failed."
-            annStatus.TextColor3 = T.bad
-        end
-        task.wait(1)
-        annStatus.Text = "You can send announcements."
-        annStatus.TextColor3 = T.good
-    end
-
-    task.spawn(function()
-        while task.wait(3) do
-            local ok, result = pcall(function()
-                return request({
-                    Url = FIREBASE_URL .. "/messages.json",
-                    Method = "GET"
-                })
-            end)
-            
-            if ok and result and result.Body and result.Body ~= "null" then
-                local ok2, data = pcall(function()
-                    return HttpService:JSONDecode(result.Body)
-                end)
-                
-                if ok2 and data then
-                    for _, msg in pairs(data) do
-                        if msg.time and msg.time > lastTime then
-                            lastTime = msg.time
-                            count = count + 1
-                            
-                            local label = Instance.new("TextLabel")
-                            label.Size = UDim2.new(1, -12, 0, 24)
-                            label.BackgroundTransparency = 1
-                            label.TextXAlignment = Enum.TextXAlignment.Left
-                            label.Font = Enum.Font.Code
-                            label.TextSize = 12
-                            label.TextColor3 = Color3.fromRGB(255, 200, 100)
-                            label.Text = "[" .. msg.user .. "]: " .. msg.text
-                            label.LayoutOrder = count
-                            label.ZIndex = 9
-                            label.Parent = annScroll
-                            
-                            task.wait(0.05)
-                            annScroll.CanvasPosition = Vector2.new(0, annScroll.AbsoluteCanvasSize.Y)
-                        end
-                    end
-                end
-            end
-        end
-    end)
-
-    annSend.MouseButton1Click:Connect(function()
-        if isOwner and #annInput.Text > 0 then
-            send(annInput.Text)
-            annInput.Text = ""
-        end
-    end)
-
-    annInput.FocusLost:Connect(function(enterPressed)
-        if enterPressed and isOwner and #annInput.Text > 0 then
-            send(annInput.Text)
-            annInput.Text = ""
-        end
-    end)
-end)
-    local annSend = Instance.new("TextButton")
-    annSend.Size = UDim2.new(1, -8, 0, 34)
-    annSend.Position = UDim2.new(0, 4, 1, -76)
-    annSend.BackgroundColor3 = T.accent
-    annSend.BorderSizePixel = 0
-    annSend.Text = "SEND ANNOUNCEMENT"
-    annSend.TextColor3 = Color3.fromRGB(255, 255, 255)
 -- ============================================
 -- ANNOUNCE TAB (Delta executor version)
 -- ============================================
